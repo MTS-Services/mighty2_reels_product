@@ -9,7 +9,7 @@
         <flux:navbar.item icon="home" href="{{ route('home') }}" wire:navigate>
             Home
         </flux:navbar.item>
-        <flux:navbar.item icon="rectangle-group" href="#" wire:navigate>
+        <flux:navbar.item icon="rectangle-group" href="{{ route('buttons') }}" wire:navigate>
             Buttons
         </flux:navbar.item>
     </flux:navbar>
