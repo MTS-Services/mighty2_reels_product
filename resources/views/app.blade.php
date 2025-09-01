@@ -58,7 +58,8 @@
     @stack('styles')
 </head>
 
-<body x-data @navigate.start="setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 0)" class="bg-white">
+<body x-data @navigate.start="setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 0)"
+    class="bg-white min-h-screen">
 
 
     @auth

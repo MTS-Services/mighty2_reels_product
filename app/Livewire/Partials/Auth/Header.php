@@ -7,6 +7,7 @@ use Livewire\Component;
 class Header extends Component
 {
     public string $pageSlug;
+    public bool $sidebarOpen = false;
 
     public function mount(string $pageSlug = '')
     {

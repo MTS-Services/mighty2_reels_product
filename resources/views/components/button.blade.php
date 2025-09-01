@@ -50,16 +50,15 @@
     if ($linkText) {
         // Link text style overrides everything - using custom orange
         $variantClasses =
-            'bg-transparent hover:text-[var(--color-orange-normal-hover)] focus:ring-[var(--color-orange-normal)] p-0';
+            'bg-transparent hover:text-[var(--color-orange-normal-hover)] focus:ring-[var(--color-orange-normal)] rounded-lg';
         $variantClasses .= ' text-[var(--color-orange-normal)]';
-        $sizeClasses = 'text-base'; // Override size for link text
     } elseif ($outline) {
         // Outline styles with custom colors
         $outlineVariants = [
             'primary' =>
                 'bg-transparent border text-[var(--color-orange-normal)] border-[var(--color-orange-normal)] hover:bg-[var(--color-orange-light)] focus:ring-[var(--color-orange-normal)] rounded-lg',
             'secondary' =>
-                'bg-transparent border text-[var(--color-orange-normal)] border-[var(--color-orange-light)] hover:bg-[var(--color-orange-light-hover)] focus:ring-[var(--color-orange-light)] rounded-lg',
+                'bg-transparent border text-[var(--color-orange-normal)] border-[var(--color-orange-normal)] hover:bg-[var(--color-orange-light-hover)] focus:ring-[var(--color-orange-light)] rounded-lg',
             'success' =>
                 'bg-transparent border border-green-500 text-green-600 hover:bg-green-50 focus:ring-green-500 rounded-lg',
             'danger' =>
@@ -76,7 +75,7 @@
             'primary' =>
                 'bg-[var(--color-orange-normal)] text-white hover:bg-[var(--color-orange-normal-hover)] focus:ring-[var(--color-orange-normal)] rounded-lg',
             'secondary' =>
-                'bg-[var(--color-orange-light)] text-[var(--color-orange-normal)] hover:bg-[var(--color-orange-light-hover)] focus:ring-[var(--color-orange-light)] rounded-lg',
+                'bg-[var(--color-orange-light)] text-[var(--color-orange-normal)] hover:bg-[var(--color-orange-light-hover)] focus:ring-[var(--color-orange-light)] rounded-lg border border-[var(--color-orange-normal)]',
             'success' => 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 rounded-lg',
             'danger' =>
                 'bg-[var(--color-red-normal)] text-white hover:bg-[var(--color-red-normal-hover)] focus:ring-[var(--color-red-normal)] rounded-lg',
@@ -86,97 +85,110 @@
         ];
 
         // Check if it's a predefined variant or custom classes
-        if (array_key_exists($variant, $solidVariants)) {
-            $variantClasses = $solidVariants[$variant];
-        } else {
-            // Treat as custom classes if not a predefined variant
-            $variantClasses = $variant;
-        }
-    }
-
-    // Additional modifiers
-    $modifierClasses = '';
-    if ($dashed && (str_contains($variantClasses, 'border') || $outline)) {
-        $modifierClasses .= ' border-dashed';
-    } elseif ($dashed) {
-        $modifierClasses .= ' border border-dashed border-gray-300';
-    }
-
-    if ($underline) {
-        $modifierClasses .= ' underline hover:no-underline';
-    }
-
-    if ($block) {
-        $modifierClasses .= ' w-full';
-    }
-
-    // Loading and disabled states
-    $stateClasses = '';
-    if ($disabled || $loading) {
-        $stateClasses .= ' opacity-50 cursor-not-allowed pointer-events-none';
-    }
-
-    // Combine all classes
-    $allClasses = trim(
-        $baseClasses . ' ' . $variantClasses . ' ' . $sizeClasses . ' ' . $modifierClasses . ' ' . $stateClasses,
-    );
-
-    // Icon size based on button size - using array approach
-    $iconSizes = [
-        'sm' => 'size-4',
-        'md' => 'size-5',
-        'lg' => 'size-6',
-        'xl' => 'size-7',
-    ];
-    $iconSize = $iconSizes[$size] ?? $iconSizes['md'];
-
-    // Loading spinner size based on button size
-    $spinnerSizes = [
-        'sm' => 'size-4',
-        'md' => 'size-5',
-        'lg' => 'size-6',
-        'xl' => 'size-7',
-    ];
-    $spinnerSize = $spinnerSizes[$size] ?? $spinnerSizes['md'];
-
-    // Icon margin classes
-    $iconMarginLeft = $iconPosition === 'left' ? 'mr-2' : '';
-    $iconMarginRight = $iconPosition === 'right' ? 'ml-2' : '';
-    $iconMarginClass = $iconMarginLeft . $iconMarginRight;
-
-    // Determine wire:navigate usage
-    $shouldUseWireNavigate =
-        $wireNavigate &&
-        $isLink &&
-        (!empty($route) ||
-            (!empty($href) &&
-                !str_starts_with($href, 'http') &&
-                !str_starts_with($href, 'mailto:') &&
-                !str_starts_with($href, 'tel:')));
-
-    // Prepare final attributes
-    $elementAttributes = [];
-
-    if ($isLink) {
-        $elementAttributes['href'] = $finalHref ?: '#';
-        $elementAttributes['target'] = $target;
-
-        if ($shouldUseWireNavigate) {
-            $elementAttributes['wire:navigate'] = true;
-        }
+    if (array_key_exists($variant, $solidVariants)) {
+        $variantClasses = $solidVariants[$variant];
     } else {
-        $elementAttributes['type'] = $type;
-
-        if ($disabled || $loading) {
-            $elementAttributes['disabled'] = true;
-        }
+        // Treat as custom classes if not a predefined variant
+        $variantClasses = $variant;
     }
+}
 
-    if ($action) {
-        $elementAttributes['wire:click'] = $action;
+// Additional modifiers
+$modifierClasses = '';
+if ($dashed && (str_contains($variantClasses, 'border') || $outline)) {
+    $modifierClasses .= ' border-dashed';
+} elseif ($dashed) {
+    $modifierClasses .= ' border border-dashed border-gray-300';
+}
+
+if ($underline) {
+    $modifierClasses .= ' underline hover:no-underline';
+}
+
+if ($block) {
+    $modifierClasses .= ' w-full';
+}
+
+// Loading and disabled states
+$stateClasses = '';
+$cursorClasses = ' cursor-pointer ';
+if ($disabled || $loading) {
+    $stateClasses .= ' opacity-50 pointer-events-none';
+    $cursorClasses = ' cursor-not-allowed ';
+}
+
+// Combine all classes
+$allClasses = trim(
+    $baseClasses .
+        ' ' .
+        $variantClasses .
+        ' ' .
+        $sizeClasses .
+        ' ' .
+        $modifierClasses .
+        ' ' .
+        $stateClasses .
+        ' ' .
+        $cursorClasses .
+        ' flex items-center justify-center gap-3 ',
+);
+
+// Icon size based on button size - using array approach
+$iconSizes = [
+    'sm' => 'size-4',
+    'md' => 'size-5',
+    'lg' => 'size-6',
+    'xl' => 'size-7',
+];
+$iconSize = $iconSizes[$size] ?? $iconSizes['md'];
+
+// Loading spinner size based on button size
+$spinnerSizes = [
+    'sm' => 'size-4',
+    'md' => 'size-5',
+    'lg' => 'size-6',
+    'xl' => 'size-7',
+];
+$spinnerSize = $spinnerSizes[$size] ?? $spinnerSizes['md'];
+
+// Icon margin classes
+$iconMarginLeft = $iconPosition === 'left' ? 'mr-2' : '';
+$iconMarginRight = $iconPosition === 'right' ? 'ml-2' : '';
+$iconMarginClass = $iconMarginLeft . $iconMarginRight;
+
+// Determine wire:navigate usage
+$shouldUseWireNavigate =
+    $wireNavigate &&
+    $isLink &&
+    (!empty($route) ||
+        (!empty($href) &&
+            !str_starts_with($href, 'http') &&
+            !str_starts_with($href, 'mailto:') &&
+            !str_starts_with($href, 'tel:')));
+
+// Prepare final attributes
+$elementAttributes = [];
+
+if ($isLink) {
+    $elementAttributes['href'] = $finalHref ?: '#';
+    $elementAttributes['target'] = $target;
+
+    if ($shouldUseWireNavigate) {
+        $elementAttributes['wire:navigate'] = true;
     }
+} else {
+    $elementAttributes['type'] = $type;
 
-    $elementAttributes['class'] = $allClasses;
+    if ($disabled || $loading) {
+        $elementAttributes['disabled'] = true;
+    }
+}
+
+if ($action) {
+    $elementAttributes['wire:click'] = $action;
+}
+
+$elementAttributes['class'] = $allClasses;
 @endphp
 
 @if ($isLink)
@@ -188,9 +200,10 @@
             </span>
         @endif
 
-        <span class="flex items-center justify-center {{ $loading && $action ? 'wire:loading.class=opacity-0' : '' }}"
+        <span
+            class="flex items-center justify-center gap-3 {{ $loading && $action ? 'wire:loading.class=opacity-0' : '' }}"
             @if ($action) wire:target="{{ $action }}" @endif>
-            
+
             @if ($icon && $iconPosition === 'left')
                 {{-- <flux:icon name="{{ $icon }}" class="{{ $iconMarginClass }} {{ $iconSize }} {{ $iconClasses }}" /> --}}
             @endif
@@ -211,9 +224,10 @@
             </span>
         @endif
 
-        <span class="flex items-center justify-center {{ $loading || $action ? 'wire:loading.class=opacity-0' : '' }}"
+        <span
+            class="flex items-center justify-center gap-3 {{ $loading || $action ? 'wire:loading.class=opacity-0' : '' }}"
             @if ($action) wire:target="{{ $action }}" @endif>
-            
+
             @if ($icon && $iconPosition === 'left')
                 {{-- <flux:icon name="{{ $icon }}" class="{{ $iconMarginClass }} {{ $iconSize }} {{ $iconClasses }}" /> --}}
             @endif
