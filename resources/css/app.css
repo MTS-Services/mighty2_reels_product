@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 @import 'tailwindcss';
 @plugin "daisyui";
 @import '../../vendor/livewire/flux/dist/flux.css';
@@ -29,6 +31,52 @@
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
+
+
+    /* ==============================================
+    *                Custom Colors
+    * ==============================================  */
+
+    /* Orange Colors */
+    --color-orange-light: #FFF0E6;
+    --color-orange-light-hover: #FFE8D9;
+    --color-orange-light-active: #FFD0B0;
+    --color-orange-normal: #FF6600;
+    --color-orange-normal-hover: #E65C00;
+    --color-orange-normal-active: #CC5200;
+    --color-orange-dark: #BF4D00;
+    --color-orange-dark-hover: #993D00;
+    --color-orange-dark-active: #732E00;
+    --color-orange-darker: #592400;
+
+    /* Yellow Colors */
+    --color-yellow-light: #FEF5E7;
+    --color-yellow-light-hover: #FEF0DA;
+    --color-yellow-light-active: #FCE1B3;
+    --color-yellow-normal: #F59E0B;
+    --color-yellow-normal-hover: #DD8E0A;
+    --color-yellow-normal-active: #C47E09;
+    --color-yellow-dark: #B87708;
+    --color-yellow-dark-hover: #935F07;
+    --color-yellow-dark-active: #6E4705;
+    --color-yellow-darker: #563704;
+
+    /* Red Colors */
+    --color-red-light: #FAE8E8;
+    --color-red-light-hover: #F7DDDD;
+    --color-red-light-active: #EEB9B9;
+    --color-red-normal: #C91C1C;
+    --color-red-normal-hover: #B51919;
+    --color-red-normal-active: #A11616;
+    --color-red-dark: #971515;
+    --color-red-dark-hover: #791111;
+    --color-red-dark-active: #5A0D0D;
+    --color-red-darker: #460A0A;
+
+    /* ==============================================
+    *                FontFamily
+    * ==============================================  */
+    --font-inter: 'Inter', sans-serif;
 }
 
 @layer theme {
@@ -55,7 +103,7 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
         scroll-behavior: smooth;
-        transition: all 0.2s linear;
+        @apply font-inter scroll-smooth transition-all duration-300 ease-linear;
     }
 }
 
