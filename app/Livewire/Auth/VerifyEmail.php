@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.auth')]
+#[Layout('app', ['title' => 'Verify Email', 'page_slug' => 'verify-email'])]
+
 class VerifyEmail extends Component
 {
     /**

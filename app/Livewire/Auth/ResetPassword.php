@@ -12,7 +12,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
-#[Layout('components.layouts.auth')]
+#[Layout('app', ['title' => 'Reset Password', 'page_slug' => 'reset-password'])]
+
 class ResetPassword extends Component
 {
     #[Locked]
