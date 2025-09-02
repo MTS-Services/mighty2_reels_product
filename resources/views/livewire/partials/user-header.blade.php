@@ -12,7 +12,7 @@
                     </x-button>
 
                     <select
-                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full select-lg flex-1 bg-orange-light/20">
+                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full flex-1 bg-orange-light/20">
                         <option value="">Location</option>
                         <option value="">1246, New York</option>
                         <option value="">1346, New York</option>
