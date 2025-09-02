@@ -25,8 +25,8 @@
                             <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
                                 class="w-11 h-11 rounded-full object-cover">
                             <div class="flex flex-col">
-                                <span class="text-lg font-medium">Admin Name</span>
-                                <span class="text-xs">example@gmail.com</span>
+                                <span class="text-lg font-medium text-black">Admin Name</span>
+                                <span class="text-xs text-black">example@gmail.com</span>
                             </div>
                         </div>
 

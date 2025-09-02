@@ -30,7 +30,7 @@
         }
 
         :root {
-            --livewire-progress_bar_color: #C7AE6A;
+            --livewire-progress_bar_color: var(--color-orange-normal);
         }
 
         #nprogress .bar {
@@ -59,7 +59,7 @@
 </head>
 
 <body x-data @navigate.start="setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 0)"
-    class="bg-white min-h-screen">
+    class="bg-white min-h-screen font-inter">
 
 
     @auth
@@ -72,7 +72,7 @@
         @livewire('partials.guest-header', ['pageSlug' => $page_slug])
     @endauth
 
-    <main class="container max-w-[1200px] w-full mx-auto p-4 mt-5 font-playfair">
+    <main class="py-6">
         {{ $slot }}
     </main>
 
@@ -81,11 +81,11 @@
     <div id="navigation-loader" x-transition.opacity
         class="fixed inset-0 z-50 flex items-center justify-center bg-accent-foreground/50 backdrop-blur-md">
         <div class="flex space-x-2">
-            <div class="w-4 h-4 rounded-full bg-[#C7AE6A] animate-[bounce-dot_1.2s_infinite]"
+            <div class="w-4 h-4 rounded-full bg-orange-normal animate-[bounce-dot_1.2s_infinite]"
                 style="animation-delay: -0.8s;"></div>
-            <div class="w-4 h-4 rounded-full bg-[#C7AE6A] animate-[bounce-dot_1.2s_infinite]"
+            <div class="w-4 h-4 rounded-full bg-orange-normal animate-[bounce-dot_1.2s_infinite]"
                 style="animation-delay: -0.4s;"></div>
-            <div class="w-4 h-4 rounded-full bg-[#C7AE6A] animate-[bounce-dot_1.2s_infinite]"></div>
+            <div class="w-4 h-4 rounded-full bg-orange-normal animate-[bounce-dot_1.2s_infinite]"></div>
         </div>
     </div>
 
