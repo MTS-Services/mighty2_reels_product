@@ -7,7 +7,7 @@
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
                 <div class="items-center gap-9 flex-1 hidden lg:flex">
-                    <x-button variant="secondary" size="lg" class="!rounded-full">
+                    <x-button variant="secondary" class="!rounded-full">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
 
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <x-button variant="secondary" size="lg" class="!rounded-full !hidden md:!flex lg:!hidden">
+                    <x-button variant="secondary" class="!rounded-full !hidden md:!flex lg:!hidden">
                         <flux:icon name="heart" class="fill-orange-normal" />
                     </x-button>
 
