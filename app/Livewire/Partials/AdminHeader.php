@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Livewire\Partials\Auth;
+namespace App\Livewire\Partials;
 
 use Livewire\Component;
 
-class Header extends Component
+class AdminHeader extends Component
 {
     public string $pageSlug;
     public bool $sidebarOpen = false;
+    public bool $openProfileDropdown = false;
 
     public function mount(string $pageSlug = '')
     {
@@ -16,6 +17,6 @@ class Header extends Component
 
     public function render()
     {
-        return view('livewire.partials.auth.header');
+        return view('livewire.partials.admin-header');
     }
 }

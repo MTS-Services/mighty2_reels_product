@@ -63,21 +63,20 @@
 
 
     @auth
-        @livewire('partials.auth.header', ['pageSlug' => $page_slug])
+        @if (Route::is('admin.*'))
+            @livewire('partials.admin-header', ['pageSlug' => $page_slug])
+        @else
+            @livewire('partials.user-header', ['pageSlug' => $page_slug])
+        @endif
     @else
-        @livewire('partials.guest.header', ['pageSlug' => $page_slug])
+        @livewire('partials.guest-header', ['pageSlug' => $page_slug])
     @endauth
 
     <main class="container max-w-[1200px] w-full mx-auto p-4 mt-5 font-playfair">
         {{ $slot }}
     </main>
 
-    @auth
-        @livewire('partials.auth.footer')
-    @else
-        @livewire('partials.guest.footer')
-    @endauth
-
+    @livewire('partials.footer')
 
     <div id="navigation-loader" x-transition.opacity
         class="fixed inset-0 z-50 flex items-center justify-center bg-accent-foreground/50 backdrop-blur-md">
