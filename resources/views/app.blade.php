@@ -72,7 +72,7 @@
         @livewire('partials.guest-header', ['pageSlug' => $page_slug])
     @endauth
 
-    <main class="py-6">
+    <main>
         {{ $slot }}
     </main>
 
