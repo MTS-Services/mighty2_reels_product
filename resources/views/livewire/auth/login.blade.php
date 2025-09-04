@@ -33,12 +33,15 @@
 
                      <div class="mb-6">
                         <div class="flex justify-between items-center mb-2">
-                            <label for="password" class="block text-gray-700 font-semibold text-sm">Password</label>
+                            
+                            <label for="email-address" class="block  text-sm font-medium text-gray-700 ">
+                            Password
+                        </label>
                             <a href="{{ route('password.request') }}"  wire:navigate class="text-sm text-gray-500 hover:underline">Forgot password?</a>
                         </div>
-                        <div class="relative">
-                            <input type="password" id="password"
-                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-500" 
+                        <div class="relative"> 
+                                <input id="password" name="email" type="email" autocomplete="email" required
+                                class="appearance-none relative block w-full p-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                 placeholder="Enter your password">
                             <span
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer">
