@@ -36,10 +36,14 @@
                     </div>
 
                     <div>
-                        <button type="submit"
-                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
+                        {{-- <button type="submit"
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-100 bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
                             Request Password Reset Link
-                        </button>
+                        </button> --}}
+
+                        <x-button variant="primary" class="w-full mt-3">
+                            <span>Request Password Reset Link</span>
+                        </x-button>
                     </div>
                 </form>
 

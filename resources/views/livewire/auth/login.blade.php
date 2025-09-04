@@ -58,10 +58,14 @@
                     </div>
 
                     <div>
-                        <button type="submit"
+                        {{-- <button type="submit"
                             class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
                             Login
-                        </button>
+                        </button> --}}
+
+                        <x-button variant="primary" class="w-full mt-3">
+                            <span>Login</span>
+                        </x-button>
                     </div>
 
                     <x-button variant="secondary" class="w-full mt-3">

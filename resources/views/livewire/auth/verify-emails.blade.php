@@ -24,18 +24,26 @@
                      
 
                     <div>
-                        <button type="submit"
+                        {{-- <button type="submit"
                             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
                             Resend Verification Code
-                        </button>
+                        </button> --}}
+
+                        <x-button variant="primary" class="w-full mt-3">
+                            <span>Resend Verification Code</span>
+                        </x-button>
                     </div>
                 </form>
 
                 <div>
-                    <button type="button"
+                    {{-- <button type="button"
                         class="group relative w-full flex justify-center py-2 px-4 border border-gray-100 text-sm font-medium rounded-md  bg-white  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 hover:bg-orange-100 text-orange-500">
                         Change Email Address
-                    </button>
+                    </button> --}}
+
+                    <x-button variant="secondary" class="w-full mt-3">
+                        <span>Change Email Address</span>  
+                    </x-button>
                 </div>
             </div>
         </div>
