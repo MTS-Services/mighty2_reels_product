@@ -1,7 +1,7 @@
 
 <section>
     <!-- Main Container -->
-    <div class="flex flex-col md:flex-row sm:h-[calc(100vh-66px)]">
+    <div class="flex flex-col justify-center sm:justify-start md:flex-row h-[calc(100vh-66px)]">
 
         <!-- Left Column: Image -->
         <div class="hidden md:flex md:w-1/2 bg-cover bg-center " style="background-image: url('{{ asset('assets/images/Forget_Password.png') }}">
