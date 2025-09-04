@@ -1,6 +1,6 @@
-<section>
+<section class="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6 md:p-10">
     <div class="flex">
-        <div class="hidden sm:block">
+        <div class="hidden sm:block lg:w-1/2">
             <img src="{{ asset('assets/images/header_login.png') }}" alt="images" class="w-[1100px] h-[881px]">
         </div>
 
