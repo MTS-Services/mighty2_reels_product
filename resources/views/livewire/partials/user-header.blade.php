@@ -7,12 +7,12 @@
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
                 <div class="items-center gap-9 flex-1 hidden lg:flex">
-                    <x-button variant="secondary" size="lg" class="!rounded-full">
+                    <x-button variant="secondary" class="!rounded-full">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
 
                     <select
-                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full select-lg flex-1 bg-orange-light/20">
+                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full flex-1 bg-orange-light/20">
                         <option value="">Location</option>
                         <option value="">1246, New York</option>
                         <option value="">1346, New York</option>
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <x-button variant="secondary" size="lg" class="!rounded-full !hidden md:!flex lg:!hidden">
+                    <x-button variant="secondary" class="!rounded-full !hidden md:!flex lg:!hidden">
                         <flux:icon name="heart" class="fill-orange-normal" />
                     </x-button>
 
