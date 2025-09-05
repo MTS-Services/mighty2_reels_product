@@ -43,7 +43,8 @@
                         x-transition:leave-end="grid-rows-[0fr] opacity-0"
                         class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                         <div class="p-4 space-y-2 overflow-hidden">
-                            <x-button class="w-full" variant="secondary" size="sm">
+                            <x-button class="w-full" variant="secondary" size="sm"
+                                href="{{ route('admin.dashboard') }}" wire:navigate>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
                             <flux:separator variant="subtle" />
@@ -87,7 +88,7 @@
                 </div>
                 <flux:separator variant="subtle" class="my-2" />
                 <div class="px-4 flex flex-col items-start gap-4 flex-1">
-                    <x-button
+                    <x-button href="{{ route('admin.dashboard') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
@@ -99,7 +100,7 @@
                     </x-button>
                     <flux:spacer />
                     <flux:separator variant="subtle" class="my-2" />
-                    <x-button class="w-full mb-3" variant="secondary" size="lg">
+                    <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
                         <flux:icon name="power" /> Logout
                     </x-button>
                 </div>

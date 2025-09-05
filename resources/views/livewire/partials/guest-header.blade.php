@@ -32,17 +32,19 @@
         </div>
     </header>
     {{-- Search Area --}}
-    <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2">
-        <div class="flex items-center gap-4">
-            <form class="flex-1">
-                <input type="search" placeholder="Search for products..."
-                    class="w-full px-4 py-2 text-gray-800 rounded-full outline outline-orange-normal focus:ring-2 focus:ring-orange-normal" />
-            </form>
-            <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
-                <flux:icon name="funnel" />
-            </x-button>
+    @if (Route::is('home'))
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] my-7 space-y-2">
+            <div class="flex items-center gap-4">
+                <form class="flex-1">
+                    <input type="search" placeholder="Search for products..."
+                        class="w-full px-4 py-2 text-gray-800 rounded-full outline outline-orange-normal focus:ring-2 focus:ring-orange-normal" />
+                </form>
+                <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
+                    <flux:icon name="funnel" />
+                </x-button>
+            </div>
         </div>
-    </div>
+    @endif
     <aside class="fixed inset-0 z-50" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }" x-show="sidebarOpen" x-cloak
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
         x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
