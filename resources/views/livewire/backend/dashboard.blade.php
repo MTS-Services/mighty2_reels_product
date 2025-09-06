@@ -1,21 +1,9 @@
 <section>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        orange: {
-                            500: '#f97316',
-                            600: '#ea580c'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <div x-data="productManager()" class="max-w-7xl mx-auto p-6">
+
         <!-- Header Section -->
-        <div class="flex justify-between items-center mb-8">
+
+        {{-- <div class="flex justify-between items-center mb-8">
             <h1 class="text-xl lg:text-3xl font-semibold text-gray-900">Manage your products and reels</h1>
             <div class="flex gap-3">
                 <button
@@ -24,6 +12,26 @@
                 </button>
                 <button
                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md font-medium transition-colors">
+                    Add area
+                </button>
+            </div>
+            
+        </div> --}}
+
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+            <h1
+                class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
+                Manage your products and reels
+            </h1>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button
+                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+                    Add a new product
+                </button>
+
+                <button
+                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
                     Add area
                 </button>
             </div>
@@ -88,12 +96,10 @@
         <div class="flex justify-between items-center">
             <span class="text-sm text-orange-500">Showing 1 to 6 of 4 results</span>
             <div class="flex gap-2">
-                <button
-                    class="px-3 py-1.5 text-sm border border-[#FF6600] text-[#FF6600] rounded-md transition-colors">
+                <button class="px-3 py-1.5 text-sm border border-[#FF6600] text-[#FF6600] rounded-md transition-colors">
                     Previous
                 </button>
-                <button
-                    class="px-3 py-1.5 text-sm border border-[#FF6600] text-[#FF6600] rounded-md transition-colors">
+                <button class="px-3 py-1.5 text-sm border border-[#FF6600] text-[#FF6600] rounded-md transition-colors">
                     Next
                 </button>
             </div>
