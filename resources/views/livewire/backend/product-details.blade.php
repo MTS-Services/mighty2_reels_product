@@ -1,17 +1,9 @@
 <section>
-    <!DOCTYPE html>
-    <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Vitamin C-100ML-Original | ReelShop</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
 
     <body class="bg-gray-50 min-h-screen">
         <!-- Header -->
-        <header class="bg-white shadow-sm">
+        <header>
             <div class="max-w-6xl mx-auto px-4 py-4">
                 <button class="flex items-center text-orange-500 hover:text-orange-600 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,10 +21,9 @@
                 <!-- Product Image Section -->
                 <div>
                     <!-- Main Product Image -->
-                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 mb-6">
+                    <div class=" from-orange-50 to-red-50 rounded-2xl p-8 mb-6">
                         <img src="{{ asset('assets/images/Frames.png') }}" alt="">
                     </div>
-
 
                     <!-- Thumbnail Navigation -->
                     <div class="flex space-x-3 justify-center">
@@ -105,7 +96,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class=" border-t mt-30">
+        <footer class="bg-[#EFEFEF] p-2 mt-30">
             <div class="max-w-6xl mx-auto px-4 py-2">
                 <p class="text-center text-orange-500 font-medium">© 2025 Reelshop. All rights reserved.</p>
             </div>
