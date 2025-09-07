@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="logo" class="w-8 h-8">
-                <h1 class="text-2xl font-bold">Products</h1>
+                <h1 class="text-2xl font-bold text-gray-400">Products</h1>
             </div>
             <div class="flex items-center gap-2">
                 <flux:button wire:click="create" variant="primary" class="w-full">
