@@ -18,10 +18,17 @@
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
+          .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;     /* Firefox */
+    }
 
     </style>
 
-    <section class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
+    <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
         @php
             $videos = [
                 [
