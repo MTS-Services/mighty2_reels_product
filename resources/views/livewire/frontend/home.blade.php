@@ -18,9 +18,10 @@
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
+
     </style>
 
-    <section class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6">
+    <section class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
         @php
             $videos = [
                 [
@@ -42,7 +43,8 @@
 
                 [
                     'id' => 3,
-                    'url' => 'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-in-a-forest-in-autumn-24535-large.mp4',
+                    'url' =>
+                        'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-in-a-forest-in-autumn-24535-large.mp4',
                     'title' => 'Minimalist Masterpiece: The Zenith Series',
                     'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
                     'favourite' => false,
