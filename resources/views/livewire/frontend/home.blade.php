@@ -21,10 +21,10 @@
     </style>
 
     <!-- Video Description View -->
-    <template x-if="$wire.showVideoDescription">
+    <template x-if="$wire.showVideo">
         <div class="flex flex-col justify-center items-center">
             <div
-                class="video-container w-full h-[calc(100vh-100px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
+                class="video-container w-full h-[calc(100vh-160px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
                 <!-- Heart Icon -->
                 <div class="absolute top-4 right-4 z-20">
                     <button @click="$wire.toggleFavourite()"
