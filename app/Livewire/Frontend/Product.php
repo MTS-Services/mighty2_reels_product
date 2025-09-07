@@ -10,11 +10,11 @@ class Product extends Component
 {
     
 
-    public $showVideoDescription = true;
+    public $productDetails = true;
     public $favourite = false;
     public function toggleVideoDescription()
     {
-        $this->showVideoDescription = !$this->showVideoDescription;
+        $this->productDetails = !$this->productDetails;
     }
     public function toggleFavourite()
     {
@@ -22,7 +22,7 @@ class Product extends Component
     }
     public function render()
     {
-        // dd($this->showVideoDescription);
+        // dd($this->productDetails);
         return view('livewire.frontend.product');
     }
 }

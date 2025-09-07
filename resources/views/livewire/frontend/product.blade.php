@@ -49,8 +49,8 @@
             ],
         ];
     @endphp
-
-    @if ($showVideoDescription)
+    {{-- product details --}}
+    @if ($productDetails)
         <div class="w-full max-w-lg mx-auto not-first: overflow-hidden" x-data="{
             isFavorited: @json($favourite),
             isExpanded: false,
