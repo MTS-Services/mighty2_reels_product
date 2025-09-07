@@ -2,16 +2,16 @@
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
-                    #ff6b35 0%,
-                    #ff6b35 var(--progress, 0%),
-                    #4a4a4a var(--progress, 0%),
-                    #4a4a4a 100%);
+                #ff6b35 0%,
+                #ff6b35 var(--progress, 0%),
+                #4a4a4a var(--progress, 0%),
+                #4a4a4a 100%);
         }
 
         .video-overlay {
             background: linear-gradient(to bottom,
-                    transparent 0%,
-                    rgba(0, 0, 0, 0.3) 100%);
+                transparent 0%,
+                rgba(0, 0, 0, 0.3) 100%);
         }
 
         .play-button {
@@ -50,10 +50,9 @@
         ];
     @endphp
 
-    <!-- এখানে default show হবে Product View -->
-    <template x-if="$wire.showVideoDescription">
+    @if ($showVideoDescription)
         <div class="w-full max-w-lg mx-auto not-first: overflow-hidden" x-data="{
-            isFavorited: $wire.favourite,
+            isFavorited: @json($favourite),
             isExpanded: false,
             currentIndex: 0,
             images: [
@@ -69,11 +68,9 @@
             nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
         }">
 
-            <!-- Hero Image Section -->
             <div class="relative gradient-bg h-[calc(50vh)] flex items-center justify-center overflow-hidden rounded-xl"
                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
 
-                <!-- Navigation Arrows -->
                 <button @click="prevImage"
                     class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg transition-all duration-200">
                     <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +87,6 @@
                     </svg>
                 </button>
 
-                <!-- Favorite Button -->
                 <button @click="toggleFavorite"
                     class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200"
                     :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
@@ -102,11 +98,9 @@
                     </svg>
                 </button>
 
-                <!-- Product Image -->
                 <img :src="images[currentIndex]" alt="Product Image"
                     class="w-full h-full object-cover transition-all duration-500">
 
-                <!-- Scroll to Video Button -->
                 <span @click="$wire.toggleVideoDescription()"
                     class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg transition-all duration-200 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +110,6 @@
                 </span>
             </div>
 
-            <!-- Product Information -->
             <div class="py-4">
                 <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">
                     Astra Chrono – Premium Stainless Steel Watch
@@ -141,10 +134,7 @@
                 </div>
             </div>
         </div>
-    </template>
-
-    <!-- Video Reels Section (loop all dummy videos) -->
-    <template x-if="!$wire.showVideoDescription">
+    @else
         <section class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-100px)] pt-0.5 space-y-6 scroll-smooth">
             @foreach ($videos as $video)
                 <div class="snap-start pb-0.5" x-data="videoController()">
@@ -152,13 +142,12 @@
                         <div
                             class="video-container w-full h-[calc(100vh-100px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
 
-                            <!-- Favourite -->
                             <div class="absolute top-4 right-4 z-20">
-                                <button @click="$wire.toggleFavourite('{{ $video['id'] }}')"
+                                <button @click="$wire.toggleFavourite()"
                                     class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl"
-                                    :class="$wire.favourite['{{ $video['id'] }}'] ? 'text-red-500' : 'text-gray-800'">
+                                    :class="$wire.favourite() ? 'text-red-500' : 'text-gray-800'">
                                     <svg width="20" height="20" viewBox="0 0 24 24"
-                                        :fill="$wire.favourite['{{ $video['id'] }}'] ? 'currentColor' : 'none'"
+                                        :fill="$wire.favourite() ? 'currentColor' : 'none'"
                                         stroke="currentColor" stroke-width="2">
                                         <path
                                             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
@@ -167,7 +156,6 @@
                                 </button>
                             </div>
 
-                            <!-- Video -->
                             <div class="relative overflow-hidden bg-black h-full">
                                 <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
                                     @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
@@ -179,7 +167,6 @@
 
                                 <div class="video-overlay absolute inset-0 pointer-events-none"></div>
 
-                                <!-- Play Btn -->
                                 <button @click="togglePlay()"
                                     class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                     :style="{ opacity: isPlaying ? '0' : '1' }">
@@ -193,7 +180,6 @@
                                     </svg>
                                 </button>
 
-                                <!-- Info -->
                                 <div
                                     class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
                                     <div class="mb-4">
@@ -217,7 +203,6 @@
                                         </p>
                                     </div>
 
-                                    <!-- Progress -->
                                     <div class="relative">
                                         <div class="flex items-center space-x-3">
                                             <button @click="togglePlay()"
@@ -243,13 +228,12 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             @endforeach
         </section>
-    </template>
+    @endif
 
     <script>
         function videoController() {
