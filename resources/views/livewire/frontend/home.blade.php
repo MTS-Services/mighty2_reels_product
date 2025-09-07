@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="videoController()">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -20,105 +20,133 @@
         }
     </style>
 
-    <!-- Video Description View -->
-    <template x-if="$wire.showVideo">
-        <div class="flex flex-col justify-center items-center">
-            <div
-                class="video-container w-full h-[calc(100vh-160px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
-                <!-- Heart Icon -->
-                <div class="absolute top-4 right-4 z-20">
-                    <button @click="$wire.toggleFavourite()"
-                        class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl"
-                        :class="$wire.favourite ? 'text-red-500' : 'text-gray-800'">
-                        <svg width="20" height="20" viewBox="0 0 24 24"
-                            :fill="$wire.favourite ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+    <section class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6">
+        @php
+            $videos = [
+                [
+                    'id' => 1,
+                    'url' => asset('assets/videos/PinDown.io_@malinmp4.mp4'),
+                    'title' => 'Timeless Elegance: The Chronos Collection',
+                    'description' =>
+                        'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
+                    'favourite' => false,
+                ],
+                [
+                    'id' => 2,
+                    'url' => 'https://www.w3schools.com/html/mov_bbb.mp4', // direct video file link
+                    'title' => 'Urban Edge: The City Explorer',
+                    'description' =>
+                        'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
+                    'favourite' => true,
+                ],
 
-                <!-- Video Section -->
-                <div class="relative overflow-hidden bg-black h-full">
-                    <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
-                        @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
-                        @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                        class="w-full h-full object-cover" loop muted playsinline>
-                        <source src="{{ asset('assets/videos/PinDown.io_@malinmp4.mp4') }}" type="video/mp4" />
-                        Your browser does not support the video tag.
-                    </video>
+                [
+                    'id' => 3,
+                    'url' => 'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-in-a-forest-in-autumn-24535-large.mp4',
+                    'title' => 'Minimalist Masterpiece: The Zenith Series',
+                    'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
+                    'favourite' => false,
+                ],
+            ];
+        @endphp
 
-                    <!-- Video Overlay -->
-                    <div class="video-overlay absolute inset-0 pointer-events-none"></div>
+        @foreach ($videos as $video)
+            <div class="snap-start pb-2" x-data="videoController()">
+                <div class="flex flex-col justify-center items-center">
+                    <div
+                        class="video-container w-full h-[calc(100vh-155px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
 
-                    <!-- Play Button -->
-                    <button @click="togglePlay()"
-                        class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
-                        :style="{ opacity: isPlaying ? '0' : '1' }">
-                        <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
-                            class="text-gray-800">
-                            <path d="M8 5v14l11-7z" />
-                        </svg>
-                        <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
-                            class="text-gray-800">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                        </svg>
-                    </button>
-
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                        <!-- Content Section -->
-                        <div class="mb-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <h2 class="text-white text-2xl font-bold leading-tight">
-                                    Discover Timeless Style
-                                </h2>
-                                <a href="{{ route('product') }}" 
-                                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-colors text-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-
-                                </a>
-                            </div>
-                            <p class="text-gray-300 text-sm leading-relaxed">
-                                Explore our curated watch collection — where fashion meets
-                                precision
-                            </p>
+                        <div class="absolute top-4 right-4 z-20">
+                            <button @click="$wire.toggleFavourite('{{ $video['id'] }}')"
+                                class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl"
+                                :class="$wire.favourite['{{ $video['id'] }}'] ? 'text-red-500' : 'text-gray-800'">
+                                <svg width="20" height="20" viewBox="0 0 24 24"
+                                    :fill="$wire.favourite['{{ $video['id'] }}'] ? 'currentColor' : 'none'"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                    </path>
+                                </svg>
+                            </button>
                         </div>
 
-                        <!-- Progress Bar -->
-                        <div class="relative">
-                            <div class="flex items-center space-x-3">
-                                <button @click="togglePlay()"
-                                    class="text-white hover:text-orange-500 transition-colors">
-                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor">
-                                        <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor" class="text-orange-500">
-                                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                                    </svg>
-                                </button>
+                        <div class="relative overflow-hidden bg-black h-full">
+                            <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
+                                @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
+                                @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
+                                class="w-full h-full object-cover" loop muted playsinline>
+                                <source src="{{ $video['url'] }}" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
 
-                                <div class="flex-1 relative">
-                                    <div class="progress-bar h-1.5 rounded-full cursor-pointer"
-                                        @click="setProgress($event)" x-ref="progressBar"
-                                        :style="{ '--progress': progress + '%' }"></div>
-                                    <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
-                                        :style="{ left: progress + '%' }"></div>
+                            <div class="video-overlay absolute inset-0 pointer-events-none"></div>
+
+                            <button @click="togglePlay()"
+                                class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
+                                :style="{ opacity: isPlaying ? '0' : '1' }">
+                                <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="currentColor" class="text-gray-800">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="currentColor" class="text-gray-800">
+                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                </svg>
+                            </button>
+
+                            <div
+                                class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h2 class="text-white text-2xl font-bold leading-tight">
+                                            {{ $video['title'] }}
+                                        </h2>
+                                        <a href="{{ route('product') }}"
+                                            class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-colors text-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12">
+                                                </line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                    <p class="text-gray-300 text-sm leading-relaxed">
+                                        {{ $video['description'] }}
+                                    </p>
+                                </div>
+
+                                <div class="relative">
+                                    <div class="flex items-center space-x-3">
+                                        <button @click="togglePlay()"
+                                            class="text-white hover:text-orange-500 transition-colors">
+                                            <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="currentColor" class="text-orange-500">
+                                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="flex-1 relative">
+                                            <div class="progress-bar h-1.5 rounded-full cursor-pointer"
+                                                @click="setProgress($event)" x-ref="progressBar"
+                                                :style="{ '--progress': progress + '%' }"></div>
+                                            <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
+                                                :style="{ left: progress + '%' }"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </template>
+        @endforeach
+    </section>
 
     <script>
         function videoController() {
@@ -128,7 +156,6 @@
                 lastTap: 0,
 
                 initVideo() {
-                    // Video is ready, we can interact with it
                     this.progress = 0;
                 },
 
@@ -182,10 +209,8 @@
                         const x = event.changedTouches[0].clientX - rect.left;
 
                         if (x < rect.width / 2) {
-                            // Double tap on left side - seek backward 10 seconds
                             video.currentTime = Math.max(0, video.currentTime - 10);
                         } else {
-                            // Double tap on right side - seek forward 10 seconds
                             video.currentTime = Math.min(video.duration, video.currentTime + 10);
                         }
                     }
@@ -200,10 +225,8 @@
                     const x = event.clientX - rect.left;
 
                     if (x < rect.width / 2) {
-                        // Double click on left side - seek backward 10 seconds
                         video.currentTime = Math.max(0, video.currentTime - 10);
                     } else {
-                        // Double click on right side - seek forward 10 seconds
                         video.currentTime = Math.min(video.duration, video.currentTime + 10);
                     }
                 }
