@@ -33,7 +33,7 @@
             $videos = [
                 [
                     'id' => 1,
-                    'url' => asset('assets/videos/PinDown.io_@malinmp4.mp4'),
+                    'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
                     'title' => 'Timeless Elegance: The Chronos Collection',
                     'description' =>
                         'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
@@ -41,7 +41,7 @@
                 ],
                 [
                     'id' => 2,
-                    'url' => 'https://www.w3schools.com/html/mov_bbb.mp4', // direct video file link
+                    'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // direct video file link
                     'title' => 'Urban Edge: The City Explorer',
                     'description' =>
                         'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
@@ -50,8 +50,7 @@
 
                 [
                     'id' => 3,
-                    'url' =>
-                        'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-in-a-forest-in-autumn-24535-large.mp4',
+                    'url' =>'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
                     'title' => 'Minimalist Masterpiece: The Zenith Series',
                     'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
                     'favourite' => false,

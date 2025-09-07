@@ -21,35 +21,35 @@ class Product extends Component
         $this->videos = [
             [
                 'id' => 1,
-                'url' => asset('assets/videos/PinDown.io_@malinmp4.mp4'),
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
                 'title' => 'Timeless Elegance: The Chronos Collection',
                 'description' => 'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
                 'favourite' => false,
                 'images' => [
-                    asset('assets/images/frontend/product1.png'),
-                    asset('assets/images/frontend/product2.png')
+                    'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg',
+                    'https://images.pexels.com/photos/276287/pexels-photo-276287.jpeg'
                 ],
             ],
             [
                 'id' => 2,
-                'url' => 'https://www.w3schools.com/html/mov_bbb.mp4',
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
                 'title' => 'Urban Edge: The City Explorer',
                 'description' => 'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
                 'favourite' => true,
                 'images' => [
-                    asset('assets/images/frontend/product3.png'),
-                    asset('assets/images/frontend/product4.png')
+                    'https://images.pexels.com/photos/277414/pexels-photo-277414.jpeg',
+                    'https://images.pexels.com/photos/935985/pexels-photo-935985.jpeg'
                 ],
             ],
             [
                 'id' => 3,
-                'url' => 'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-in-a-forest-in-autumn-24535-large.mp4',
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
                 'title' => 'Minimalist Masterpiece: The Zenith Series',
                 'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
                 'favourite' => false,
                 'images' => [
-                    asset('assets/images/frontend/product5.png'),
-                    asset('assets/images/frontend/product6.png')
+                    'https://images.pexels.com/photos/277452/pexels-photo-277452.jpeg',
+                    'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg'
                 ],
             ],
         ];
