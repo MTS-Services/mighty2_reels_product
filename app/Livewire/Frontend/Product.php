@@ -12,7 +12,7 @@ class Product extends Component
 
     public $productDetails = true;
     public $favourite = false;
-    public function toggleVideoDescription()
+    public function toggleVideoDetails()
     {
         $this->productDetails = !$this->productDetails;
     }

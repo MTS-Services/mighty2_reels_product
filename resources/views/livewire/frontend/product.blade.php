@@ -101,7 +101,7 @@
                 <img :src="images[currentIndex]" alt="Product Image"
                     class="w-full h-full object-cover transition-all duration-500">
 
-                <span @click="$wire.toggleVideoDescription()"
+                <span @click="$wire.toggleVideoDetails()"
                     class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg transition-all duration-200 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -187,7 +187,7 @@
                                             <h2 class="text-white text-2xl font-bold leading-tight">
                                                 {{ $video['title'] }}
                                             </h2>
-                                            <button @click="$wire.toggleVideoDescription()"
+                                            <button @click="$wire.toggleVideoDetails()"
                                                 class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-colors text-sm">
                                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
