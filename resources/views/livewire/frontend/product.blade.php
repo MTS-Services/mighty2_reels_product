@@ -278,7 +278,7 @@
                                 </svg>
                             </button>
 
-                            <div class="absolute bottom-6 z-50 right-6">
+                            <div class="absolute bottom-[100px] z-50 right-6">
                                 <button wire:click="toggleVideoDetails({{ $video['id'] }})"
                                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
                                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -291,16 +291,29 @@
 
                             <div
                                 class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                <h2 class="text-white text-2xl font-bold">{{ $video['title'] }}</h2>
-                                <p class="text-gray-300 text-sm">{{ $video['description'] }}</p>
+                                <h2 class="text-white text-2xl mb-2 leading-tight font-bold">{{ $video['title'] }}</h2>
+                                <p class="text-gray-300 mb-2 text-sm">{{ $video['description'] }}</p>
+                                <div class="relative">
+                                    <div class="flex items-center space-x-3">
+                                        <button @click="togglePlay()"
+                                            class="text-white hover:text-orange-500 transition-colors">
+                                            <svg x-show="!isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            <svg x-show="isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                            </svg>
+                                        </button>
 
-                                <div class="flex items-center mt-2">
-                                    <div class="flex-1 relative">
-                                        <div class="progress-bar h-1.5 rounded-full cursor-pointer"
-                                            @click="setProgress($event)" x-ref="progressBar"
-                                            :style="{ '--progress': progress + '%' }"></div>
-                                        <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
-                                            :style="{ left: progress + '%' }"></div>
+                                        <div class="flex-1 relative">
+                                            <div class="progress-bar h-1.5 rounded-full cursor-pointer"
+                                                @click="setProgress($event)" x-ref="progressBar"
+                                                :style="{ '--progress': progress + '%' }"></div>
+                                            <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
+                                                :style="{ left: progress + '%' }"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
