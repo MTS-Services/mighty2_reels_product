@@ -58,4 +58,17 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_INACTIVE = 0;
+
+    public const GENDER_MALE = 1;
+    public const GENDER_FEMALE = 2;
+    public const GENDER_OTHER = 3;
+
+    public const GENDERS = [
+        self::GENDER_MALE => 'Male',
+        self::GENDER_FEMALE => 'Female',
+        self::GENDER_OTHER => 'Other',
+    ];
 }
