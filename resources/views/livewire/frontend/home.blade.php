@@ -53,10 +53,10 @@
         @endphp
 
         @foreach ($videos as $video)
-            <div class="snap-start pb-2" x-data="videoController()">
+            <div class="snap-start pb-0.5" x-data="videoController()">
                 <div class="flex flex-col justify-center items-center">
                     <div
-                        class="video-container w-full h-[calc(100vh-155px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
+                        class="video-container w-full h-[calc(100vh-150px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
 
                         <div class="absolute top-4 right-4 z-20">
                             <button @click="$wire.toggleFavourite('{{ $video['id'] }}')"
