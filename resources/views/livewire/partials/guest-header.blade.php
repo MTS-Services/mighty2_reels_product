@@ -1,4 +1,4 @@
-<div>
+<div class="sticky top-0 z-50 bg-white pb-0.5">
     <header class="bg-orange-light/20 shadow sticky top-0 right-0 z-50 backdrop-blur-lg" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }">
         <div class="container max-w-[1200px] mx-auto py-3 px-4 md:px-6 lg:px-8">
             <nav class="flex items-center justify-between">
@@ -33,7 +33,7 @@
     </header>
     {{-- Search Area --}}
     @if (Route::is('home'))
-        <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] my-7 space-y-2">
+        <div class="container mx-auto px-4 z-50 sticky  md:px-6 lg:px-8 max-w-[564px] my-5 space-y-2">
             <div class="flex items-center gap-4">
                 <form class="flex-1">
                     <input type="search" placeholder="Search for products..."
