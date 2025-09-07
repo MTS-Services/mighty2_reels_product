@@ -30,76 +30,223 @@
     </style>
 
     @if ($productDetails && $activeVideo)
-        <div class="w-full max-w-lg mx-auto" x-data="{
-            isFavorited: @json($activeVideo['favourite']),
-            isExpanded: false,
-            currentIndex: 0,
-            images: [],
-            toggleFavorite() {
-                this.isFavorited = !this.isFavorited;
-                $wire.toggleFavourite();
-            },
-            toggleDescription() { this.isExpanded = !this.isExpanded },
-            prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
-            nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
-        }" x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($activeVideo['images'] ?? [])) }}'))">
-            <div class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
-                <img :src="images[currentIndex]" class="w-full h-full object-cover transition-all duration-500"
-                    alt="Product Image">
+        <section
+            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-100px)] pt-0.5 space-y-6 scroll-smooth">
+            <div class="w-full max-w-lg  h-[calc(100vh-100px)]  mx-auto snap-start" x-data="{
+                isFavorited: @json($activeVideo['favourite']),
+                isExpanded: false,
+                currentIndex: 0,
+                images: [],
+                toggleFavorite() {
+                    this.isFavorited = !this.isFavorited;
+                    $wire.toggleFavourite();
+                },
+                toggleDescription() { this.isExpanded = !this.isExpanded },
+                prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
+                nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
+            }"
+                x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($activeVideo['images'] ?? [])) }}'))">
+                <div class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
+                    <img :src="images[currentIndex]" class="w-full h-full object-cover transition-all duration-500"
+                        alt="Product Image">
 
-                {{-- Prev / Next --}}
-                <button @click="prevImage"
-                    class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {{-- Prev / Next --}}
+                    <button @click="prevImage"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 
-                    </svg>
-                </button>
-                <button @click="nextImage"
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        </svg>
+                    </button>
+                    <button @click="nextImage"
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 
-                    </svg>
-                </button>
+                        </svg>
+                    </button>
 
-                {{-- Favourite --}}
-                <button @click="toggleFavorite"
-                    class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
-                    :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
-                    <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                    {{-- Favourite --}}
+                    <button @click="toggleFavorite"
+                        class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
+                        :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
+                        <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
+                            viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
 
-                    </svg>
-                </button>
+                        </svg>
+                    </button>
 
-                {{-- Back Button --}}
-                <span @click="$wire.toggleVideoDetails()"
-                    class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-                    </svg>
-                </span>
-            </div>
+                    {{-- Back Button --}}
+                    <span @click="$wire.toggleVideoDetails()"
+                        class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                    </span>
+                </div>
 
-            <div class="py-6">
-                <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
-                <div class="space-y-4 text-gray-700 leading-relaxed">
-                    <p>{{ $activeVideo['description'] }}</p>
-                    <div x-show="isExpanded" x-transition>
-                        <p>Extended product details here (dummy text)</p>
+                <div class="py-6">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
+                    <div class="space-y-4 text-gray-700 leading-relaxed">
+                        <p>{{ $activeVideo['description'] }}</p>
+                        <div x-show="isExpanded" x-transition>
+                            <p>Extended product details here (dummy text)</p>
+                        </div>
+                        <button @click="toggleDescription" class="text-orange-500 hover:text-orange-600 font-medium"
+                            x-text="isExpanded ? 'See less' : 'See more'"></button>
                     </div>
-                    <button @click="toggleDescription" class="text-orange-500 hover:text-orange-600 font-medium"
-                        x-text="isExpanded ? 'See less' : 'See more'"></button>
                 </div>
             </div>
-        </div>
+            <div class="w-full max-w-lg mx-auto snap-start h-[calc(100vh-100px)]" x-data="{
+                isFavorited: @json($activeVideo['favourite']),
+                isExpanded: false,
+                currentIndex: 0,
+                images: [],
+                toggleFavorite() {
+                    this.isFavorited = !this.isFavorited;
+                    $wire.toggleFavourite();
+                },
+                toggleDescription() { this.isExpanded = !this.isExpanded },
+                prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
+                nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
+            }"
+                x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($activeVideo['images'] ?? [])) }}'))">
+                <div class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
+                    <img :src="images[currentIndex]" class="w-full h-full object-cover transition-all duration-500"
+                        alt="Product Image">
+
+                    {{-- Prev / Next --}}
+                    <button @click="prevImage"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+
+                        </svg>
+                    </button>
+                    <button @click="nextImage"
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+
+                        </svg>
+                    </button>
+
+                    {{-- Favourite --}}
+                    <button @click="toggleFavorite"
+                        class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
+                        :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
+                        <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
+                            viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+
+                        </svg>
+                    </button>
+
+                    {{-- Back Button --}}
+                    <span @click="$wire.toggleVideoDetails()"
+                        class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="py-6">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
+                    <div class="space-y-4 text-gray-700 leading-relaxed">
+                        <p>{{ $activeVideo['description'] }}</p>
+                        <div x-show="isExpanded" x-transition>
+                            <p>Extended product details here (dummy text)</p>
+                        </div>
+                        <button @click="toggleDescription" class="text-orange-500 hover:text-orange-600 font-medium"
+                            x-text="isExpanded ? 'See less' : 'See more'"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full max-w-lg mx-auto snap-start h-[calc(100vh-100px)]" x-data="{
+                isFavorited: @json($activeVideo['favourite']),
+                isExpanded: false,
+                currentIndex: 0,
+                images: [],
+                toggleFavorite() {
+                    this.isFavorited = !this.isFavorited;
+                    $wire.toggleFavourite();
+                },
+                toggleDescription() { this.isExpanded = !this.isExpanded },
+                prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
+                nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
+            }"
+                x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($activeVideo['images'] ?? [])) }}'))">
+                <div class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
+                    <img :src="images[currentIndex]" class="w-full h-full object-cover transition-all duration-500"
+                        alt="Product Image">
+
+                    {{-- Prev / Next --}}
+                    <button @click="prevImage"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 19l-7-7 7-7" />
+
+                        </svg>
+                    </button>
+                    <button @click="nextImage"
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+
+                        </svg>
+                    </button>
+
+                    {{-- Favourite --}}
+                    <button @click="toggleFavorite"
+                        class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
+                        :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
+                        <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
+                            viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+
+                        </svg>
+                    </button>
+
+                    {{-- Back Button --}}
+                    <span @click="$wire.toggleVideoDetails()"
+                        class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="py-6">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
+                    <div class="space-y-4 text-gray-700 leading-relaxed">
+                        <p>{{ $activeVideo['description'] }}</p>
+                        <div x-show="isExpanded" x-transition>
+                            <p>Extended product details here (dummy text)</p>
+                        </div>
+                        <button @click="toggleDescription" class="text-orange-500 hover:text-orange-600 font-medium"
+                            x-text="isExpanded ? 'See less' : 'See more'"></button>
+                    </div>
+                </div>
+            </div>
+        </section>
     @else
         {{-- Video Feed --}}
         <section
