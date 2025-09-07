@@ -186,11 +186,11 @@ class Home extends Component
     //     $this->message = 'Draft saved!';
     //     $this->dispatch('show-toast', message: $this->message, type: 'success');
     // }
-    public $showVideoDescription = true;
+    public $showVideo = true;
     public $favourite = false;
     public function toggleVideoDescription()
     {
-        $this->showVideoDescription = !$this->showVideoDescription;
+        $this->showVideo = !$this->showVideo;
     }
     public function toggleFavourite()
     {
