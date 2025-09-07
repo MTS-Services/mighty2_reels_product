@@ -65,4 +65,10 @@ class User extends Authenticatable
     public const GENDER_MALE = 1;
     public const GENDER_FEMALE = 2;
     public const GENDER_OTHER = 3;
+
+    public const GENDERS = [
+        self::GENDER_MALE => 'Male',
+        self::GENDER_FEMALE => 'Female',
+        self::GENDER_OTHER => 'Other',
+    ];
 }
