@@ -19,12 +19,12 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->string('email')->unique();
+            $table->boolean('is_admin')->default(User::NOT_ADMIN);
             $table->string('phone')->unique()->nullable();
             $table->tinyInteger('status')->default(User::STATUS_ACTIVE);
             $table->tinyInteger('gender')->nullable();
             $table->string('date_of_birth')->nullable();
             $table->string('street')->nullable();
-            $table->string('is_admin')->nullable()->default(User::NOT_ADMIN);
             $table->string('suburb')->nullable();
             $table->string('postcode')->nullable();
             $table->string('state')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-
+            
             $table->softDeletes();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');

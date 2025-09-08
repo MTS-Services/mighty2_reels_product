@@ -7,7 +7,7 @@ use App\Livewire\Backend\Profile;
 use App\Livewire\Backend\Reel;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('products', Product::class)->name('products');
