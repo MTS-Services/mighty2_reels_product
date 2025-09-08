@@ -18,7 +18,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-        protected $fillable = [
+    protected $fillable = [
         'first_name',
         'last_name',
         'email',
@@ -26,6 +26,7 @@ class User extends Authenticatable
         'date_of_birth',
         'gender',
         'street',
+        'is_admin',
         'suburb',
         'postcode',
         'state',
@@ -53,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -64,12 +66,15 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
 
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 0;
+
+    public const IS_ADMIN = 1;
+    public const NOT_ADMIN = 0;
 
     public const GENDER_MALE = 1;
     public const GENDER_FEMALE = 2;
