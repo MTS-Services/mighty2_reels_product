@@ -16,7 +16,7 @@
                     </h2>
                 </div>
 
-                <form class="mt-8 space-y-6" action="#" method="POST">
+                <form class="mt-8 space-y-6" wire:submit="resetPassword" method="POST">
                     <div>
                         <label for="email-address" class="block  text-sm font-medium text-gray-700 ">
                             New Password
@@ -63,7 +63,7 @@
                             Submit
                         </button> --}}
 
-                        <x-button variant="primary" class="w-full mt-3">
+                        <x-button variant="primary" type="submit" class="w-full mt-3">
                             <span>Submit</span>
                         </x-button>
                     </div>
