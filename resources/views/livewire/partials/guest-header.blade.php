@@ -32,7 +32,7 @@
         </div>
     </header>
     {{-- Search Area --}}
-    {{-- @if (Route::is('home')) --}}
+   @if (Route::is('home') || Route::is('product'))
         <div class="container mx-auto px-4 z-50  md:px-6 lg:px-8 max-w-[564px] my-5 space-y-2">
             <div class="flex items-center gap-4">
                 <form class="flex-1">
@@ -44,7 +44,7 @@
                 </x-button>
             </div>
         </div>
-    {{-- @endif --}}
+    @endif
     <aside class="fixed inset-0 z-50" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }" x-show="sidebarOpen" x-cloak
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
         x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
