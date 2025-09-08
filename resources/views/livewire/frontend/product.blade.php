@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -31,8 +31,8 @@
 
     @if ($productDetails && $activeVideo)
         <section
-            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-100px)] pt-0.5 space-y-6 scroll-smooth">
-            <div class="w-full max-w-lg  h-[calc(100vh-100px)]  mx-auto snap-start" x-data="{
+            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
+            <div class="w-full max-w-lg  h-[calc(100vh-150px)]  mx-auto snap-start" x-data="{
                 isFavorited: @json($activeVideo['favourite']),
                 isExpanded: false,
                 currentIndex: 0,
@@ -250,12 +250,12 @@
     @else
         {{-- Video Feed --}}
         <section
-            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-100px)] pt-0.5 space-y-6 scroll-smooth">
+            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)]   scroll-smooth">
             @foreach ($videos as $video)
                 <div class="snap-start pb-0.5" x-data="videoController()">
                     <div class="flex flex-col justify-center items-center relative">
                         <div
-                            class="video-container w-full h-[calc(100vh-100px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
+                            class="video-container w-full h-[calc(100vh-150px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
                             <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
                                 @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
                                 @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
