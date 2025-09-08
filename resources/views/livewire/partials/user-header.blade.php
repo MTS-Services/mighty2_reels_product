@@ -75,7 +75,7 @@
                                 </x-button>
                             @endif
                             <x-button class="w-full" variant="secondary" size="sm"
-                                href="{{ route('admin.dashboard') }}" wire:navigate>
+                                href="{{ route('profile') }}" wire:navigate>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
                             <flux:separator variant="subtle" />
