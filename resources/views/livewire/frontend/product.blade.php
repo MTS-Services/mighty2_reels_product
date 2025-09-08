@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto ">
+<div class="max-w-7xl mx-auto  pt-1.5">
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -31,8 +31,8 @@
 
     @if ($productDetails && $activeVideo)
         <section
-            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
-            <div class="w-full max-w-lg  h-[calc(100vh-150px)]  mx-auto snap-start" x-data="{
+            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
+            <div class="w-full max-w-lg  h-[calc(100vh-165px)]  mx-auto snap-start" x-data="{
                 isFavorited: @json($activeVideo['favourite']),
                 isExpanded: false,
                 currentIndex: 0,
@@ -90,7 +90,10 @@
                         </svg>
                     </span>
                 </div>
-
+                <div wire:loading wire:target="toggleFavourite,toggleVideoDetails"
+                    class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                    <div class="w-16 h-16 border-4 border-t-orange-500 border-gray-200 rounded-full animate-spin"></div>
+                </div>
                 <div class="py-6">
                     <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
                     <div class="space-y-4 text-gray-700 leading-relaxed">
@@ -249,13 +252,12 @@
         </section>
     @else
         {{-- Video Feed --}}
-        <section
-            class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)]   scroll-smooth">
+        <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)]   scroll-smooth">
             @foreach ($videos as $video)
                 <div class="snap-start pb-0.5" x-data="videoController()">
                     <div class="flex flex-col justify-center items-center relative">
                         <div
-                            class="video-container w-full h-[calc(100vh-150px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
+                            class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
                             <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
                                 @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
                                 @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
@@ -362,105 +364,105 @@
 </div>
 
 <script>
-function videoController() {
-    return {
-        isPlaying: false,
-        progress: 0,
-        lastTap: 0,
-        duration: 0,
-        currentTime: 0,
-        videoLoaded: false,
-        videoError: false,
+    function videoController() {
+        return {
+            isPlaying: false,
+            progress: 0,
+            lastTap: 0,
+            duration: 0,
+            currentTime: 0,
+            videoLoaded: false,
+            videoError: false,
 
-        initVideo() {
-            const video = this.$refs.mainVideo;
-            this.progress = 0;
-            this.duration = video.duration;
-            this.videoLoaded = true;
-            this.videoError = false;
-        },
+            initVideo() {
+                const video = this.$refs.mainVideo;
+                this.progress = 0;
+                this.duration = video.duration;
+                this.videoLoaded = true;
+                this.videoError = false;
+            },
 
-        togglePlay() {
-            if (!this.videoLoaded) return;
-            
-            const video = this.$refs.mainVideo;
-            if (!video) return;
-            video.paused ? video.play() : video.pause();
-        },
+            togglePlay() {
+                if (!this.videoLoaded) return;
 
-        handlePlay() {
-            this.isPlaying = true;
-        },
+                const video = this.$refs.mainVideo;
+                if (!video) return;
+                video.paused ? video.play() : video.pause();
+            },
 
-        handlePause() {
-            this.isPlaying = false;
-        },
+            handlePlay() {
+                this.isPlaying = true;
+            },
 
-        updateProgress() {
-            const video = this.$refs.mainVideo;
-            if (!video || !video.duration) return;
-            this.currentTime = video.currentTime;
-            this.progress = (video.currentTime / video.duration) * 100;
-        },
+            handlePause() {
+                this.isPlaying = false;
+            },
 
-        setProgress(event) {
-            if (!this.videoLoaded) return;
-            
-            const video = this.$refs.mainVideo;
-            const progressBar = this.$refs.progressBar;
-            if (!video || !progressBar) return;
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (event.clientX - rect.left) / rect.width;
-            if (video.duration) video.currentTime = pos * video.duration;
-        },
+            updateProgress() {
+                const video = this.$refs.mainVideo;
+                if (!video || !video.duration) return;
+                this.currentTime = video.currentTime;
+                this.progress = (video.currentTime / video.duration) * 100;
+            },
 
-        handleTouchEnd(event) {
-            if (!this.videoLoaded) return;
-            
-            const video = this.$refs.mainVideo;
-            if (!video) return;
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - this.lastTap;
-            if (tapLength < 300 && tapLength > 0) {
+            setProgress(event) {
+                if (!this.videoLoaded) return;
+
+                const video = this.$refs.mainVideo;
+                const progressBar = this.$refs.progressBar;
+                if (!video || !progressBar) return;
+                const rect = progressBar.getBoundingClientRect();
+                const pos = (event.clientX - rect.left) / rect.width;
+                if (video.duration) video.currentTime = pos * video.duration;
+            },
+
+            handleTouchEnd(event) {
+                if (!this.videoLoaded) return;
+
+                const video = this.$refs.mainVideo;
+                if (!video) return;
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - this.lastTap;
+                if (tapLength < 300 && tapLength > 0) {
+                    const rect = video.getBoundingClientRect();
+                    const x = event.changedTouches[0].clientX - rect.left;
+                    if (x < rect.width / 2) {
+                        video.currentTime = Math.max(0, video.currentTime - 10);
+                    } else {
+                        video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                    }
+                }
+                this.lastTap = currentTime;
+            },
+
+            handleDoubleClick(event) {
+                if (!this.videoLoaded) return;
+
+                const video = this.$refs.mainVideo;
+                if (!video) return;
                 const rect = video.getBoundingClientRect();
-                const x = event.changedTouches[0].clientX - rect.left;
+                const x = event.clientX - rect.left;
                 if (x < rect.width / 2) {
                     video.currentTime = Math.max(0, video.currentTime - 10);
                 } else {
                     video.currentTime = Math.min(video.duration, video.currentTime + 10);
                 }
-            }
-            this.lastTap = currentTime;
-        },
+            },
 
-        handleDoubleClick(event) {
-            if (!this.videoLoaded) return;
-            
-            const video = this.$refs.mainVideo;
-            if (!video) return;
-            const rect = video.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            if (x < rect.width / 2) {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-            } else {
-                video.currentTime = Math.min(video.duration, video.currentTime + 10);
-            }
-        },
+            handleVideoError() {
+                this.videoError = true;
+                this.videoLoaded = false;
+                console.error('Video failed to load');
+            },
 
-        handleVideoError() {
-            this.videoError = true;
-            this.videoLoaded = false;
-            console.error('Video failed to load');
-        },
-
-        retryVideo() {
-            this.videoError = false;
-            this.videoLoaded = false;
-            const video = this.$refs.mainVideo;
-            if (video) {
-                video.load(); // Reload the video
+            retryVideo() {
+                this.videoError = false;
+                this.videoLoaded = false;
+                const video = this.$refs.mainVideo;
+                if (video) {
+                    video.load(); // Reload the video
+                }
             }
         }
     }
-}
 </script>

@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8">
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -28,7 +28,7 @@
 
     </style>
 
-    <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-150px)] pt-0.5 space-y-6 scroll-smooth">
+    <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
         @php
             $videos = [
                 [
@@ -62,7 +62,7 @@
             <div class="snap-start pb-0.5" x-data="videoController()">
                 <div class="flex flex-col justify-center items-center">
                     <div
-                        class="video-container w-full h-[calc(100vh-150px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
+                        class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
 
                         <div class="absolute top-4 right-4 z-20">
                             <button @click="$wire.toggleFavourite('{{ $video['id'] }}')"
