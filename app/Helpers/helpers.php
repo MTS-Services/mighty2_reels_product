@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('site_name')) {
     function site_name()
@@ -39,5 +41,19 @@ if (!function_exists('time_format_human')) {
     function time_format_human($time)
     {
         return Carbon::parse($time)->diffForHumans();
+    }
+}
+
+if (!function_exists('user')) {
+    function user()
+    {
+        return Auth::user();
+    }
+}
+
+if (!function_exists('is_admin')) {
+    function is_admin()
+    {
+        return Auth::user()->is_admin == User::IS_ADMIN;
     }
 }

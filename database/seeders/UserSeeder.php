@@ -20,5 +20,11 @@ class UserSeeder extends Seeder
             'email' => 'admin@dev.com',
             'password' => bcrypt('admin@dev.com')
         ]);
+        User::create([
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
+            'email' => 'user@dev.com',
+            'password' => bcrypt('user@dev.com')
+        ]);
     }
 }
