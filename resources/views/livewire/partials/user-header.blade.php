@@ -6,19 +6,44 @@
                     <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
-                <div class="items-center gap-9 flex-1 hidden lg:flex">
+                <div class="items-center gap-9 flex-1 hidden lg:flex justify-between">
                     <x-button variant="secondary" class="!rounded-full">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
 
-                    <select
-                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full flex-1 bg-orange-light/20">
-                        <option value="">Location</option>
-                        <option value="">1246, New York</option>
-                        <option value="">1346, New York</option>
-                        <option value="">1446, New York</option>
-                        <option value="">1546, New York</option>
-                    </select>
+                    <div class="flex flex-col md:flex-row gap-4">
+
+                        <!-- Rooms Select -->
+                        <select
+                            class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
+                            <option value="">Rooms</option>
+                            <option value="1">1 Room</option>
+                            <option value="2">2 Rooms</option>
+                            <option value="3">3 Rooms</option>
+                            <option value="4">4 Rooms</option>
+                            <option value="5">5+ Rooms</option>
+                        </select>
+
+                        <!-- City Select -->
+                        <select
+                            class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
+                            <option value="">City</option>
+                            <option value="new-york">New York</option>
+                            <option value="los-angeles">Los Angeles</option>
+                            <option value="chicago">Chicago</option>
+                            <option value="houston">Houston</option>
+                        </select>
+
+                        <!-- Type Select -->
+                        <select
+                            class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
+                            <option value="">Type</option>
+                            <option value="rent">Rent</option>
+                            <option value="sale">Sale</option>
+                        </select>
+
+                    </div>
+
                 </div>
 
                 <div class="hidden lg:flex items-center gap-4 relative py-2"
@@ -113,7 +138,7 @@
         <div class="flex items-center gap-4">
             <form class="flex-1">
                 <input type="search" placeholder="Search for products..."
-                    class="w-full px-4 py-2 rounded-full outline outline-orange-normal focus:ring-2 focus:ring-orange-normal" />
+                    class="w-full px-4 py-2 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal" />
             </form>
             <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
                 <flux:icon name="funnel" />
