@@ -90,10 +90,10 @@
                         </svg>
                     </span>
                 </div>
-                <div wire:loading wire:target="toggleFavourite,toggleVideoDetails"
+                {{-- <div wire:loading wire:target="toggleFavourite,toggleVideoDetails"
                     class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
                     <div class="w-16 h-16 border-4 border-t-orange-500 border-gray-200 rounded-full animate-spin"></div>
-                </div>
+                </div> --}}
                 <div class="py-6">
                     <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">{{ $activeVideo['title'] }}</h1>
                     <div class="space-y-4 text-gray-700 leading-relaxed">
