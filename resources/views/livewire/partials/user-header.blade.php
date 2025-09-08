@@ -16,7 +16,7 @@
                         <!-- Rooms Select -->
                         <select
                             class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
-                            <option value="">Rooms</option>
+                            <option value selected disabled="">Rooms</option>
                             <option value="1">1 Room</option>
                             <option value="2">2 Rooms</option>
                             <option value="3">3 Rooms</option>
@@ -27,7 +27,7 @@
                         <!-- City Select -->
                         <select
                             class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
-                            <option value="">City</option>
+                            <option value selected disabled="">City</option>
                             <option value="new-york">New York</option>
                             <option value="los-angeles">Los Angeles</option>
                             <option value="chicago">Chicago</option>
@@ -37,7 +37,7 @@
                         <!-- Type Select -->
                         <select
                             class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-4 py-2">
-                            <option value="">Type</option>
+                            <option value selected disabled="">Type</option>
                             <option value="rent">Rent</option>
                             <option value="sale">Sale</option>
                         </select>
