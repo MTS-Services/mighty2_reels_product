@@ -33,7 +33,7 @@
     </header>
     {{-- Search Area --}}
    @if (Route::is('home') || Route::is('product'))
-        <div class="container mx-auto px-4 z-50  md:px-6 lg:px-8 max-w-[564px] my-5 space-y-2">
+        <div class="container mx-auto px-4 z-50  md:px-6 lg:px-8 max-w-lg  my-5 space-y-2">
             <div class="flex items-center gap-4">
                 <form class="flex-1">
                     <input type="search" placeholder="Search for products..."
