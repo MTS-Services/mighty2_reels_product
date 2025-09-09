@@ -18,17 +18,18 @@
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
-          .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;     /* Firefox */
-    }
 
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 
-    <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
+    <section
+        class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
         @php
             $videos = [
                 [
@@ -41,13 +42,12 @@
                 ],
                 [
                     'id' => 2,
-                    'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // direct video file link
+                    'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
                     'title' => 'Urban Edge: The City Explorer',
                     'description' =>
                         'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
                     'favourite' => true,
                 ],
-
                 [
                     'id' => 3,
                     'url' =>'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -64,6 +64,7 @@
                     <div
                         class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden shadow-2xl relative">
 
+                        <!-- Favourite Button -->
                         <div class="absolute top-4 right-4 z-20">
                             <button @click="$wire.toggleFavourite('{{ $video['id'] }}')"
                                 class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl"
@@ -78,19 +79,33 @@
                             </button>
                         </div>
 
+                        <!-- Video Wrapper -->
                         <div class="relative overflow-hidden bg-black h-full">
-                            <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
-                                @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
-                                @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                                class="w-full h-full object-cover" loop muted playsinline>
+                            <video x-ref="mainVideo"
+                                @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
+                                @play="handlePlay()" @pause="handlePause()"
+                                class="w-full h-full object-cover"
+                                loop playsinline>
                                 <source src="{{ $video['url'] }}" type="video/mp4" />
                                 Your browser does not support the video tag.
                             </video>
 
+                            <!-- Left click area -->
+                            <div class="absolute inset-y-0 left-0 w-1/2 -z-1 cursor-cell"
+                                 @click="$refs.mainVideo.currentTime = Math.max(0, $refs.mainVideo.currentTime - 10)">
+                            </div>
+
+                            <!-- Right click area -->
+                            <div class="absolute inset-y-0 right-0 w-1/2 -z-1 cursor-pointer"
+                                 @click="$refs.mainVideo.currentTime = Math.min($refs.mainVideo.duration, $refs.mainVideo.currentTime + 10)">
+                            </div>
+
+                            <!-- Overlay -->
                             <div class="video-overlay absolute inset-0 pointer-events-none"></div>
 
+                            <!-- Center Play/Pause Button -->
                             <button @click="togglePlay()"
-                                class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
+                                class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-20"
                                 :style="{ opacity: isPlaying ? '0' : '1' }">
                                 <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
                                     fill="currentColor" class="text-gray-800">
@@ -102,6 +117,7 @@
                                 </svg>
                             </button>
 
+                            <!-- Title & Description -->
                             <div
                                 class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
                                 <div class="mb-4">
@@ -114,8 +130,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <line x1="5" y1="12" x2="19" y2="12">
-                                                </line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
                                                 <polyline points="12 5 19 12 12 19"></polyline>
                                             </svg>
                                         </a>
@@ -125,6 +140,7 @@
                                     </p>
                                 </div>
 
+                                <!-- Progress Bar -->
                                 <div class="relative">
                                     <div class="flex items-center space-x-3">
                                         <button @click="togglePlay()"
@@ -170,7 +186,6 @@
                 togglePlay() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-
                     if (video.paused) {
                         video.play();
                     } else {
@@ -189,7 +204,6 @@
                 updateProgress() {
                     const video = this.$refs.mainVideo;
                     if (!video || !video.duration) return;
-
                     this.progress = (video.currentTime / video.duration) * 100;
                 },
 
@@ -197,7 +211,6 @@
                     const video = this.$refs.mainVideo;
                     const progressBar = this.$refs.progressBar;
                     if (!video || !progressBar) return;
-
                     const rect = progressBar.getBoundingClientRect();
                     const pos = (event.clientX - rect.left) / rect.width;
                     if (video.duration) {
@@ -208,14 +221,12 @@
                 handleTouchEnd(event) {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - this.lastTap;
 
                     if (tapLength < 300 && tapLength > 0) {
                         const rect = video.getBoundingClientRect();
                         const x = event.changedTouches[0].clientX - rect.left;
-
                         if (x < rect.width / 2) {
                             video.currentTime = Math.max(0, video.currentTime - 10);
                         } else {
@@ -228,10 +239,8 @@
                 handleDoubleClick(event) {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-
                     const rect = video.getBoundingClientRect();
                     const x = event.clientX - rect.left;
-
                     if (x < rect.width / 2) {
                         video.currentTime = Math.max(0, video.currentTime - 10);
                     } else {
