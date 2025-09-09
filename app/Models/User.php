@@ -31,6 +31,9 @@ class User extends Authenticatable
         'postcode',
         'state',
         'password',
+        'otp',
+        'expires_at',
+        'otp_token',
     ];
 
 
