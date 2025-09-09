@@ -65,13 +65,15 @@ class Product extends Component
      */
     public function toggleVideoDetails($videoId = null)
     {
-        if ($videoId) {
-            $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
-            $this->productDetails = true;
-        } else {
-            $this->activeVideo = null;
-            $this->productDetails = false;
-        }
+            $this->productDetails = !$this->productDetails;
+
+        // if ($videoId) {
+        //     $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
+        //     $this->productDetails = true;
+        // } else {
+        //     $this->activeVideo = null;
+        //     $this->productDetails = false;
+        // }
     }
 
     /**
