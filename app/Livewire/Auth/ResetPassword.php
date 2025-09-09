@@ -5,7 +5,6 @@ namespace App\Livewire\Auth;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
@@ -24,21 +23,36 @@ class ResetPassword extends Component
         // Get token from route parameter
         $this->token = $token ?? request()->route('token') ?? '';
         
-        // Get email from query parameter
-        $this->email = request()->get('email', '');
-        
-        // Redirect to login if token or email is missing
-        if (empty($this->token) || empty($this->email)) {
+        // Validate token and get user
+        if (empty($this->token)) {
             session()->flash('error', 'Invalid or expired reset link.');
-            $this->redirectRoute('login', navigate: true);
+            $this->redirectRoute('password.request', navigate: true);
+            return;
         }
+
+        // Find user with this OTP token
+        $user = User::where('otp_token', $this->token)->first();
+        
+        if (!$user) {
+            session()->flash('error', 'Invalid or expired reset link.');
+            $this->redirectRoute('password.request', navigate: true);
+            return;
+        }
+
+        // Check if OTP has expired (optional - you might want to allow password reset even if OTP expired after verification)
+        // if ($user->expires_at && Carbon::now()->isAfter($user->expires_at)) {
+        //     session()->flash('error', 'Reset link has expired. Please request a new one.');
+        //     $this->redirectRoute('password.request', navigate: true);
+        //     return;
+        // }
+
+        $this->email = $user->email;
     }
 
     protected function rules(): array
     {
         return [
             'token' => ['required', 'string'],
-            'email' => ['required', 'email', 'exists:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'password_confirmation' => ['required'],
         ];
@@ -54,7 +68,6 @@ class ResetPassword extends Component
     protected function messages(): array
     {
         return [
-            'email.exists' => 'This email address is not registered in our system.',
             'password.confirmed' => 'The password confirmation does not match.',
         ];
     }
@@ -63,44 +76,34 @@ class ResetPassword extends Component
     {
         $this->validate();
 
-        // Attempt to reset the user's password
-        $status = Password::reset(
-            [
-                'email' => $this->email,
-                'password' => $this->password,
-                'password_confirmation' => $this->password_confirmation,
-                'token' => $this->token
-            ],
-            function (User $user, string $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                    'remember_token' => Str::random(60),
-                    'updated_by' => null, // Since this is a password reset, no authenticated user
-                ])->save();
+        // Find user with this token
+        $user = User::where('otp_token', $this->token)->first();
 
-                // Fire the password reset event
-                event(new PasswordReset($user));
-            }
-        );
-
-        // Handle the response
-        if ($status === Password::PASSWORD_RESET) {
-            session()->flash('status', 'Your password has been reset successfully! You can now login with your new password.');
-            
-            // Clear the form
-            $this->reset(['password', 'password_confirmation']);
-            
-            // Redirect to login page
-            $this->redirectRoute('login', navigate: true);
-        } else {
-            // Handle different error cases
-            match($status) {
-                Password::INVALID_TOKEN => $this->addError('token', 'This password reset link is invalid or has expired.'),
-                Password::INVALID_USER => $this->addError('email', 'We cannot find a user with that email address.'),
-                Password::THROTTLED => $this->addError('email', 'Please wait before retrying.'),
-                default => $this->addError('email', 'An error occurred while resetting your password. Please try again.')
-            };
+        if (!$user) {
+            $this->addError('token', 'Invalid or expired reset link.');
+            return;
         }
+
+        // Update user password and clear OTP data
+        $user->forceFill([
+            'password' => Hash::make($this->password),
+            'remember_token' => Str::random(60),
+            'otp' => null,
+            'expires_at' => null,
+            'otp_token' => null,
+            'updated_by' => null, // Since this is a password reset, no authenticated user
+        ])->save();
+
+        // Fire the password reset event
+        event(new PasswordReset($user));
+
+        session()->flash('status', 'Your password has been reset successfully! You can now login with your new password.');
+        
+        // Clear the form
+        $this->reset(['password', 'password_confirmation']);
+        
+        // Redirect to login page
+        $this->redirectRoute('login', navigate: true);
     }
 
     public function render()

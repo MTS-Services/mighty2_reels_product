@@ -18,41 +18,42 @@
                         Forgot Password
                     </h2>
                     <p class="mt-4 text-sm text-gray-500">
-                        Provide the email address linked with your account to reset your password.
+                        Enter your email address and we'll send you a 6-digit OTP to reset your password.
                     </p>
                 </div>
 
                 <!-- Display success message -->
                 @if (session()->has('status'))
-                    <div class="text-green-600 text-sm mb-4">
+                    <div class="text-green-600 text-sm mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
                         {{ session('status') }}
                     </div>
                 @endif
 
                 <!-- Form -->
-                <form class="mt-8 space-y-6" wire:submit.prevent="sendPasswordResetLink">
+                <form class="mt-8 space-y-6" wire:submit.prevent="sendPasswordResetOtp">
 
                     <div>
                         <label for="email-address" class="block text-sm font-medium text-gray-700">
-                            Email
+                            Email Address
                         </label>
                         <div class="mt-1">
                             <input id="email-address" type="email" wire:model="email" required
                                 class="text-gray-900 appearance-none relative block w-full px-5 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                                placeholder="Enter your email">
+                                placeholder="Enter your registered email address">
                         </div>
                         @error('email')
                             <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                         <p class="mt-2 text-xs text-gray-500">
-                            Please enter your registered email.
+                            We'll send a 6-digit OTP to this email address.
                         </p>
                     </div>
 
                     <!-- Submit Button -->
                     <div>
                         <x-button variant="primary" type="submit" class="w-full mt-3">
-                            <span>Request Password Reset Link</span>
+                            <span wire:loading.remove wire:target="sendPasswordResetOtp">Send OTP</span>
+                            <span wire:loading wire:target="sendPasswordResetOtp">Sending OTP...</span>
                         </x-button>
                     </div>
                 </form>
@@ -61,8 +62,8 @@
                 <div>
                     <button type="button"
                         onclick="window.location='{{ route('login') }}'"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-gray-100 text-sm font-medium rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 hover:bg-orange-100">
-                        Cancel
+                        class="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
+                        Back to Login
                     </button>
                 </div>
 
