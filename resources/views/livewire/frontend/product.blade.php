@@ -33,113 +33,10 @@
     <section class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
         x-data="{ product_details: false }">
         @foreach ($videos as $index => $video)
-            {{-- Video Section --}}
-            <div id="video-{{ $index }}" class="snap-start pb-1" x-data="videoController()">
-                <div class="flex flex-col justify-center items-center relative">
-                    <div
-                        class="video-container w-full h-[calc(100vh-200px)] max-w-lg rounded-xl overflow-hidden relative">
-                        <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
-                            @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
-                            @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                            class="w-full h-full object-cover" loop autoplay playsinline>
-                            <source src="{{ $video['url'] }}" type="video/mp4">
-                        </video>
-
-                        <div x-show="!videoLoaded"
-                            class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
-                            <div class="text-center">
-                                <div wire:loading.delay class="inline-block">
-                                    <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-orange-500"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10"
-                                            stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                        </path>
-                                    </svg>
-                                </div>
-
-                                <div wire:loading.remove class="inline-block">
-                                    <div class="relative">
-                                        <div
-                                            class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
-                                        </div>
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-orange-500" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path d="M8 5v10l8-5-8-5z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <p class="text-white mt-4 text-sm">Loading video...</p>
-                            </div>
-                        </div>
-
-                        <div class="video-overlay absolute inset-0 pointer-events-none"></div>
-
-                        <button @click="togglePlay()"
-                            class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
-                            :style="{ opacity: isPlaying ? '0' : '1' }">
-                            <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor" class="text-gray-800">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
-                            <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor" class="text-gray-800">
-                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                            </svg>
-                        </button>
-
-                        <div class="absolute bottom-[100px] z-50 right-6">
-                            <button wire:click="toggleVideoDetails"
-                                @click="document.getElementById('details-{{ $index }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
-                                class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <polyline points="19 12 12 19 5 12"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                            <h2 class="text-white text-2xl mb-2 leading-tight font-bold">{{ $video['title'] }}
-                            </h2>
-                            <p class="text-gray-300 mb-2 text-sm">{{ $video['description'] }}</p>
-                            <div class="relative">
-                                <div class="flex items-center space-x-3">
-                                    <button @click="togglePlay()"
-                                        class="text-white hover:text-orange-500 transition-colors">
-                                        <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="currentColor">
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
-                                        <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="currentColor" class="text-orange-500">
-                                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                                        </svg>
-                                    </button>
-
-                                    <div class="flex-1 relative">
-                                        <div class="progress-bar h-1.5 rounded-full cursor-pointer"
-                                            @click="setProgress($event)" x-ref="progressBar"
-                                            :style="{ '--progress': progress + '%' }"></div>
-                                        <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
-                                            :style="{ left: progress + '%' }"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- Product Details Section --}}
-            <div id="details-{{ $index }}">
-                <div x-show="product_details" class="w-full max-w-lg h-[calc(100vh-165px)] mx-auto snap-start"
-                    x-data="{
+            @if ($productDetails)
+                <div id="details-{{ $index }}">
+                    <div class="w-full max-w-lg h-[calc(100vh-165px)] mx-auto snap-start" x-data="{
                         isFavorited: @json($video['favourite']),
                         isExpanded: false,
                         currentIndex: 0,
@@ -151,70 +48,177 @@
                         toggleDescription() { this.isExpanded = !this.isExpanded },
                         prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
                         nextImage() { this.currentIndex = (this.currentIndex === this.images.length - 1) ? 0 : this.currentIndex + 1 }
-                    }" x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($video['images'] ?? [])) }}'))">
-                    <div class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
-                        <img :src="images[currentIndex]" class="w-full h-full object-cover transition-all duration-500"
-                            alt="Product Image">
+                    }"
+                        x-init="images = JSON.parse(atob('{{ base64_encode(json_encode($video['images'] ?? [])) }}'))">
+                        <div
+                            class="relative h-[50vh] flex items-center justify-center overflow-hidden rounded-xl border">
+                            <img :src="images[currentIndex]"
+                                class="w-full h-full object-cover transition-all duration-500" alt="Product Image">
 
-                        <button @click="prevImage"
-                            class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <button @click="prevImage"
+                                class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
 
-                            </svg>
-                        </button>
-                        <button @click="nextImage"
-                            class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                </svg>
+                            </button>
+                            <button @click="nextImage"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
+                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
 
-                            </svg>
-                        </button>
+                                </svg>
+                            </button>
 
-                        <button @click="toggleFavorite"
-                            class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
-                            :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
-                            <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <button @click="toggleFavorite"
+                                class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
+                                :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
+                                <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
 
-                            </svg>
-                        </button>
+                                </svg>
+                            </button>
 
-                        <span wire:click="toggleVideoDetails"
-                            @click="document.getElementById('video-{{ $index }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
-                            class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 10l7-7m0 0l7 7m-7-7v18">
-                                </path>
-                            </svg>
-                        </span>
-                    </div>
+                            <span wire:click="toggleVideoDetails"
+                                @click="document.getElementById('video-{{ $index }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                                class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 10l7-7m0 0l7 7m-7-7v18">
+                                    </path>
+                                </svg>
+                            </span>
+                        </div>
 
-                    <div class="py-6">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">
-                            {{ $video['title'] }}</h1>
-                        <div class="space-y-4 text-gray-700 leading-relaxed">
-                            <p>{{ $video['description'] }}</p>
-                            <div x-show="isExpanded" x-transition>
-                                <p>Extended product details here (dummy text)</p>
+                        <div class="py-6">
+                            <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">
+                                {{ $video['title'] }}</h1>
+                            <div class="space-y-4 text-gray-700 leading-relaxed">
+                                <p>{{ $video['description'] }}</p>
+                                <div x-show="isExpanded" x-transition>
+                                    <p>Extended product details here (dummy text)</p>
+                                </div>
+                                <button @click="toggleDescription"
+                                    class="text-orange-500 hover:text-orange-600 font-medium"
+                                    x-text="isExpanded ? 'See less' : 'See more'"></button>
                             </div>
-                            <button @click="toggleDescription"
-                                class="text-orange-500 hover:text-orange-600 font-medium"
-                                x-text="isExpanded ? 'See less' : 'See more'"></button>
                         </div>
                     </div>
                 </div>
-            </div>
+            @else
+                {{-- Video Section --}}
+                <div id="video-{{ $index }}" class="snap-start pb-1" x-data="videoController()">
+                    <div class="flex flex-col justify-center items-center relative">
+                        <div
+                            class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
+                            <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
+                                @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
+                                @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
+                                class="w-full h-full object-cover" loop autoplay playsinline>
+                                <source src="{{ $video['url'] }}" type="video/mp4">
+                            </video>
+
+                            <div x-show="!videoLoaded"
+                                class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
+                                <div class="text-center">
+                                    <div wire:loading.delay class="inline-block">
+                                        <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-orange-500"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                    </div>
+
+                                    <div wire:loading.remove class="inline-block">
+                                        <div class="relative">
+                                            <div
+                                                class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
+                                            </div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-orange-500" fill="currentColor"
+                                                    viewBox="0 0 20 20">
+                                                    <path d="M8 5v10l8-5-8-5z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-white mt-4 text-sm">Loading video...</p>
+                                </div>
+                            </div>
+
+                            <div class="video-overlay absolute inset-0 pointer-events-none"></div>
+
+                            <button @click="togglePlay()"
+                                class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
+                                :style="{ opacity: isPlaying ? '0' : '1' }">
+                                <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="currentColor" class="text-gray-800">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="currentColor" class="text-gray-800">
+                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                </svg>
+                            </button>
+
+                            <div class="absolute bottom-[100px] z-50 right-6">
+                                <button wire:click="toggleVideoDetails"
+                                    @click="document.getElementById('details-{{ $index }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <polyline points="19 12 12 19 5 12"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div
+                                class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                                <h2 class="text-white text-2xl mb-2 leading-tight font-bold">{{ $video['title'] }}
+                                </h2>
+                                <p class="text-gray-300 mb-2 text-sm">{{ $video['description'] }}</p>
+                                <div class="relative">
+                                    <div class="flex items-center space-x-3">
+                                        <button @click="togglePlay()"
+                                            class="text-white hover:text-orange-500 transition-colors">
+                                            <svg x-show="!isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            <svg x-show="isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="flex-1 relative">
+                                            <div class="progress-bar h-1.5 rounded-full cursor-pointer"
+                                                @click="setProgress($event)" x-ref="progressBar"
+                                                :style="{ '--progress': progress + '%' }"></div>
+                                            <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
+                                                :style="{ left: progress + '%' }"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endforeach
     </section>
 </div>

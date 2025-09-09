@@ -8,7 +8,7 @@ use Livewire\Attributes\Layout;
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'Product'])]
 class Product extends Component
 {
-    public $productDetails = false; // Show product details first
+    public $productDetails = true; // Show product details first
     public $favourite = false;
     public $activeVideo = null; // Current selected video/product
     public $videos = [];        // All videos/products
