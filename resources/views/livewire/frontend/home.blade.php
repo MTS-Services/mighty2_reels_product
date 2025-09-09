@@ -273,84 +273,7 @@
         @endforeach
     </section>
 
-    {{-- <script>
-        function videoController() {
-            return {
-                isPlaying: false,
-                progress: 0,
-                lastTap: 0,
 
-                initVideo() {
-                    this.progress = 0;
-                },
-
-                togglePlay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    if (video.paused) {
-                        video.play();
-                    } else {
-                        video.pause();
-                    }
-                },
-
-                handlePlay() {
-                    this.isPlaying = true;
-                },
-
-                handlePause() {
-                    this.isPlaying = false;
-                },
-
-                updateProgress() {
-                    const video = this.$refs.mainVideo;
-                    if (!video || !video.duration) return;
-                    this.progress = (video.currentTime / video.duration) * 100;
-                },
-
-                setProgress(event) {
-                    const video = this.$refs.mainVideo;
-                    const progressBar = this.$refs.progressBar;
-                    if (!video || !progressBar) return;
-                    const rect = progressBar.getBoundingClientRect();
-                    const pos = (event.clientX - rect.left) / rect.width;
-                    if (video.duration) {
-                        video.currentTime = pos * video.duration;
-                    }
-                },
-
-                handleTouchEnd(event) {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    const currentTime = new Date().getTime();
-                    const tapLength = currentTime - this.lastTap;
-
-                    if (tapLength < 300 && tapLength > 0) {
-                        const rect = video.getBoundingClientRect();
-                        const x = event.changedTouches[0].clientX - rect.left;
-                        if (x < rect.width / 2) {
-                            video.currentTime = Math.max(0, video.currentTime - 10);
-                        } else {
-                            video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                        }
-                    }
-                    this.lastTap = currentTime;
-                },
-
-                handleDoubleClick(event) {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    const rect = video.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    if (x < rect.width / 2) {
-                        video.currentTime = Math.max(0, video.currentTime - 10);
-                    } else {
-                        video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                    }
-                }
-            }
-        }
-    </script> --}}
     <script>
         function videoController() {
             return {
@@ -361,6 +284,7 @@
                 currentTime: 0,
                 videoLoaded: true,
                 videoError: false,
+                clickTimeout: null,
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
@@ -370,12 +294,19 @@
                     this.videoError = false;
                 },
 
-                togglePlay() {
+                togglePlay(event) {
                     if (!this.videoLoaded) return;
-
                     const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    video.paused ? video.play() : video.pause();
+
+                    if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
+                    this.clickTimeout = setTimeout(() => {
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                    }, 250);
                 },
 
                 handlePlay() {
@@ -395,7 +326,6 @@
 
                 setProgress(event) {
                     if (!this.videoLoaded) return;
-
                     const video = this.$refs.mainVideo;
                     const progressBar = this.$refs.progressBar;
                     if (!video || !progressBar) return;
@@ -404,32 +334,15 @@
                     if (video.duration) video.currentTime = pos * video.duration;
                 },
 
-                handleTouchEnd(event) {
-                    if (!this.videoLoaded) return;
-
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    const currentTime = new Date().getTime();
-                    const tapLength = currentTime - this.lastTap;
-                    if (tapLength < 300 && tapLength > 0) {
-                        const rect = video.getBoundingClientRect();
-                        const x = event.changedTouches[0].clientX - rect.left;
-                        if (x < rect.width / 2) {
-                            video.currentTime = Math.max(0, video.currentTime - 10);
-                        } else {
-                            video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                        }
-                    }
-                    this.lastTap = currentTime;
-                },
-
                 handleDoubleClick(event) {
                     if (!this.videoLoaded) return;
-
                     const video = this.$refs.mainVideo;
-                    if (!video) return;
+
+                    if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
                     const rect = video.getBoundingClientRect();
                     const x = event.clientX - rect.left;
+
                     if (x < rect.width / 2) {
                         video.currentTime = Math.max(0, video.currentTime - 10);
                     } else {
@@ -448,7 +361,7 @@
                     this.videoLoaded = false;
                     const video = this.$refs.mainVideo;
                     if (video) {
-                        video.load(); // Reload the video
+                        video.load();
                     }
                 }
             }
