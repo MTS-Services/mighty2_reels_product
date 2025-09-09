@@ -8,7 +8,7 @@ use Livewire\Attributes\Layout;
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'Product'])]
 class Product extends Component
 {
-    public $productDetails = true; // Show product details first
+    public $productDetails = false; // Show product details first
     public $favourite = false;
     public $activeVideo = null; // Current selected video/product
     public $videos = [];        // All videos/products
@@ -65,13 +65,15 @@ class Product extends Component
      */
     public function toggleVideoDetails($videoId = null)
     {
-        if ($videoId) {
-            $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
-            $this->productDetails = true;
-        } else {
-            $this->activeVideo = null;
-            $this->productDetails = false;
-        }
+            $this->productDetails = !$this->productDetails;
+
+        // if ($videoId) {
+        //     $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
+        //     $this->productDetails = true;
+        // } else {
+        //     $this->activeVideo = null;
+        //     $this->productDetails = false;
+        // }
     }
 
     /**
