@@ -42,8 +42,8 @@ class VerifyResetOtp extends Component
 
         // Check if user exists
         $user = User::where('email', $this->email)
-                    ->where('otp_token', $this->token)
-                    ->first();
+            ->where('otp_token', $this->token)
+            ->first();
 
         if (!$user) {
             session()->flash('error', 'Invalid request. Please start the password reset process again.');
@@ -75,8 +75,8 @@ class VerifyResetOtp extends Component
         $this->validate();
 
         $user = User::where('email', $this->email)
-                    ->where('otp_token', $this->token)
-                    ->first();
+            ->where('otp_token', $this->token)
+            ->first();
 
         if (!$user) {
             session()->flash('error', 'Invalid request. Please start the password reset process again.');
@@ -135,8 +135,8 @@ class VerifyResetOtp extends Component
         }
 
         $user = User::where('email', $this->email)
-                    ->where('status', User::STATUS_ACTIVE)
-                    ->first();
+            ->where('status', User::STATUS_ACTIVE)
+            ->first();
 
         if (!$user) {
             $this->addError('otp', 'User not found.');
@@ -217,7 +217,6 @@ class VerifyResetOtp extends Component
 
     public function render()
     {
-        $this->updateRateLimitStatus();
         return view('livewire.auth.verify-reset-otp');
     }
 }

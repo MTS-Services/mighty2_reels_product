@@ -49,11 +49,12 @@
                                     </div>
                                 @endif
                                 @if (session()->has('error'))
-                                    <div class="mt-2 text-sm text-red-600 p-3 bg-red-50 border border-red-200 rounded-md">
+                                    <div
+                                        class="mt-2 text-sm text-red-600 p-3 bg-red-50 border border-red-200 rounded-md">
                                         {{ session('error') }}
                                     </div>
                                 @endif
-                            {{-- <p class="text-black"> {{ $resendCooldown }} <span x-text="$wire.resendCooldown"></span></p> --}}
+                                {{-- <p class="text-black"> {{ $resendCooldown }} <span x-text="$wire.resendCooldown"></span></p> --}}
 
                                 <div class="flex gap-3 justify-between">
                                     <x-button variant="secondary" type="button" class="w-full mt-3 relative"
@@ -83,6 +84,8 @@
                 </div>
             </div>
         </div>
+
+        {{-- ... a large part of your blade file ... --}}
 
         <script>
             function otpForm() {
@@ -157,6 +160,7 @@
                                 remaining--;
                             } else {
                                 clearInterval(this.resendTimerInterval);
+                                // Sync with server once timer is done
                                 this.$wire.call('updateRateLimitStatus');
                             }
                         }, 1000);
@@ -170,15 +174,12 @@
                             this.startCooldownTimer(event.cooldown);
                         });
 
-                        // Start cooldown timer if already in cooldown
+                        // Start cooldown timer if page reloads while in cooldown
                         if (this.$wire.resendCooldown > 0) {
                             this.startCooldownTimer(this.$wire.resendCooldown);
                         }
 
-                        // Update rate limit status every 5 seconds
-                        setInterval(() => {
-                            this.$wire.call('updateRateLimitStatus');
-                        }, 5000);
+                        // THE CONFLICTING TIMER HAS BEEN REMOVED FROM HERE
                     }
                 }
             }
