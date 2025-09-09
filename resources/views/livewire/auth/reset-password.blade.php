@@ -53,7 +53,7 @@
                     <input type="hidden" wire:model="email">
 
                     <!-- Email Display (text only) -->
-                    <div>
+                    {{-- <div>
                         <label class="block text-sm font-medium text-gray-700">
                             Email Address
                         </label>
@@ -63,7 +63,7 @@
                         <p class="mt-2 text-xs text-gray-500">
                             This is the email address associated with your password reset request.
                         </p>
-                    </div>
+                    </div> --}}
 
                     <!-- New Password -->
                     <div>

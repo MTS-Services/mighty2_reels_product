@@ -22,7 +22,7 @@ class ResetPassword extends Component
     {
         // Get token from route parameter
         $this->token = $token ?? request()->route('token') ?? '';
-        
+
         // Validate token and get user
         if (empty($this->token)) {
             session()->flash('error', 'Invalid or expired reset link.');
@@ -32,19 +32,12 @@ class ResetPassword extends Component
 
         // Find user with this OTP token
         $user = User::where('otp_token', $this->token)->first();
-        
+
         if (!$user) {
             session()->flash('error', 'Invalid or expired reset link.');
             $this->redirectRoute('password.request', navigate: true);
             return;
         }
-
-        // Check if OTP has expired (optional - you might want to allow password reset even if OTP expired after verification)
-        // if ($user->expires_at && Carbon::now()->isAfter($user->expires_at)) {
-        //     session()->flash('error', 'Reset link has expired. Please request a new one.');
-        //     $this->redirectRoute('password.request', navigate: true);
-        //     return;
-        // }
 
         $this->email = $user->email;
     }
@@ -84,24 +77,25 @@ class ResetPassword extends Component
             return;
         }
 
-        // Update user password and clear OTP data
-        $user->forceFill([
+        $user->update([
             'password' => Hash::make($this->password),
             'remember_token' => Str::random(60),
             'otp' => null,
             'expires_at' => null,
             'otp_token' => null,
-            'updated_by' => null, // Since this is a password reset, no authenticated user
-        ])->save();
+            'updated_by' => null,
+        ]);
+
+        $user->save();
 
         // Fire the password reset event
         event(new PasswordReset($user));
 
         session()->flash('status', 'Your password has been reset successfully! You can now login with your new password.');
-        
+
         // Clear the form
         $this->reset(['password', 'password_confirmation']);
-        
+
         // Redirect to login page
         $this->redirectRoute('login', navigate: true);
     }

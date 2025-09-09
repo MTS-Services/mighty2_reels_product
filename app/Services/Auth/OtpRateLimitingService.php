@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class OtpRateLimitingService
 {
-    private const COOLDOWN_SECONDS = 60000;
+    private const COOLDOWN_SECONDS = 20;
     private const HOURLY_ATTEMPTS = 500;
     private const HOUR_IN_SECONDS = 3600;
 
