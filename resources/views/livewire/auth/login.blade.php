@@ -26,7 +26,7 @@
                         <div class="mt-1">
                             <input id="email-address" name="email" wire:model="email" type="email"
                                 autocomplete="email" required
-                                class="appearance-none relative block w-full p-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                class="appearance-none text-gray-900 relative block w-full p-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                 placeholder="Enter your email">
                         </div>
                         <p class="mt-2 text-xs text-gray-500">
@@ -46,7 +46,7 @@
                         <div class="relative">
                             <input id="password" name="password" wire:model="password" type="password"
                                 autocomplete="email" required
-                                class="appearance-none relative block w-full p-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                class="appearance-none text-gray-900 relative block w-full p-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                 placeholder="Enter your password">
                             <span
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer">

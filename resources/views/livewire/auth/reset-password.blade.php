@@ -74,7 +74,7 @@
                             <div class="relative">
                                 <input id="password" wire:model="password" 
                                     :type="show ? 'text' : 'password'" required
-                                    class="appearance-none relative block w-full px-5 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                    class="text-black appearance-none relative block w-full px-5 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                     placeholder="Enter your new password">
                                 
                                 <!-- Toggle Button -->
@@ -109,7 +109,7 @@
                             <div class="relative">
                                 <input id="password_confirmation" wire:model="password_confirmation" 
                                     :type="show ? 'text' : 'password'" required
-                                    class="appearance-none relative block w-full px-5 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                    class="text-black appearance-none relative block w-full px-5 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                     placeholder="Confirm your new password">
 
                                 <!-- Toggle Button -->
