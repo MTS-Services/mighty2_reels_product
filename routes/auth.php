@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('login', Login::class)->name('login');
     Route::get('register', Register::class)->name('register');
-    Route::get('forgot-password', ForgotPassword::class)->name('password.request');
+       Route::get('forgot-password', ForgotPassword::class)
+        ->middleware('throttle:3,1') // Example: 3 attempts per minute
+        ->name('password.request');
     Route::get('verify-reset-otp', VerifyResetOtp::class)->name('password.verify-otp');
     Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
     Route::get('verify-emails', VerifyEmails::class)->name('verify.emails');
