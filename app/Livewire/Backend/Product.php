@@ -125,7 +125,7 @@ class Product extends Component
                     $oldReel = ProductReel::where('product_id', $productId)->first();
                     if ($oldReel) {
                         Storage::disk('public')->delete($oldReel->file);
-                        $oldReel->delete();
+                        $oldReel->forceDelete();
                     }
                 }
 

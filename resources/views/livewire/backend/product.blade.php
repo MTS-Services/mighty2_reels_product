@@ -35,8 +35,10 @@
                 class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[340px] lg:h-[380px] flex flex-col">
                 <div class="aspect-video bg-gray-100 p-4">
                     @if ($product->images->count() > 0)
-                        <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
-                            class="w-full h-48 object-cover rounded">
+                        <a href="{{ route('admin.product.details') }}">
+                            <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
+                                class="w-full h-48 object-cover rounded">
+                        </a>
                     @else
                         <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
                             <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
@@ -251,7 +253,8 @@
                                             <div class="relative">
                                                 <img src="{{ asset('storage/' . $image['file']) }}"
                                                     class="w-full h-20 object-cover rounded">
-                                                <button type="button" wire:click="removeNewImage({{ $index }})"
+                                                <button type="button"
+                                                    wire:click="removeNewImage({{ $index }})"
                                                     class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                                     ×
                                                 </button>
