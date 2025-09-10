@@ -1,23 +1,7 @@
 <section>
     <div x-data="productManager()" class="max-w-7xl mx-auto p-6">
 
-        <!-- Header Section -->
-
-        {{-- <div class="flex justify-between items-center mb-8">
-            <h1 class="text-xl lg:text-3xl font-semibold text-gray-900">Manage your products and reels</h1>
-            <div class="flex gap-3">
-                <button
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md font-medium transition-colors">
-                    Add a new product
-                </button>
-                <button
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md font-medium transition-colors">
-                    Add area
-                </button>
-            </div>
-            
-        </div> --}}
-
+    
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
             <h1
                 class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
@@ -25,10 +9,10 @@
             </h1>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <button
+                <a href="{{ route('admin.products') }}"
                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
                     Add a new product
-                </button>
+                </a>
 
                 <a href="{{ route('admin.area') }}"
                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">

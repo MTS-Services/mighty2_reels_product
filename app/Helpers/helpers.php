@@ -3,6 +3,8 @@
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 if (!function_exists('site_name')) {
     function site_name()
@@ -56,5 +58,32 @@ if (!function_exists('is_admin')) {
     function is_admin()
     {
         return Auth::user()->is_admin == User::IS_ADMIN;
+    }
+}
+
+if (!function_exists('storage_url')) {
+    function storage_url($urlOrArray)
+    {
+        $image = asset('assets/images/profile.jpg');
+        if (is_array($urlOrArray) || is_object($urlOrArray)) {
+            $result = '';
+            $count = 0;
+            $itemCount = count($urlOrArray);
+            foreach ($urlOrArray as $index => $url) {
+
+                $result .= $url ? (Str::startsWith($url, 'https://') ? $url : asset('storage/' . $url)) : $image;
+
+
+                if ($count === $itemCount - 1) {
+                    $result .= '';
+                } else {
+                    $result .= ', ';
+                }
+                $count++;
+            }
+            return $result;
+        } else {
+            return $urlOrArray ? (Str::startsWith($urlOrArray, 'https://') ? $urlOrArray : asset('storage/' . $urlOrArray)) : $image;
+        }
     }
 }

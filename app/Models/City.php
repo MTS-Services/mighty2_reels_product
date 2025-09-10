@@ -3,32 +3,53 @@
 namespace App\Models;
 
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends BaseModel
 {
-    protected $fillable = [
-        'sort_order',
-        'name',
-        'status',
+     const STATUS_INACTIVE = 0;
+    const STATUS_ACTIVE = 1;
 
+    protected $fillable = [
+        'name',
+        'slug',
+        'status',
+        'sort_order',
         'created_by',
         'updated_by',
-        'deleted_by'
+        'deleted_by',
     ];
 
-    /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=
-                Start of RELATIONSHIPS
-     =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#= */
+    protected $casts = [
+        'status' => 'integer',
+        'sort_order' => 'integer',
+    ];
 
-   public function product()
+    /**
+     * Get the products for the city.
+     */
+    public function products(): HasMany
     {
-        return $this->hasMany(Product::class, 'city_id', 'id');
+        return $this->hasMany(Product::class);
     }
 
-     /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=
-                End of RELATIONSHIPS
-     =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#= */
+    /**
+     * Get the user who created the city.
+     */
 
-    public const STATUS_ACTIVE = 1;
-    public const STATUS_INACTIVE = 0;
+    /**
+     * Scope a query to only include active cities.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    /**
+     * Get the status label.
+     */
+    public function getStatusLabelAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
+    }
 }
