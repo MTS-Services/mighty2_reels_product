@@ -29,14 +29,14 @@ class Product extends Component
     public $price = '';
     public $room = '';
     public $city_id = '';
-    public $type = 1; 
-    public $status = 1; 
+    public $type = 1;
+    public $status = 1;
 
     // File uploads
     public $images = [];
-    public $videos = [];
-    public $tempImages = []; 
-    public $tempVideos = []; 
+    public $videos; // Changed to a single variable
+    public $tempImages = [];
+    public $tempVideos; // Changed to a single variable
 
     // Validation rules
     protected $rules = [
@@ -48,7 +48,7 @@ class Product extends Component
         'type' => 'required|in:0,1',
         'status' => 'required|in:0,1',
         'images.*' => 'nullable|image|max:10240', // 10MB max (10240 KB)
-        'videos.*' => 'nullable|mimes:mp4,avi,mov|mimetypes:video/mp4,video/x-m4v,video/avi,video/quicktime|max:51200',
+        'videos' => 'nullable|mimes:mp4,avi,mov|max:51200', // Changed to single video rule
     ];
 
     // Custom messages for validation errors
@@ -59,10 +59,9 @@ class Product extends Component
         'room.required' => 'Number of rooms is required.',
         'city_id.required' => 'City selection is required.',
         'images.*.image' => 'All uploaded files must be valid images.',
-        'images.*.max' => 'Images must not exceed 10MB.', 
-        'videos.*.mimes' => 'Videos must be in MP4, AVI, or MOV format.',
-        'videos.*.mimetypes' => 'The video file type is not allowed.', 
-        'videos.*.max' => 'Videos must not exceed 50MB.', 
+        'images.*.max' => 'Images must not exceed 10MB.',
+        'videos.mimes' => 'The video must be in MP4, AVI, or MOV format.',
+        'videos.max' => 'The video must not exceed 50MB.',
     ];
 
     public function openModal()
@@ -75,7 +74,7 @@ class Product extends Component
     {
         $this->showModal = false;
         $this->resetForm();
-        $this->resetValidation(); 
+        $this->resetValidation();
     }
 
     public function resetForm()
@@ -89,15 +88,14 @@ class Product extends Component
         $this->city_id = '';
         $this->type = 1;
         $this->status = 1;
-        $this->images = []; 
-        $this->videos = []; 
-        $this->tempImages = []; 
-        $this->tempVideos = []; 
+        $this->images = [];
+        $this->videos = null; // Reset to null
+        $this->tempImages = [];
+        $this->tempVideos = null; // Reset to null
     }
 
     public function saveProduct()
     {
-        // Validate all fields, including temporary file uploads
         $this->validate();
 
         try {
@@ -110,7 +108,7 @@ class Product extends Component
                 'type' => $this->type,
                 'status' => $this->status,
                 'created_at' => now(),
-                'created_by' => user()->id, // Assuming 'user()' is a helper function to get the current user
+                'created_by' => user()->id,
             ];
 
             if ($this->editMode && $this->productId) {
@@ -119,19 +117,28 @@ class Product extends Component
                     'updated_at' => now(),
                     'updated_by' => user()->id
                 ]));
-                $productId = $product->id; // Store for image/video association
+                $productId = $product->id;
+
+                // For single video, you should delete the old one before uploading a new one
+                if ($this->videos) {
+                    // Delete old video if it exists
+                    $oldReel = ProductReel::where('product_id', $productId)->first();
+                    if ($oldReel) {
+                        Storage::disk('public')->delete($oldReel->file);
+                        $oldReel->delete();
+                    }
+                }
+
             } else {
                 $product = ProductModel::create($productData);
-                $productId = $product->id; // Store for image/video association
+                $productId = $product->id;
             }
 
             // Handle image uploads
             if (!empty($this->images)) {
                 foreach ($this->images as $image) {
-                    // Ensure the file is a temporary uploaded file instance before storing
                     if ($image instanceof \Illuminate\Http\UploadedFile) {
                         $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                        // Store in 'public/products/images' and make it accessible via public disk
                         $path = $image->storeAs('products/images', $filename, 'public');
 
                         ProductImage::create([
@@ -145,23 +152,19 @@ class Product extends Component
                 }
             }
 
-            // Handle video uploads
-            if (!empty($this->videos)) {
-                foreach ($this->videos as $video) {
-                    // Ensure the file is a temporary uploaded file instance before storing
-                    if ($video instanceof \Illuminate\Http\UploadedFile) {
-                        $filename = time() . '_' . uniqid() . '.' . $video->getClientOriginalExtension();
-                        // Store in 'public/products/videos' and make it accessible via public disk
-                        $path = $video->storeAs('products/videos', $filename, 'public');
+            // Handle single video upload
+            if ($this->videos) {
+                if ($this->videos instanceof \Illuminate\Http\UploadedFile) {
+                    $filename = time() . '_' . uniqid() . '.' . $this->videos->getClientOriginalExtension();
+                    $path = $this->videos->storeAs('products/videos', $filename, 'public');
 
-                        ProductReel::create([
-                            'product_id' => $productId,
-                            'file' => $path,
-                            'status' => 1,
-                            'created_at' => now(),
-                            'created_by' => user()->id,
-                        ]);
-                    }
+                    ProductReel::create([
+                        'product_id' => $productId,
+                        'file' => $path,
+                        'status' => 1,
+                        'created_at' => now(),
+                        'created_by' => user()->id,
+                    ]);
                 }
             }
 
@@ -169,7 +172,6 @@ class Product extends Component
             session()->flash('success', $this->editMode ? 'Product updated successfully!' : 'Product created successfully!');
 
         } catch (\Exception $e) {
-            // Log the exception for debugging
             Log::error('Error saving product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while saving the product. Please try again.');
         }
@@ -177,7 +179,7 @@ class Product extends Component
 
     public function editProduct($productId)
     {
-        $product = ProductModel::findOrFail($productId);
+        $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
 
         $this->editMode = true;
         $this->productId = $productId;
@@ -189,6 +191,10 @@ class Product extends Component
         $this->type = $product->type;
         $this->status = $product->status;
 
+        // Load existing images and reels for display
+        $this->tempImages = $product->images->toArray();
+        $this->tempVideos = $product->reels->first()->toArray() ?? null;
+
         $this->showModal = true;
     }
 
@@ -196,17 +202,16 @@ class Product extends Component
     {
         try {
             $product = ProductModel::findOrFail($productId);
-            $product->delete(); 
 
             foreach ($product->images as $image) {
                 Storage::disk('public')->delete($image->file);
-                $image->delete(); 
+                $image->forceDelete();
             }
             foreach ($product->reels as $reel) {
                 Storage::disk('public')->delete($reel->file);
-                $reel->delete(); 
+                $reel->forceDelete();
             }
-
+            $product->forceDelete();
 
             session()->flash('success', 'Product deleted successfully!');
         } catch (\Exception $e) {
@@ -217,36 +222,42 @@ class Product extends Component
 
     public function updatedVideos()
     {
-        // Debug video uploads
-        foreach ($this->videos as $index => $video) {
-            Log::info('Video upload debug:', [
-                'index' => $index,
-                'original_name' => $video->getClientOriginalName(),
-                'size' => $video->getSize(),
-                'mime_type' => $video->getMimeType(),
-                'extension' => $video->getClientOriginalExtension(),
-            ]);
-        }
-
-        $this->validateOnly('videos.*');
+        $this->validateOnly('videos');
     }
 
-    public function updatedImages()
+     public function updatedImages($value)
     {
-        // Validate only the 'images.*' property
+    //    $this->images = $value; // just assign, no merge
         $this->validateOnly('images.*');
     }
-
-    public function removeImage($index)
+    public function removeNewImage($index)
     {
-        unset($this->images[$index]);
-        $this->images = array_values($this->images); // Re-index the array
+        // This handles new uploads
+        if (isset($this->images[$index])) {
+            unset($this->images[$index]);
+            $this->images = array_values($this->images);
+        }
+        // This handles existing images
+        if (isset($this->tempImages[$index])) {
+            $imageToDelete = $this->tempImages[$index];
+            Storage::disk('public')->delete($imageToDelete['file']);
+            ProductImage::find($imageToDelete['id'])->forceDelete();
+            unset($this->tempImages[$index]);
+            $this->tempImages = array_values($this->tempImages);
+        }
     }
 
-    public function removeVideo($index)
+    public function removeVideo()
     {
-        unset($this->videos[$index]);
-        $this->videos = array_values($this->videos); // Re-index the array
+        // This handles new uploads
+        $this->videos = null;
+
+        // This handles existing video from database
+        if ($this->editMode && $this->tempVideos) {
+            Storage::disk('public')->delete($this->tempVideos['file']);
+            ProductReel::find($this->tempVideos['id'])->forceDelete();
+            $this->tempVideos = null;
+        }
     }
 
     public function render()
@@ -254,9 +265,9 @@ class Product extends Component
         $products = ProductModel::query()
             ->with(['city', 'images', 'reels'])
             ->orderBy('created_at', 'desc')
-            ->paginate(6); 
+            ->paginate(9);
 
-        $cities = City::where('status', 1)->orderBy('name')->get(); 
+        $cities = City::where('status', 1)->orderBy('name')->get();
 
         return view('livewire.backend.product', [
             'products' => $products,

@@ -1,5 +1,4 @@
 <div class="max-w-7xl mx-auto p-6">
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
         <h1
             class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
@@ -18,7 +17,6 @@
         </div>
     </div>
 
-    <!-- Flash Messages -->
     @if (session()->has('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}
@@ -31,14 +29,14 @@
         </div>
     @endif
 
-    <!-- Products Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         @forelse($products as $product)
-            <div class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[340px] lg:h-[380px] flex flex-col">
+            <div
+                class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[340px] lg:h-[380px] flex flex-col">
                 <div class="aspect-video bg-gray-100 p-4">
                     @if ($product->images->count() > 0)
                         <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
-                            class="w-full h-full object-cover rounded">
+                            class="w-full h-48 object-cover rounded">
                     @else
                         <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
                             <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
@@ -105,21 +103,20 @@
         @endforelse
     </div>
 
-    {{-- <!-- Pagination -->
     @if ($products->hasPages())
         <div class="flex justify-between items-center">
             <span class="text-sm text-orange-500">
-                Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }} results
+                Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }}
+                results
             </span>
             <div class="flex gap-2">
                 {{ $products->links() }}
             </div>
         </div>
-    @endif --}}
+    @endif
 
-    <!-- Modal -->
     @if ($showModal)
-        <div class="fixed inset-0 bg-black/20  bg-opacity-50 flex items-center justify-center z-50"
+        <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
                 <div class="p-6">
@@ -136,7 +133,6 @@
                     </div>
 
                     <form wire:submit="saveProduct" class="space-y-6">
-                        <!-- Title -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Product Title *</label>
                             <input wire:model.lazy="title" type="text"
@@ -147,7 +143,6 @@
                             @enderror
                         </div>
 
-                        <!-- Description -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                             <textarea wire:model.lazy="description" rows="3"
@@ -158,7 +153,6 @@
                             @enderror
                         </div>
 
-                        <!-- Price and Room (Row) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
@@ -180,7 +174,6 @@
                             </div>
                         </div>
 
-                        <!-- City and Type (Row) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
@@ -208,7 +201,6 @@
                             </div>
                         </div>
 
-                        <!-- Status -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
                             <select wire:model.lazy="status"
@@ -221,12 +213,11 @@
                             @enderror
                         </div>
 
-                        <!-- Upload Images -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
                             <div class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center">
-                                <input wire:model.lazy="images" type="file" multiple accept="image/*"
-                                    class="hidden" id="image-upload">
+                                <input wire:model="images" type="file" multiple accept="image/*" class="hidden"
+                                    id="image-upload">
                                 <label for="image-upload" class="cursor-pointer">
                                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -238,75 +229,95 @@
                                     <p class="text-xs text-gray-400">PNG, JPG, GIF up to 2MB each</p>
                                 </label>
                             </div>
-                            @error('images.*')
+                            @error('images')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
 
-                            <!-- Image Previews -->
-                            @if (count($images) > 0)
+
+                            @if (!empty($images) || !empty($tempImages))
                                 <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                                     @foreach ($images as $index => $image)
                                         <div class="relative">
                                             <img src="{{ $image->temporaryUrl() }}"
                                                 class="w-full h-20 object-cover rounded">
-                                            <button type="button" wire:click="removeImage({{ $index }})"
+                                            <button type="button" wire:click="removeNewImage({{ $index }})"
                                                 class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                                 ×
                                             </button>
                                         </div>
                                     @endforeach
+                                    @if ($editMode && !empty($tempImages))
+                                        @foreach ($tempImages as $index => $image)
+                                            <div class="relative">
+                                                <img src="{{ asset('storage/' . $image['file']) }}"
+                                                    class="w-full h-20 object-cover rounded">
+                                                <button type="button" wire:click="removeNewImage({{ $index }})"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                                    ×
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             @endif
                         </div>
 
-                        <!-- Upload Videos -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Videos</label>
-                            <div class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center">
-                                <input wire:model.lazy="videos" type="file" multiple accept="video/*"
-                                    class="hidden" id="video-upload">
-                                <label for="video-upload" class="cursor-pointer">
-                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    <p class="text-sm text-gray-500">Click to upload videos or drag and drop</p>
-                                    <p class="text-xs text-gray-400">MP4, AVI, MOV up to 10MB each</p>
-                                </label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Video</label>
+
+                            <div
+                                class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center relative">
+                                <input wire:model="videos" type="file" accept="video/*" class="hidden"
+                                    id="video-upload">
+
+                                @if (!$videos && !$tempVideos)
+                                    <label for="video-upload" class="cursor-pointer">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Click to upload video or drag and drop</p>
+                                        <p class="text-xs text-gray-400">MP4, AVI, MOV up to 50MB</p>
+                                    </label>
+                                @endif
+
+                                @if ($videos)
+                                    <div class="relative">
+                                        <video controls class="w-full rounded-md"
+                                            src="{{ $videos->temporaryUrl() }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <button type="button" wire:click="removeVideo"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full 
+                                            w-6 h-6 flex items-center justify-center text-xs">
+                                            ×
+                                        </button>
+                                    </div>
+                                @elseif ($editMode && $tempVideos)
+                                    <div class="relative">
+                                        <video controls class="w-full rounded-md"
+                                            src="{{ asset('storage/' . $tempVideos['file']) }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <button type="button" wire:click="removeVideo"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full 
+                                            w-6 h-6 flex items-center justify-center text-xs">
+                                            ×
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
-                            @error('videos.*')
+
+                            @error('videos')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
-
-                            <!-- Video Previews -->
-                            @if (count($videos) > 0)
-                                <div class="mt-4 space-y-2">
-                                    @foreach ($videos as $index => $video)
-                                        <div class="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                            <span
-                                                class="text-sm text-gray-600">{{ $video->getClientOriginalName() }}</span>
-                                            <button type="button" wire:click="removeVideo({{ $index }})"
-                                                class="text-red-500 hover:text-red-700">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                    </path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
                         </div>
 
-                        <!-- Form Buttons -->
                         <div class="flex justify-end space-x-3 pt-6 border-t">
                             <button type="button" wire:click="closeModal"
-                                class="px-4 py-2 border border-gray-300 text-black rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+                                class="px-4 py-2 border border-gray-300 text-black rounded-md hover:bg-gray-50 font-medium">
                                 Cancel
                             </button>
                             <button type="submit"
@@ -321,19 +332,4 @@
             </div>
         </div>
     @endif
-
-    <!-- Loading Overlay -->
-    <div wire:loading.flex class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-4 flex items-center space-x-3">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                    stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-            </svg>
-            <span class="text-gray-700">Processing...</span>
-        </div>
-    </div>
 </div>
