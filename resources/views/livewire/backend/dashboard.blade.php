@@ -30,10 +30,10 @@
                     Add a new product
                 </button>
 
-                <button
+                <a href="{{ route('admin.area') }}"
                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
-                    Add area
-                </button>
+                    Areas
+                </a>
             </div>
         </div>
 
