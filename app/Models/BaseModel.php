@@ -10,23 +10,25 @@ class BaseModel extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $with = ['createdBy', 'updatedBy', 'deletedBy'];
+
     /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=
                 Start of RELATIONSHIPS
      =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#= */
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by')->select('id', 'name');
+        return $this->belongsTo(User::class, 'created_by')->select('id', 'first_name', 'last_name');
     }
 
     public function updatedBy()
     {
-        return $this->belongsTo(User::class, 'updated_by')->select('id', 'name');
+        return $this->belongsTo(User::class, 'updated_by')->select('id', 'first_name', 'last_name');
     }
 
     public function deletedBy()
     {
-        return $this->belongsTo(User::class, 'deleted_by')->select('id', 'name');
+        return $this->belongsTo(User::class, 'deleted_by')->select('id', 'first_name', 'last_name');
     }
 
     /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=

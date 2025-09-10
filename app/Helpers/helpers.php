@@ -31,9 +31,10 @@ if (!function_exists('favicon')) {
 }
 
 if (!function_exists('time_format')) {
+
     function time_format($time)
     {
-        return Carbon::parse($time)->format('M d, Y');
+        return Carbon::parse($time)->format('d M, Y ,h:i A');
     }
 }
 

@@ -61,6 +61,10 @@ class User extends Authenticatable
         ];
     }
 
+    protected $appends = [
+        'full_name'
+    ];
+
     /**
      * Get the user's initials
      */
@@ -88,4 +92,9 @@ class User extends Authenticatable
         self::GENDER_FEMALE => 'Female',
         self::GENDER_OTHER => 'Other',
     ];
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }
