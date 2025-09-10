@@ -1,11 +1,11 @@
 <section class="font-playfair max-w-7xl mx-auto px-4 py-6">
-    <div class="flex items-center justify-between ">
-        <h2 class="font-medium text-3xl text-black  mb-6">Areas List</h2>
-        <a href="#"
+    <div class="flex items-center justify-between py-4">
+        <h2 class="font-medium text-3xl text-black mb-6">Areas List</h2>
+        <button wire:click="$set('showModal', true)"
             class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition">
-            <flux:icon name="plus" class="h-5 w-5" />
+            <flux:icon name="plus-circle" class="h-5 w-5" />
             Add Area
-        </a>
+        </button>
     </div>
 
     <div class="overflow-y-visible bg-white rounded-xl shadow-md border border-gray-200">
@@ -64,5 +64,57 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Add Area Modal -->
+    <div x-show="$wire.showModal" class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/20 bg-opacity-50"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" wire:keydown.escape="closeModal"
+        tabindex="-1">
+
+        <!-- Modal Content -->
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+            <div @click.away="$wire.closeModal()" class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="transform scale-95 opacity-0"
+                x-transition:enter-end="transform scale-100 opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="transform scale-100 opacity-100"
+                x-transition:leave-end="transform scale-95 opacity-0">
+
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center pb-3">
+                    <h3 class="text-xl font-bold text-gray-800">Add New Area</h3>
+                    <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <flux:icon name="x-mark" class="h-6 w-6" />
+                    </button>
+                </div>
+
+                <!-- Modal Body - Form -->
+                <form wire:submit.prevent="createArea">
+                    <div class="mb-6">
+                        <label for="name" class="block text-gray-700 font-semibold mb-2">Area Name</label>
+                        <input type="text" id="name" wire:model.defer="name"
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 @error('name') border-red-500 @enderror">
+                        @error('name')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" wire:click="closeModal"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200">
+                            Add Area
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
