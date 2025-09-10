@@ -1,9 +1,8 @@
 <section>
 
-
-    <body class="bg-gray-50 min-h-screen">
+    <div class="bg-gray-50 min-h-screen">
         <!-- Header -->
-        <header>
+        <div>
             <div class="max-w-6xl mx-auto px-4 py-4">
                 <button class="flex items-center text-orange-500 hover:text-orange-600 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,10 +12,10 @@
                     Back to home screen
                 </button>
             </div>
-        </header>
+        </div>
 
         <!-- Main Content -->
-        <main class="max-w-6xl mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto px-4 py-8">
             <div class="grid md:grid-cols-2 gap-12">
                 <!-- Product Image Section -->
                 <div>
@@ -93,7 +92,7 @@
 
                 </div>
             </div>
-        </main>
+        </div>
 
         <!-- Footer -->
         <footer class="bg-[#EFEFEF] p-2 mt-30">
@@ -142,7 +141,8 @@
                 }, 2000);
             });
         </script>
-    </body>
+    </div>
 
     </html>
 </section>
+

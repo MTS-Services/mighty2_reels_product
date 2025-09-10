@@ -2,6 +2,7 @@
 
 use App\Livewire\Backend\Area;
 use App\Livewire\Backend\Dashboard;
+use App\Livewire\Backend\Details;
 use App\Livewire\Backend\ProductDetails;
 use App\Livewire\Backend\Product;
 use App\Livewire\Backend\Profile;
@@ -13,6 +14,7 @@ Route::middleware(['auth', 'admin'])->name('admin.')->group(function () {
 
     Route::get('products', Product::class)->name('products');
     Route::get('product/details', ProductDetails::class)->name('product.details');
+    Route::get('details', Details::class)->name('details');
     Route::get('reels', Reel::class)->name('reels');
     Route::get('area', Area::class)->name('area');
 });
