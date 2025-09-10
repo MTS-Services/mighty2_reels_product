@@ -53,7 +53,9 @@
 
                 <div class="p-4 flex flex-col flex-1">
                     <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
+                        <a href="{{ route('admin.product.details') }}">
+                            <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
+                        </a>
                         <span
                             class="px-2 py-1 text-xs rounded-full {{ $product->type == 1 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
                             {{ $product->type == 1 ? 'Rent' : 'Sale' }}
