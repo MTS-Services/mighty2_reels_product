@@ -7,7 +7,7 @@
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
                 <div class="items-center justify-end gap-6 w-auto hidden lg:flex">
-                    <x-button variant="secondary" class="{{ $pageSlug != 'reels' ? 'text-black' : '' }}" size="lg"
+                    <x-button href="{{ route('admin.product.reels') }}" variant="secondary" class="{{ $pageSlug != 'reels' ? 'text-black' : '' }}" size="lg"
                         :linkText="$pageSlug != 'reels'">
                         <flux:icon name="film" /> Reels
                     </x-button>
