@@ -37,11 +37,9 @@
                                     Inactive
                                 </span>
                             @endif
-
                         </td>
                         <td class="p-4 text-center">
-                            <div class="relative inline-block text-left" x-data="{ open: false }"
-                                @click.outside="open = false">
+                            <div class="relative inline-block text-left" x-data="{ open: false }" @click.outside="open = false">
                                 <button @click="open = !open"
                                     class="text-orange-600 rounded-full p-2 hover:bg-orange-100 transition"
                                     title="Settings">
@@ -49,32 +47,31 @@
                                 </button>
                                 <div x-show="open" x-transition
                                     class="absolute right-3 mt-2 p-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                                    <button wire:click="details({{ $city->id }})"
+
+                                    <button wire:click="details('{{ encrypt($city->id) }}')"
                                         class="w-full flex items-center px-3 py-2 rounded text-sm hover:bg-orange-50">
                                         <flux:icon name="eye" class="text-gray-600 mr-2 h-4 w-4" />
                                         Details
                                     </button>
 
-                                    <button wire:click="edit({{ $city->id }})"
+                                    <button wire:click="edit('{{ encrypt($city->id) }}')"
                                         class="w-full flex items-center px-3 py-2 rounded text-sm hover:bg-orange-50">
                                         <flux:icon name="pencil-square" class="text-gray-600 mr-2 h-4 w-4" />
                                         Edit
                                     </button>
-                                    <button wire:click="toggleStatus({{ $city->id }})"
-                                        class="w-full flex items-center px-3 py-2 rounded text-sm hover:bg-orange-50">
 
+                                    <button wire:click="toggleStatus('{{ encrypt($city->id) }}')"
+                                        class="w-full flex items-center px-3 py-2 rounded text-sm hover:bg-orange-50">
                                         @if ($city->status)
-                                            <!-- Active Icon -->
                                             <flux:icon name="x-circle" class="text-red-600 mr-2 h-4 w-4" />
                                             Inactive
                                         @else
-                                            <!-- Inactive Icon -->
-                                            <flux:icon name="check-circle " class=" text-green-600 mr-2 h-4 w-4" />
+                                            <flux:icon name="check-circle" class="text-green-600 mr-2 h-4 w-4" />
                                             Active
                                         @endif
                                     </button>
 
-                                    <button wire:click="delete({{ $city->id }})"
+                                    <button wire:click="delete('{{ encrypt($city->id) }}')"
                                         class="w-full flex items-center px-3 py-2 rounded text-sm hover:bg-orange-50">
                                         <flux:icon name="trash" class="text-gray-600 mr-2 h-4 w-4" />
                                         Delete
@@ -99,7 +96,6 @@
             <div @click.away="$wire.closeModal()"
                 class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl transition transform">
 
-                <!-- Modal Header -->
                 <div class="flex justify-between items-center pb-3">
                     <h3 class="text-xl font-bold text-gray-800">
                         {{ $cityId ? 'Edit Area' : 'Add New Area' }}
@@ -109,7 +105,6 @@
                     </button>
                 </div>
 
-                <!-- Modal Body -->
                 <form wire:submit.prevent="{{ $cityId ? 'updateArea' : 'createArea' }}">
                     <div class="mb-6">
                         <label for="name" class="block text-gray-700 font-semibold mb-2">Area Name</label>
@@ -120,7 +115,6 @@
                         @enderror
                     </div>
 
-                    <!-- Modal Actions -->
                     <div class="flex justify-end space-x-4">
                         <button type="button" wire:click="closeModal"
                             class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
@@ -141,19 +135,15 @@
         wire:keydown.escape="closeDetailsModal" tabindex="-1">
         <div class="relative min-h-screen flex items-center justify-center p-4">
             <div @click.away="$wire.closeDetailsModal()"
-                class="bg-white rounded-lg  w-full max-w-xl shadow-xl transition transform">
+                class="bg-white rounded-lg w-full max-w-xl shadow-xl transition transform">
 
-                <!-- Modal Header -->
                 <div class="flex justify-between items-center pb-5 p-6 rounded-t-lg bg-gray-50">
-                    <h3 class="text-xl font-bold text-gray-800">
-                        Area Details
-                    </h3>
+                    <h3 class="text-xl font-bold text-gray-800">Area Details</h3>
                     <button wire:click="closeDetailsModal" class="text-gray-400 hover:text-gray-600">
                         <flux:icon name="x-mark" class="h-6 w-6" />
                     </button>
                 </div>
 
-                <!-- Modal Body -->
                 <div class="space-y-4 text-gray-700 p-6">
                     <div class="flex justify-between">
                         <span class="font-semibold">Area Name: </span>
@@ -172,12 +162,10 @@
                             </span>
                         @endif
                     </div>
-                    
+
                     <x-details :createdAt="$createdAt" :createdBy="$createdBy" :updatedAt="$updatedAt" :updatedBy="$updatedBy" />
                 </div>
 
-
-                <!-- Modal Actions -->
                 <div class="flex justify-end mt-6 m-6">
                     <button type="button" wire:click="closeDetailsModal"
                         class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
@@ -187,5 +175,4 @@
             </div>
         </div>
     </div>
-
 </section>
