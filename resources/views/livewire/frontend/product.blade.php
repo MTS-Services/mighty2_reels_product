@@ -188,7 +188,7 @@
 
         {{-- Video Feed --}}
         <div class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
-            x-data="{ product_details: false }">
+            x-data="{ product_details: false}">
             @foreach ($videos as $index => $video)
                 {{-- Product Details Section --}}
                 @if ($productDetails)

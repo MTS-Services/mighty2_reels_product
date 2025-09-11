@@ -6,11 +6,10 @@
         </h1>
 
         <div class="flex flex-col sm:flex-row gap-4">
-            <button wire:click="openModal"
-                class="flex cursor-pointer items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+            <x-button wire:click="openModal">
                 <flux:icon name="plus-circle" class="h-5 w-5" />
                 Add new product
-            </button>
+            </x-button>
         </div>
     </div>
 
@@ -64,25 +63,15 @@
                     </p>
 
                     <div class="mt-auto flex items-center justify-between gap-3">
-                        <button wire:click="editProduct({{ $product->id }})"
-                            class="w-full flex items-center justify-center gap-1 rounded-md py-2 bg-[#FFF0E6] border border-orange-400 text-orange-500 hover:text-orange-600 text-sm font-medium transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                </path>
-                            </svg>
+                        <x-button wire:click="editProduct({{ $product->id }})" variant="secondary">
+                            <flux:icon name="pencil" class="w-4 h-4" />
                             Edit
-                        </button>
-                        <button wire:click="deleteProduct({{ $product->id }})"
-                            wire:confirm="Are you sure you want to delete this product?"
-                            class="w-full flex items-center justify-center gap-1 rounded-md py-2 bg-[#FAE8E8] border border-[#C91C1C] text-[#C91C1C] hover:bg-red-50 text-sm font-medium transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
+                        </x-button>
+                        <x-button wire:click="deleteProduct({{ $product->id }})"
+                            wire:confirm="Are you sure you want to delete this product?" variant="secondary">
+                            <flux:icon name="trash" class="w-4 h-4" />
                             Delete
-                        </button>
+                        </x-button>
                     </div>
                 </div>
             </div>
@@ -96,10 +85,10 @@
                 </svg>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
                 <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
-                <button wire:click="openModal"
-                    class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                <x-button wire:click="openModal">
+                    <flux:icon name="plus-circle" class="h-5 w-5" />
                     Add new product
-                </button>
+                </x-button>
             </div>
         @endforelse
     </div>
@@ -125,12 +114,9 @@
                         <h2 class="text-xl font-semibold text-gray-900">
                             {{ $editMode ? 'Edit Product' : 'Add New Product' }}
                         </h2>
-                        <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                        <x-button variant="secondary" wire:click="closeModal">
+                            <flux:icon name="x-mark" class="h-6 w-6" />
+                        </x-button>
                     </div>
 
                     <form wire:submit="saveProduct" class="space-y-6">

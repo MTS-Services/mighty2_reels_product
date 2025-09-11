@@ -15,4 +15,6 @@ Route::middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('details', Details::class)->name('details');
     Route::get('area', Area::class)->name('area');
 });
-Route::get('profile', Profile::class)->name('profile');
+Route::get('/profile', Profile::class)->name('profile')->middleware('auth');
+
+
