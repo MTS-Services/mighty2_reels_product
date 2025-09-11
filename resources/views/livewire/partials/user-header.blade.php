@@ -68,18 +68,18 @@
                         x-transition:leave-end="grid-rows-[0fr] opacity-0"
                         class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                         <div class="p-4 space-y-2 overflow-hidden">
-                            @if (is_admin())
-                                <x-button class="w-full" variant="secondary" size="sm"
-                                    href="{{ route('admin.dashboard') }}" wire:navigate>
-                                    <flux:icon name="user-circle" /> Dashboard
-                                </x-button>
-                            @endif
-                            <x-button class="w-full" variant="secondary" size="sm"
+                            <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                 href="{{ route('profile') }}" wire:navigate>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
-                            <flux:separator variant="subtle" />
-                            <x-button class="w-full" variant="secondary" size="sm" wire:click="logout">
+                            @if (is_admin())
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('admin.products') }}" wire:navigate>
+                                    <flux:icon name="user-circle" /> Products
+                                </x-button>
+                            @endif
+                            <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                wire:click="logout">
                                 <flux:icon name="power" /> Logout
                             </x-button>
                         </div>

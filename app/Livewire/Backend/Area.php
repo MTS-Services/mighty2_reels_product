@@ -6,7 +6,7 @@ use App\Models\City;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('app', ['title' => 'Area', 'page_slug' => 'Area'])]
+#[Layout('app', ['title' => 'Area', 'page_slug' => 'area'])]
 class Area extends Component
 {
     public $showModal = false;
@@ -30,8 +30,8 @@ class Area extends Component
         $this->validate();
 
         City::create([
-            'name'       => $this->name,
-            'status'     => $this->status,
+            'name' => $this->name,
+            'status' => $this->status,
             'created_at' => now(),
             'created_by' => user()->id,
         ]);
@@ -59,7 +59,7 @@ class Area extends Component
 
         $city = City::findOrFail($this->cityId);
         $city->update([
-            'name'       => $this->name,
+            'name' => $this->name,
             'updated_at' => now(),
             'updated_by' => user()->id,
         ]);
