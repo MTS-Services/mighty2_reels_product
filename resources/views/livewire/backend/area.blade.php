@@ -1,11 +1,10 @@
 <section class="font-playfair max-w-7xl mx-auto px-4 py-6">
     <div class="flex items-center justify-between py-4">
         <h2 class="font-medium text-3xl text-black mb-6">Manage your areas</h2>
-        <button wire:click="$set('showModal', true)"
-            class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition">
+        <x-button wire:click="$set('showModal', true)">
             <flux:icon name="plus-circle" class="h-5 w-5" />
             Add Area
-        </button>
+        </x-button>
     </div>
 
     @if (session('success'))
@@ -101,9 +100,9 @@
                     <h3 class="text-xl font-bold text-gray-800">
                         {{ $cityId ? 'Edit Area' : 'Add New Area' }}
                     </h3>
-                    <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <x-button wire:click="closeModal" variant="secondary">
                         <flux:icon name="x-mark" class="h-6 w-6" />
-                    </button>
+                    </x-button>
                 </div>
 
                 <form wire:submit.prevent="{{ $cityId ? 'updateArea' : 'createArea' }}">
@@ -123,7 +122,7 @@
                         </button>
                         <button type="submit"
                             class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                            {{ $cityId ? 'Update' : 'Add Area' }}
+                            {{ $cityId ? 'Update' : 'Create' }}
                         </button>
                     </div>
                 </form>
@@ -140,9 +139,9 @@
 
                 <div class="flex justify-between items-center pb-5 p-6 rounded-t-lg bg-gray-50">
                     <h3 class="text-xl font-bold text-gray-800">Area Details</h3>
-                    <button wire:click="closeDetailsModal" class="text-gray-400 hover:text-gray-600">
+                    <x-button wire:click="closeDetailsModal" variant="secondary">
                         <flux:icon name="x-mark" class="h-6 w-6" />
-                    </button>
+                    </x-button>
                 </div>
 
                 <div class="space-y-4 text-gray-700 p-6">
@@ -168,10 +167,9 @@
                 </div>
 
                 <div class="flex justify-end mt-6 m-6">
-                    <button type="button" wire:click="closeDetailsModal"
-                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <x-button type="button" wire:click="closeDetailsModal" variant="secondary">
                         Close
-                    </button>
+                    </x-button>
                 </div>
             </div>
         </div>

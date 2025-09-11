@@ -306,16 +306,13 @@
 
 
                         <div class="flex justify-end space-x-3 pt-6 border-t">
-                            <button type="button" wire:click="closeModal"
-                                class="px-4 py-2 border border-gray-300 text-black rounded-md hover:bg-gray-50 font-medium">
+                            <x-button wire:click="closeModal" variant="secondary">
                                 Cancel
-                            </button>
-                            <button type="submit"
-                                class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md font-medium transition-colors"
-                                wire:loading.attr="disabled">
+                            </x-button>
+                            <x-button type="submit" wire:loading.attr="disabled">
                                 <span wire:loading.remove>{{ $editMode ? 'Update' : 'Create' }}</span>
                                 <span wire:loading>Saving...</span>
-                            </button>
+                            </x-button>
                         </div>
                     </form>
                 </div>
