@@ -19,6 +19,16 @@ class Home extends Component
      */
     public $favourite = [];
 
+    /**
+     * @var float The current volume level (0.0 to 1.0).
+     */
+    public $volume = 1.0; // Default to full volume
+
+    /**
+     * @var bool Whether the video is currently muted.
+     */
+    public $isMuted = false; // Default to not muted
+
     // Initialize the $favourite array with default values from your videos
     public function mount()
     {
@@ -49,6 +59,29 @@ class Home extends Component
         }
 
         $this->favourite[$videoId] = !$this->favourite[$videoId];
+    }
+
+    /**
+     * Toggles the mute state of the video.
+     */
+    public function toggleMute()
+    {
+        $this->isMuted = !$this->isMuted;
+        // If unmuting, ensure volume is not 0, otherwise set a default
+        if (!$this->isMuted && $this->volume == 0) {
+            $this->volume = 0.5; // Set to 50% volume when unmuting from mute
+        }
+    }
+
+    /**
+     * Sets the volume level.
+     * @param float $level The new volume level (0.0 to 1.0).
+     */
+    public function setVolume($level)
+    {
+        // Ensure the level is within bounds
+        $this->volume = max(0.0, min(1.0, (float) $level));
+        $this->isMuted = ($this->volume === 0);
     }
 
     public function render()

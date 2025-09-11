@@ -1,8 +1,10 @@
 <section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{
     productId: @entangle('productId').live,
     favourite: @entangle('favourite').live,
-    currentVideoId: null // New: To track the ID of the video currently in view
+    currentVideoId: null,
+    showVolumeSlider: false
 }">
+
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -10,6 +12,69 @@
                     #ff6b35 var(--progress, 0%),
                     #4a4a4a var(--progress, 0%),
                     #4a4a4a 100%);
+        }
+
+        /* Volume bar styling similar to progress bar */
+        .volume-bar {
+            background: linear-gradient(90deg,
+                    #ff6b35 0%,
+                    #ff6b35 var(--volume, 100%),
+                    #4a4a4a var(--volume, 100%),
+                    #4a4a4a 100%);
+        }
+
+        /* Top-left volume control styling */
+        .top-volume-control {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .top-volume-control:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .top-volume-slider {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .top-volume-progress {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: width 0.1s ease;
+        }
+
+        .top-volume-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: grab;
+            transition: all 0.1s ease;
+        }
+
+        .top-volume-handle:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .top-volume-handle:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.3);
         }
 
         .video-overlay {
@@ -32,7 +97,6 @@
             scrollbar-width: none;
         }
 
-
         @keyframes heart-pop {
             0% {
                 transform: scale(1);
@@ -47,7 +111,6 @@
             }
         }
 
-        /* Define the keyframes for the animation */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -60,96 +123,144 @@
             }
         }
 
-        /* Apply the animation to the title */
         .animate-fade-in-up {
             animation: fadeInUp 0.8s ease-out forwards;
         }
 
-        /* Apply the same animation to the description, but with a delay */
         .animate-fade-in-up-delayed {
-            /* Inherit the same animation */
             animation: fadeInUp 0.8s ease-out forwards;
-            /* Add a delay to start after the title */
             animation-delay: 0.3s;
-            /* Start with 0 opacity to prevent it from flashing before the animation starts */
             opacity: 0;
+        }
+
+        .volume-slider {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .volume-slider.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .volume-slider.hide {
+            opacity: 0;
+            transform: translateY(10px);
         }
     </style>
 
     <div class="relative max-w-lg w-full mx-auto h-fit">
-        {{-- It now dynamically updates based on `currentVideoId` --}}
-        <div x-data="{ liked: false }" class="absolute top-4 right-8  z-[5000] rounded-full">
+        {{-- Heart/Favorite button --}}
+        <div x-data="{ liked: false }" class="absolute top-4 right-8 z-[5000] rounded-full">
             <button @click="liked = !liked"
-                :class="liked
-                    ?
-                    'bg-red-400 text-white' :
-                    'bg-white text-black hover:bg-white/70'"
+                :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                 class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                 :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                 <flux:icon name="heart" class="w-5 h-5" />
             </button>
         </div>
 
+        {{-- Navigation button --}}
         <div class="absolute bottom-[100px] z-50 right-8">
             <a wire:navigate href="{{ route('product') }}"
                 class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block">
                 <flux:icon name="arrow-right" class="w-5 h-5" />
             </a>
         </div>
+
         <div class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth"
             x-init="$nextTick(() => {
-                // Initialize currentVideoId with the first video's ID on load
                 if ($refs.videosContainer.children.length > 0) {
                     currentVideoId = $refs.videosContainer.children[0].querySelector('video').dataset.videoId;
                 }
             })" x-ref="scrollContainer">
 
-            {{-- Dynamically populated videos --}}
             @php
-                // This array should ideally be passed from the Livewire component.
-                // For demonstration, it's hardcoded here.
-$videos = [
-    [
-        'id' => '1', // Ensure IDs are strings for easy keying in Alpine
-        'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        'title' => 'Timeless Elegance: The Chronos Collection',
-        'description' =>
-            'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
-        'favourite' => false,
-    ],
-    [
-        'id' => '2',
-        'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        'title' => 'Urban Edge: The City Explorer',
-        'description' =>
-            'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
-        'favourite' => true,
-    ],
-    [
-        'id' => '3',
-        'url' =>
-            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        'title' => 'Minimalist Masterpiece: The Zenith Series',
-        'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
-        'favourite' => false,
+                $videos = [
+                    [
+                        'id' => '1',
+                        'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                        'title' => 'Timeless Elegance: The Chronos Collection',
+                        'description' =>
+                            'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
+                        'favourite' => false,
+                    ],
+                    [
+                        'id' => '2',
+                        'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                        'title' => 'Urban Edge: The City Explorer',
+                        'description' =>
+                            'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
+                        'favourite' => true,
+                    ],
+                    [
+                        'id' => '3',
+                        'url' =>
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        'title' => 'Minimalist Masterpiece: The Zenith Series',
+                        'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
+                        'favourite' => false,
                     ],
                 ];
             @endphp
 
-            <div x-ref="videosContainer"> {{-- Container for scrollspy logic --}}
+            <div x-ref="videosContainer">
                 @foreach ($videos as $video)
                     <div class="snap-start pb-0.5" x-data="videoController('{{ $video['id'] }}')"
-                        x-intersect.once="currentVideoId = '{{ $video['id'] }}'"> {{-- When a video enters viewport, update currentVideoId --}}
+                        x-intersect.once="currentVideoId = '{{ $video['id'] }}'">
                         <div class="flex flex-col justify-center items-center relative">
                             <div
                                 class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl relative overflow-hidden shadow-2xl">
 
+                                {{-- Top-left Volume Control --}}
+                                <div class="absolute top-4 left-4 z-[5000]">
+                                    {{-- Main Volume Control Container with Hover Group --}}
+                                    <div class="group flex items-center gap-2">
+                                        {{-- Volume Icon Button --}}
+                                        <button @click.stop="toggleMute()"
+                                            class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
+                                            {{-- Volume High Icon --}}
+                                            <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                                            </svg>
+                                            {{-- Volume Medium Icon --}}
+                                            <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
+                                                height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                                            </svg>
+                                            {{-- Volume Muted Icon --}}
+                                            <svg x-show="volume === 0 || isMuted" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                                            </svg>
+                                        </button>
+
+                                        {{-- Volume Slider Container --}}
+                                        <div class="relative w-0 group-hover:w-[80px] h-4   rounded-full transition-all duration-300
+                                              bg-gray-700/50 flex items-center overflow-hidden"
+                                            @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
+                                            x-ref="topVolumeSlider">
+                                            {{-- Volume Progress --}}
+                                            <div class="absolute top-1/2  -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
+                                                :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
+                                            {{-- Volume Handle --}}
+                                            <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
+                                                :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- Video Element --}}
-                                <video x-ref="mainVideo" data-video-id="{{ $video['id'] }}" {{-- Data attribute to easily get video ID --}}
+                                <video x-ref="mainVideo" data-video-id="{{ $video['id'] }}"
                                     @loadedmetadata="initVideo()" @timeupdate="updateProgress()" @play="handlePlay()"
-                                    @pause="handlePause()" @click.stop="togglePlay()" {{-- Use .stop to prevent parent click propagation --}}
+                                    @pause="handlePause()" @click.stop="togglePlay()"
                                     @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                                    class="w-full h-full object-cover" loop playsinline autoplay>
+                                    @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
+                                    playsinline autoplay>
                                     <source src="{{ $video['url'] }}" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
@@ -158,7 +269,6 @@ $videos = [
                                 <div x-show="!videoLoaded"
                                     class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                     <div class="text-center">
-                                        {{-- Use Tailwind CSS spinner or your preferred loader --}}
                                         <div
                                             class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
                                         </div>
@@ -182,9 +292,6 @@ $videos = [
                                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                     </svg>
                                 </button>
-
-                                {{-- Product Link Button --}}
-
 
                                 {{-- Title & Description --}}
                                 <div
@@ -220,6 +327,8 @@ $videos = [
                                                 <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
                                                     :style="{ left: progress + '%' }"></div>
                                             </div>
+
+                                           
                                         </div>
                                     </div>
                                 </div>
@@ -232,51 +341,50 @@ $videos = [
     </div>
 
     <script>
-        // Alpine.js component for video control
         function videoController(videoId) {
             return {
                 isPlaying: false,
                 progress: 0,
                 duration: 0,
                 currentTime: 0,
-                videoLoaded: false, // Start as false to show loading state
+                videoLoaded: false,
                 videoError: false,
                 clickTimeout: null,
-                videoId: videoId, // Store the video ID passed from Blade
+                videoId: videoId,
+                volume: 1.0,
+                isMuted: false,
+                lastVolume: 1.0,
+                isDraggingVolume: false,
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
                     this.progress = 0;
                     this.duration = video.duration;
-                    this.videoLoaded = true; // Mark as loaded
-                    this.videoError = false; // Reset error state
-                    this.isPlaying = video.autoplay; // Set initial state based on autoplay attribute
+                    this.videoLoaded = true;
+                    this.videoError = false;
+                    this.isPlaying = video.autoplay;
+                    this.volume = video.volume;
+                    this.isMuted = video.muted;
                 },
 
                 togglePlay(event) {
-                    // Only toggle play if the video is loaded and not an error
                     if (!this.videoLoaded || this.videoError) return;
 
                     const video = this.$refs.mainVideo;
 
-                    // Clear any pending double-click/tap delay
                     if (this.clickTimeout) clearTimeout(this.clickTimeout);
 
-                    // Use a small timeout to differentiate single tap from double tap
                     this.clickTimeout = setTimeout(() => {
                         if (video.paused) {
                             video.play();
                         } else {
                             video.pause();
                         }
-                    }, 200); // Adjust timeout as needed
+                    }, 200);
                 },
 
                 handlePlay() {
                     this.isPlaying = true;
-                    // When playing, set the currentVideoId for the favorite button
-                    // The `x-intersect.once` directive handles the initial setting
-                    // but this ensures it's updated if play is triggered manually
                     this.updateCurrentVideoId();
                 },
 
@@ -290,8 +398,6 @@ $videos = [
 
                     this.currentTime = video.currentTime;
                     this.progress = (video.currentTime / video.duration) * 100;
-
-                    // Update currentVideoId when time updates, in case of manual seeking
                     this.updateCurrentVideoId();
                 },
 
@@ -303,15 +409,121 @@ $videos = [
                     if (!video || !progressBar) return;
 
                     const rect = progressBar.getBoundingClientRect();
-                    const clientX = event.clientX || (event.touches && event.touches[0].clientX); // Handle touch events
+                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
 
-                    if (clientX === undefined) return; // Ensure we have a clientX
+                    if (clientX === undefined) return;
 
                     const pos = (clientX - rect.left) / rect.width;
                     if (video.duration) {
                         video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-                        this.updateProgress(); // Update progress immediately after seeking
+                        this.updateProgress();
                     }
+                },
+
+                // Top volume control methods
+                setTopVolume(event) {
+                    if (!this.videoLoaded || this.videoError) return;
+
+                    const video = this.$refs.mainVideo;
+                    const volumeSlider = this.$refs.topVolumeSlider;
+                    if (!video || !volumeSlider) return;
+
+                    const rect = volumeSlider.getBoundingClientRect();
+                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+
+                    if (clientX === undefined) return;
+
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                    this.volume = pos;
+                    video.volume = pos;
+
+                    if (pos > 0 && this.isMuted) {
+                        this.isMuted = false;
+                        video.muted = false;
+                    }
+
+                    if (pos === 0) {
+                        this.isMuted = true;
+                        video.muted = true;
+                    }
+                },
+
+                startTopVolumeDrag(event) {
+                    if (!this.videoLoaded || this.videoError) return;
+
+                    this.isDraggingVolume = true;
+
+                    const handleDrag = (e) => {
+                        if (!this.isDraggingVolume) return;
+
+                        e.preventDefault();
+                        this.setTopVolume(e);
+                    };
+
+                    const stopDrag = () => {
+                        this.isDraggingVolume = false;
+                        document.removeEventListener('mousemove', handleDrag);
+                        document.removeEventListener('mouseup', stopDrag);
+                    };
+
+                    document.addEventListener('mousemove', handleDrag);
+                    document.addEventListener('mouseup', stopDrag);
+
+                    // Set initial volume
+                    this.setTopVolume(event);
+                },
+
+                setVolume(event) {
+                    if (!this.videoLoaded || this.videoError) return;
+
+                    const video = this.$refs.mainVideo;
+                    const volumeBar = this.$refs.volumeBar;
+                    if (!video || !volumeBar) return;
+
+                    const rect = volumeBar.getBoundingClientRect();
+                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+
+                    if (clientX === undefined) return;
+
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                    this.volume = pos;
+                    video.volume = pos;
+
+                    if (pos > 0 && this.isMuted) {
+                        this.isMuted = false;
+                        video.muted = false;
+                    }
+
+                    if (pos === 0) {
+                        this.isMuted = true;
+                        video.muted = true;
+                    }
+                },
+
+                toggleMute() {
+                    if (!this.videoLoaded || this.videoError) return;
+
+                    const video = this.$refs.mainVideo;
+
+                    if (this.isMuted) {
+                        this.isMuted = false;
+                        video.muted = false;
+                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                        video.volume = this.volume;
+                    } else {
+                        this.lastVolume = this.volume;
+                        this.isMuted = true;
+                        video.muted = true;
+                        video.volume = 0;
+                    }
+                },
+
+                updateVolumeDisplay() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+
+                    this.volume = video.volume;
+                    this.isMuted = video.muted;
                 },
 
                 handleDoubleClick(event) {
@@ -319,31 +531,27 @@ $videos = [
 
                     const video = this.$refs.mainVideo;
                     const rect = video.getBoundingClientRect();
-                    const x = event.clientX - rect.left; // Position relative to video container
+                    const x = event.clientX - rect.left;
 
-                    // Clear the single-click timeout to prevent play/pause on double-click
                     if (this.clickTimeout) clearTimeout(this.clickTimeout);
 
-                    if (x < rect.width / 2) { // Left half of the video
+                    if (x < rect.width / 2) {
                         video.currentTime = Math.max(0, video.currentTime - 10);
-                    } else { // Right half of the video
+                    } else {
                         video.currentTime = Math.min(video.duration, video.currentTime + 10);
                     }
-                    // Force update progress after seeking
                     this.updateProgress();
                 },
 
                 handleTouchEnd(event) {
-                    // This is a fallback for touch devices to ensure play/pause works
-                    // and to differentiate from potential swipe gestures if you implement them later.
                     if (!this.videoLoaded || this.videoError) return;
                     const currentTime = new Date().getTime();
                     const tapDiff = currentTime - this.lastTap;
 
-                    if (tapDiff < 300) { // Likely a double tap if within 300ms
+                    if (tapDiff < 300) {
                         this.handleDoubleClick(event);
-                    } else { // Single tap
-                        this.togglePlay(); // Use togglePlay for single tap
+                    } else {
+                        this.togglePlay();
                     }
                     this.lastTap = currentTime;
                 },
@@ -352,7 +560,6 @@ $videos = [
                     this.videoError = true;
                     this.videoLoaded = false;
                     console.error('Video failed to load:', this.videoId);
-                    // Potentially try to load a fallback or show an error message
                 },
 
                 retryVideo() {
@@ -364,9 +571,7 @@ $videos = [
                     }
                 },
 
-                // Helper to update the currentVideoId Alpine.js variable
                 updateCurrentVideoId() {
-                    // Ensure we are in the context of the correct video element
                     if (this.$el && this.$el.querySelector('[data-video-id]')) {
                         this.currentVideoId = this.$el.querySelector('[data-video-id]').dataset.videoId;
                     }
@@ -374,4 +579,5 @@ $videos = [
             }
         }
     </script>
+
 </section>
