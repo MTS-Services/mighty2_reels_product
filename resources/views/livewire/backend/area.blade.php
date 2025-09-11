@@ -1,6 +1,6 @@
 <section class="font-playfair max-w-7xl mx-auto px-4 py-6">
     <div class="flex items-center justify-between py-4">
-        <h2 class="font-medium text-3xl text-black mb-6">Areas List</h2>
+        <h2 class="font-medium text-3xl text-black mb-6">Manage your areas</h2>
         <button wire:click="$set('showModal', true)"
             class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition">
             <flux:icon name="plus-circle" class="h-5 w-5" />
@@ -39,7 +39,8 @@
                             @endif
                         </td>
                         <td class="p-4 text-center">
-                            <div class="relative inline-block text-left" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="relative inline-block text-left" x-data="{ open: false }"
+                                @click.outside="open = false">
                                 <button @click="open = !open"
                                     class="text-orange-600 rounded-full p-2 hover:bg-orange-100 transition"
                                     title="Settings">
