@@ -32,37 +32,68 @@
             scrollbar-width: none;
         }
 
-        @keyframes heart-jump {
 
-            0%,
-            100% {
+        @keyframes heart-pop {
+            0% {
                 transform: scale(1);
             }
 
             50% {
-                transform: scale(1.3);
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
             }
         }
 
-        .animate-heart-jump {
-            animation: heart-jump 0.5s ease-in-out;
+        /* Define the keyframes for the animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Apply the animation to the title */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* Apply the same animation to the description, but with a delay */
+        .animate-fade-in-up-delayed {
+            /* Inherit the same animation */
+            animation: fadeInUp 0.8s ease-out forwards;
+            /* Add a delay to start after the title */
+            animation-delay: 0.3s;
+            /* Start with 0 opacity to prevent it from flashing before the animation starts */
+            opacity: 0;
         }
     </style>
 
     <div class="relative max-w-lg w-full mx-auto h-fit">
         {{-- It now dynamically updates based on `currentVideoId` --}}
-        <div class="absolute top-4 right-6 z-[5000] rounded-full p-1" :class="$wire.favourite[currentVideoId]"
-            wire:click="toggleFavourite(currentVideoId)">
-            <button class="transition-all duration-200 rounded-full p-1  shadow-lg hover:shadow-xl"
-                :class="$wire.favourite[currentVideoId] ? 'text-white! animate-heart-jump bg-red-400' :
-                    'text-white bg-white hover:bg-white/80'">
-                <flux:icon name="heart" class="w-5 h-5 text-black" />
+        <div x-data="{ liked: false }" class="absolute top-4 right-8  z-[5000] rounded-full">
+            <button @click="liked = !liked"
+                :class="liked
+                    ?
+                    'bg-red-400 text-white' :
+                    'bg-white text-black hover:bg-white/70'"
+                class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                <flux:icon name="heart" class="w-5 h-5" />
             </button>
         </div>
+
         <div class="absolute bottom-[100px] z-50 right-8">
             <a wire:navigate href="{{ route('product') }}"
                 class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block">
-             <flux:icon name="arrow-right" class="w-5 h-5" />
+                <flux:icon name="arrow-right" class="w-5 h-5" />
             </a>
         </div>
         <div class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth"
@@ -158,10 +189,14 @@ $videos = [
                                 {{-- Title & Description --}}
                                 <div
                                     class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
-                                    <h2 class="text-white text-2xl mb-2 leading-tight font-bold">
-                                        {{ $video['title'] }}
-                                    </h2>
-                                    <p class="text-gray-300 mb-2 text-sm">{{ $video['description'] }}</p>
+                                    <div class="animation-container">
+                                        <h2 class="text-white text-2xl mb-2 leading-tight font-bold animate-fade-in-up">
+                                            {{ $video['title'] }}
+                                        </h2>
+                                        <p class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
+                                            {{ $video['description'] }}
+                                        </p>
+                                    </div>
 
                                     {{-- Progress Bar & Controls --}}
                                     <div class="relative">

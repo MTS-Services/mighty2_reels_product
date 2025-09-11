@@ -1,8 +1,4 @@
-<div class="max-w-7xl mx-auto  pt-1.5" x-data="{
-    productId: @entangle('productId').live,
-    favourite: @entangle('favourite').live,
-    currentVideoId: null // New: To track the ID of the video currently in view
-}">
+<div class="max-w-7xl mx-auto  pt-1.5">
     <style>
         .progress-bar {
             background: linear-gradient(90deg,
@@ -31,27 +27,86 @@
             scrollbar-width: none;
             /* Firefox */
         }
+
+        @keyframes heart-pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Apply the animation to the title */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-fade-in-up-delayed {
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
     </style>
     <div class="relative max-w-lg w-full mx-auto h-fit">
         @if (!$productDetails)
-            <div class="absolute top-4 right-6 z-[5000] rounded-full p-1" :class="$wire.favourite[currentVideoId]"
-                wire:click="toggleFavourite(currentVideoId)">
-                <button class="transition-all duration-200 rounded-full  p-1 shadow-lg hover:shadow-xl"
-                    :class="$wire.favourite[currentVideoId] ? 'text-white! animate-heart-jump bg-red-400' :
-                        'text-white bg-white hover:bg-white/70'">
-                    <flux:icon name="heart" class="w-5 h-5 text-black" />
+            <div x-data="{ liked: false }" class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
+                <button @click="liked = !liked"
+                    :class="liked
+                        ?
+                        'bg-red-400 text-white' :
+                        'bg-white text-black hover:bg-white/70'"
+                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                    <flux:icon name="heart" class="w-5 h-5" />
                 </button>
             </div>
 
-            <div class="absolute bottom-[100px] z-50 right-6">
+            <div class="absolute bottom-15 lg:bottom-[100px] z-50 lg:right-4 right-2">
                 <button wire:click="toggleVideoDetails"
-                    @click="document.getElementById('details-{{ 1 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                    @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
-        @endif
+        @else
+            <div x-data="{ liked: false }" class="absolute top-4 right-4 z-[5000] rounded-full">
+                <button @click="liked = !liked"
+                    :class="liked
+                        ?
+                        'bg-red-400 text-white' :
+                        'bg-white text-black hover:bg-white/70'"
+                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                    <flux:icon name="heart" class="w-5 h-5" />
+                </button>
+            </div>
 
+            <div class="absolute top-68 lg:top-99 z-50 right-4">
+                <button wire:click="toggleVideoDetails"
+                    @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
+                    <flux:icon name="arrow-up" class="w-5 h-5" />
+                </button>
+            </div>
+        @endif
 
         {{-- Video Feed --}}
         <div class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
@@ -81,37 +136,26 @@
 
                                 <button @click="prevImage"
                                     class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7" />
-
-                                    </svg>
+                                    <flux:icon name="chevron-left" class="w-5 h-5 text-gray-700" />
                                 </button>
                                 <button @click="nextImage"
                                     class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
-                                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-
-                                    </svg>
+                                    <flux:icon name="chevron-right" class="w-5 h-5 text-gray-700" />
                                 </button>
 
-                                <button @click="toggleFavorite"
-                                    class="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl"
-                                    :class="isFavorited ? 'text-red-500' : 'text-gray-800'">
-                                    <svg class="w-6 h-6" :fill="isFavorited ? 'currentColor' : 'none'"
-                                        stroke="currentColor" viewBox="0 0 24 24">
+                                {{-- <div x-data="{ liked: false }" class="absolute top-4 right-4 z-[5000] rounded-full">
+                                    <button @click="liked = !liked"
+                                        :class="liked
+                                            ?
+                                            'bg-red-400 text-white' :
+                                            'bg-white text-black hover:bg-white/70'"
+                                        class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                                        :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                                        <flux:icon name="heart" class="w-5 h-5" />
+                                    </button>
+                                </div> --}}
 
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-
-                                    </svg>
-                                </button>
-
+                                {{-- 
                                 <span wire:click="toggleVideoDetails"
                                     @click="document.getElementById('video-{{ $index }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
                                     class="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg cursor-pointer">
@@ -120,7 +164,7 @@
                                             d="M5 10l7-7m0 0l7 7m-7-7v18">
                                         </path>
                                     </svg>
-                                </span>
+                                </span> --}}
                             </div>
 
                             <div class="py-6">
@@ -164,12 +208,11 @@
 
 
                                 <div x-show="!videoLoaded"
-                                    class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
+                                    class="absolute inset-0 bg-gray-900 flex items-center justify-center z-50">
                                     <div class="text-center">
                                         <div wire:loading.delay class="inline-block">
                                             <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-orange-500"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24">
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                     stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor"
@@ -178,7 +221,7 @@
                                             </svg>
                                         </div>
 
-                                        <div wire:loading.remove class="inline-block">
+                                        <div wire:loading.remove class="inline-block z-50">
                                             <div class="relative">
                                                 <div
                                                     class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
@@ -192,7 +235,7 @@
                                             </div>
                                         </div>
 
-                                        <p class="text-white mt-4 text-sm">Loading video...</p>
+                                        <p class="text-white mt-4 text-sm z-50">Loading video...</p>
                                     </div>
                                 </div>
 
@@ -214,9 +257,15 @@
 
                                 <div
                                     class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                    <h2 class="text-white text-2xl mb-2 leading-tight font-bold">{{ $video['title'] }}
-                                    </h2>
-                                    <p class="text-gray-300 mb-2 text-sm">{{ $video['description'] }}</p>
+                                    <div class="animation-container">
+                                        <h2
+                                            class="text-white text-2xl mb-2 leading-tight font-bold animate-fade-in-up">
+                                            {{ $video['title'] }}
+                                        </h2>
+                                        <p class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
+                                            {{ $video['description'] }}
+                                        </p>
+                                    </div>
                                     <div class="relative">
                                         <div class="flex items-center space-x-3">
                                             <button @click="togglePlay()"
