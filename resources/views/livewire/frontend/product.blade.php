@@ -36,9 +36,9 @@
         @if (!$productDetails)
             <div class="absolute top-4 right-6 z-[5000] rounded-full p-1" :class="$wire.favourite[currentVideoId]"
                 wire:click="toggleFavourite(currentVideoId)">
-                <button class="transition-all duration-200 rounded-full bg-white p-1 shadow-lg hover:shadow-xl"
+                <button class="transition-all duration-200 rounded-full  p-1 shadow-lg hover:shadow-xl"
                     :class="$wire.favourite[currentVideoId] ? 'text-white! animate-heart-jump bg-red-400' :
-                        'text-white bg-white/20 hover:bg-white/30'">
+                        'text-white bg-white hover:bg-white/70'">
                     <flux:icon name="heart" class="w-5 h-5 text-black" />
                 </button>
             </div>
