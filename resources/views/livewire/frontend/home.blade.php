@@ -148,7 +148,7 @@
         }
     </style>
 
-    <div class="relative max-w-lg w-full mx-auto h-fit scrollbar-hide">
+    <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide">
         {{-- Heart/Favorite button --}}
         <div x-data="{ liked: false }" class="absolute top-4 right-8 z-[5000] rounded-full">
             <button @click="liked = !liked"
@@ -167,7 +167,7 @@
             </a>
         </div>
 
-        <div class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth"
+        <div class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth"
             x-init="$nextTick(() => {
                 if ($refs.videosContainer.children.length > 0) {
                     currentVideoId = $refs.videosContainer.children[0].querySelector('video').dataset.videoId;
