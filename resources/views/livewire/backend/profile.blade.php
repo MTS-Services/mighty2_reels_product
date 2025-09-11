@@ -49,6 +49,7 @@
                                 <label class="block text-sm font-medium text-gray-700">First Name</label>
                                 <input type="text" wire:model.defer="first_name"
                                     class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                @error('first_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Last Name</label>
@@ -101,8 +102,8 @@
                             <select wire:model.defer="location"
                                 class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 <option value="">Select Location</option>
-                                @foreach ($locations as $locationOption)
-                                    <option value="{{ $locationOption }}">{{ $locationOption }}</option>
+                                @foreach ($suburbs as $suburb)
+                                    <option value="{{ $suburb }}">{{ $suburb }}</option>
                                 @endforeach
                             </select>
                         </div>
