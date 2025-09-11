@@ -207,16 +207,16 @@
                 @foreach ($videos as $video)
                     <div class="snap-start pb-0.5" x-data="videoController('{{ $video['id'] }}')"
                         x-intersect.enter="
-            currentVideoId = '{{ $video['id'] }}';
-            let container = $el.querySelector('.animation-container');
-            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
-            void container.offsetWidth; // Force reflow to restart animation
-            container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
-        "
-                        x-intersect.leave="
-            let container = $el.querySelector('.animation-container');
-            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
-        ">
+                                currentVideoId = '{{ $video['id'] }}';
+                                let container = $el.querySelector('.animation-container');
+                                container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                                void container.offsetWidth; // Force reflow to restart animation
+                                container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                            "
+                               x-intersect.leave="
+                                let container = $el.querySelector('.animation-container');
+                                container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                            ">
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
