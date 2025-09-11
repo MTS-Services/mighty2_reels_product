@@ -103,87 +103,85 @@
                                 <x-button @click="step = false" variant="secondary" icon="home">Back</x-button>
                             </div>
                         </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="relative">
+                                <label for="state" class="block text-sm font-medium text-gray-700">Gender</label>
+                                <select name="gender"
+                                    class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-gray-950"
+                                    wire:model="gender" id="gender">
+                                    @foreach (App\Models\User::GENDERS as $gender => $label)
+                                        <option value="{{ $gender }}"
+                                            {{ old('gender') == $gender ? 'selected' : '' }}>{{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('gender')
+                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-900">Date of Birth</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <input type="text" placeholder="DD" maxlength="2"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
+                                    <input type="text" placeholder="MM" maxlength="2"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
+                                    <input type="text" placeholder="YYYY" maxlength="4"
+                                        class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
+                                </div>
+                                @error('date_of_birth')
+                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="relative">
+                                <label for="street" class="block text-sm font-medium text-gray-700">Street</label>
+                                <input type="text" id="street" wire:model="street" name="street"
+                                    class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
+                                    value="Connecticut 35624">
+                                @error('street')
+                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="relative">
+                                <label for="surburb" class="block text-sm font-medium text-gray-700">Suburb</label>
+                                <input type="text" id="surburb" wire:model="surburb" name="surburb"
+                                    class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
+                                    value="2464 Royal Ln. Mesa, ">
+                                @error('surburb')
+                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="mt-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="relative">
-                                    <label for="state" class="block text-sm font-medium text-gray-700">Gender</label>
-                                    <select name="gender"
-                                        class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-gray-950"
-                                        wire:model="gender" id="gender">
-                                        @foreach (App\Models\User::GENDERS as $gender => $label)
-                                            <option value="{{ $gender }}"
-                                                {{ old('gender') == $gender ? 'selected' : '' }}>{{ $label }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('gender')
-                                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-900">Date of Birth</label>
-                                    <div class="grid grid-cols-3 gap-3">
-                                        <input type="text" placeholder="DD" maxlength="2"
-                                            class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
-                                        <input type="text" placeholder="MM" maxlength="2"
-                                            class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
-                                        <input type="text" placeholder="YYYY" maxlength="4"
-                                            class="w-full border rounded-lg px-3 py-2 focus:ring-1 focus:outline-none text-center text-gray-950">
-                                    </div>
-                                    @error('date_of_birth')
-                                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="relative">
-                                        <label for="state"
-                                            class="block text-sm font-medium text-gray-700">State</label>
-                                        <input type="text" id="state" wire:model="state" name="state"
-                                            class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
-                                            value="Connecticut 35624">
-                                        @error('state')
-                                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                <div class="relative">
-                                    <label for="surburb"
-                                        class="block text-sm font-medium text-gray-700">Suburb</label>
-                                    <input type="text" id="surburb" wire:model="surburb" name="surburb"
+                                    <label for="postcode" class="block text-sm font-medium text-gray-700">
+                                        Postcode</label>
+                                    <input type="text" id="postcode" wire:model="postcode" name="postcode"
                                         class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
-                                        value="2464 Royal Ln. Mesa, ">
-                                    @error('surburb')
+                                        value="567889">
+                                    @error('postcode')
+                                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="relative">
+                                    <label for="state"
+                                        class="block text-sm font-medium text-gray-700">State</label>
+                                    <input type="text" id="state" wire:model="state" name="state"
+                                        class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
+                                        value="Connecticut 35624">
+                                    @error('state')
                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="mt-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="relative">
-                                        <label for="postcode" class="block text-sm font-medium text-gray-700">
-                                            Postcode</label>
-                                        <input type="text" id="postcode" wire:model="postcode" name="postcode"
-                                            class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
-                                            value="567889">
-                                        @error('postcode')
-                                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="relative">
-                                        <label for="state"
-                                            class="block text-sm font-medium text-gray-700">State</label>
-                                        <input type="text" id="state" wire:model="state" name="state"
-                                            class="text-gray-500 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm p-3 pr-10"
-                                            value="Connecticut 35624">
-                                        @error('state')
-                                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <x-button variant="primary" type="submit" class="w-full mt-3 py-4 px-4">
-                                <span>Finish </span>
-                            </x-button>
-                       </div>
-                  </div>
-             </div>
+                        </div>
+                        <x-button variant="primary" type="submit" class="w-full mt-3 py-4 px-4">
+                            <span>Finish </span>
+                        </x-button>
+                    </div>
+                </div>
+            </div>
         </template>
     </form>
 </section>
