@@ -97,6 +97,7 @@ class Product extends Component
             }
         }
     }
+    
     /**
      * Render the Blade view
      */
