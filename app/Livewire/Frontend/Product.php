@@ -13,6 +13,8 @@ class Product extends Component
     public $activeVideo = null; // Current selected video/product
     public $videos = [];        // All videos/products
 
+
+
     /**
      * Initialize videos and set the default active video
      */
@@ -79,15 +81,23 @@ class Product extends Component
     /**
      * Toggle favourite for the current product/video
      */
-    public function toggleFavourite()
+    public function toggleFavourite($videoId)
     {
-        if ($this->activeVideo) {
-            $this->activeVideo['favourite'] = !$this->activeVideo['favourite'];
-        } else {
-            $this->favourite = !$this->favourite;
+        // Find the video index inside $videos
+        foreach ($this->videos as $index => $video) {
+            if ($video['id'] == $videoId) {
+                $this->videos[$index]['favourite'] = !$video['favourite'];
+
+                // Also update activeVideo if it matches
+                if ($this->activeVideo && $this->activeVideo['id'] === $videoId) {
+                    $this->activeVideo = $this->videos[$index];
+                }
+
+                break;
+            }
         }
     }
-
+    
     /**
      * Render the Blade view
      */

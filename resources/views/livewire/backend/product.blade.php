@@ -7,7 +7,7 @@
 
         <div class="flex flex-col sm:flex-row gap-4">
             <button wire:click="openModal"
-                class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+                class="flex cursor-pointer items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
                 <flux:icon name="plus-circle" class="h-5 w-5" />
                 Add new product
             </button>
@@ -97,8 +97,8 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
                 <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
                 <button wire:click="openModal"
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    Add a new product
+                    class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Add new product
                 </button>
             </div>
         @endforelse
@@ -119,7 +119,7 @@
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto m-4">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-900">
@@ -134,49 +134,19 @@
                     </div>
 
                     <form wire:submit="saveProduct" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Title *</label>
-                            <input wire:model.lazy="title" type="text"
-                                class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                placeholder="Enter product title">
-                            @error('title')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea wire:model.lazy="description" rows="3"
-                                class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                placeholder="Enter product description"></textarea>
-                            @error('description')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
-                                <input wire:model.lazy="price" type="number" step="0.01"
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Product Title *</label>
+                                <input wire:model.lazy="title" type="text"
                                     class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    placeholder="0.00">
-                                @error('price')
+                                    placeholder="Enter product title">
+                                @error('title')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Rooms *</label>
-                                <input wire:model.lazy="room" type="number" min="1"
-                                    class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    placeholder="1">
-                                @error('room')
-                                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
                                 <select wire:model.lazy="city_id"
                                     class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
@@ -189,7 +159,28 @@
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div>
+
+
+                            <div class="md:col-span-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
+                                <input wire:model.lazy="price" type="number" step="0.01"
+                                    class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    placeholder="0.00">
+                                @error('price')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Rooms *</label>
+                                <input wire:model.lazy="room" type="number" min="1"
+                                    class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    placeholder="1">
+                                @error('room')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="md:col-span-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Type *</label>
                                 <select wire:model.lazy="type"
                                     class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
@@ -200,122 +191,133 @@
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
-                            <select wire:model.lazy="status"
-                                class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                            @error('status')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
-                            <div class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center">
-                                <input wire:model="images" type="file" multiple accept="image/*" class="hidden"
-                                    id="image-upload">
-                                <label for="image-upload" class="cursor-pointer">
-                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                        </path>
-                                    </svg>
-                                    <p class="text-sm text-gray-500">Click to upload images or drag and drop</p>
-                                    <p class="text-xs text-gray-400">PNG, JPG, GIF up to 2MB each</p>
-                                </label>
+                            <div class="md:col-span-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                                <select wire:model.lazy="status"
+                                    class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                                @error('status')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
-                            @error('images')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
+
+                            <div class="md:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                <textarea wire:model.lazy="description" rows="3"
+                                    class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    placeholder="Enter product description"></textarea>
+                                @error('description')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
+                                <div
+                                    class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center">
+                                    <input wire:model="images" type="file" multiple accept="image/*"
+                                        class="hidden" id="image-upload">
+                                    <label for="image-upload" class="cursor-pointer">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Click to upload images or drag and drop</p>
+                                        <p class="text-xs text-gray-400">PNG, JPG, GIF up to 2MB each</p>
+                                    </label>
+                                </div>
+                                @error('images')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
 
 
-                            @if (!empty($images) || !empty($tempImages))
-                                <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    @foreach ($images as $index => $image)
-                                        <div class="relative">
-                                            <img src="{{ $image->temporaryUrl() }}"
-                                                class="w-full h-20 object-cover rounded">
-                                            <button type="button" wire:click="removeNewImage({{ $index }})"
-                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                                ×
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                    @if ($editMode && !empty($tempImages))
-                                        @foreach ($tempImages as $index => $image)
+                                @if (!empty($images) || !empty($tempImages))
+                                    <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        @foreach ($images as $index => $image)
                                             <div class="relative">
-                                                <img src="{{ asset('storage/' . $image['file']) }}"
+                                                <img src="{{ $image->temporaryUrl() }}"
                                                     class="w-full h-20 object-cover rounded">
                                                 <button type="button"
                                                     wire:click="removeNewImage({{ $index }})"
-                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                                    class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                                     ×
                                                 </button>
                                             </div>
                                         @endforeach
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Video</label>
-
-                            <div
-                                class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center relative">
-                                <input wire:model="videos" type="file" accept="video/*" class="hidden"
-                                    id="video-upload">
-
-                                @if (!$videos && !$tempVideos)
-                                    <label for="video-upload" class="cursor-pointer">
-                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <p class="text-sm text-gray-500">Click to upload video or drag and drop</p>
-                                        <p class="text-xs text-gray-400">MP4, AVI, MOV up to 50MB</p>
-                                    </label>
-                                @endif
-
-                                @if ($videos)
-                                    <div class="relative">
-                                        <video controls class="w-full rounded-md"
-                                            src="{{ $videos->temporaryUrl() }}">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                        <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full
-                                            w-6 h-6 flex items-center justify-center text-xs">
-                                            ×
-                                        </button>
-                                    </div>
-                                @elseif ($editMode && $tempVideos)
-                                    <div class="relative">
-                                        <video controls class="w-full rounded-md"
-                                            src="{{ asset('storage/' . $tempVideos['file']) }}">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                        <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full
-                                            w-6 h-6 flex items-center justify-center text-xs">
-                                            ×
-                                        </button>
+                                        @if ($editMode && !empty($tempImages))
+                                            @foreach ($tempImages as $index => $image)
+                                                <div class="relative">
+                                                    <img src="{{ asset('storage/' . $image['file']) }}"
+                                                        class="w-full h-20 object-cover rounded">
+                                                    <button type="button"
+                                                        wire:click="removeNewImage({{ $index }})"
+                                                        class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        @endif
                                     </div>
                                 @endif
                             </div>
 
-                            @error('videos')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Video</label>
+
+                                <div
+                                    class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center relative">
+                                    <input wire:model="videos" type="file" accept="video/*" class="hidden"
+                                        id="video-upload">
+
+                                    @if (!$videos && !$tempVideos)
+                                        <label for="video-upload" class="cursor-pointer">
+                                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            <p class="text-sm text-gray-500">Click to upload video or drag and drop</p>
+                                            <p class="text-xs text-gray-400">MP4, AVI, MOV up to 50MB</p>
+                                        </label>
+                                    @endif
+
+                                    @if ($videos)
+                                        <div class="relative">
+                                            <video controls class="w-full rounded-md"
+                                                src="{{ $videos->temporaryUrl() }}">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <button type="button" wire:click="removeVideo"
+                                                class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full
+                                            w-6 h-6 flex items-center justify-center text-xs">
+                                                ×
+                                            </button>
+                                        </div>
+                                    @elseif ($editMode && $tempVideos)
+                                        <div class="relative">
+                                            <video controls class="w-full rounded-md"
+                                                src="{{ asset('storage/' . $tempVideos['file']) }}">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <button type="button" wire:click="removeVideo"
+                                                class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full
+                                            w-6 h-6 flex items-center justify-center text-xs">
+                                                ×
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                @error('videos')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
+
 
                         <div class="flex justify-end space-x-3 pt-6 border-t">
                             <button type="button" wire:click="closeModal"
@@ -325,7 +327,7 @@
                             <button type="submit"
                                 class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md font-medium transition-colors"
                                 wire:loading.attr="disabled">
-                                <span wire:loading.remove>{{ $editMode ? 'Update Product' : 'Add Product' }}</span>
+                                <span wire:loading.remove>{{ $editMode ? 'Update' : 'Create' }}</span>
                                 <span wire:loading>Saving...</span>
                             </button>
                         </div>

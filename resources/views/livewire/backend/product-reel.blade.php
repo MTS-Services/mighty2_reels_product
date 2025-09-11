@@ -6,11 +6,10 @@
         </h1>
 
         <div class="flex flex-col sm:flex-row gap-4">
-            <button wire:click="openModal"
-                class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+            <x-button wire:click="openModal">
                 <flux:icon name="plus-circle" class="h-5 w-5" />
                 Add new reel
-            </button>
+            </x-button>
         </div>
     </div>
 
@@ -59,26 +58,16 @@
                     <p class="text-sm text-gray-600 mb-2 line-clamp-2">
                         {{ Str::limit($reel->product->description, 80) }}
                     </p>
-                    <div class="mt-auto flex items-center justify-between gap-3">
-                        <button wire:click="editReel({{ $reel->id }})"
-                            class="w-full flex items-center justify-center gap-1 rounded-md py-2 bg-[#FFF0E6] border border-orange-400 text-orange-500 hover:text-orange-600 text-sm font-medium transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                </path>
-                            </svg>
+                    <div class="mt-auto flex items-center justify-between">
+                        <x-button wire:click="editReel({{ $reel->id }})" variant="secondary">
+                            <flux:icon name="pencil" class="h-5 w-5" />
                             Edit
-                        </button>
-                        <button wire:click="deleteReel({{ $reel->id }})"
-                            wire:confirm="Are you sure you want to delete this reel?"
-                            class="w-full flex items-center justify-center gap-1 rounded-md py-2 bg-[#FAE8E8] border border-[#C91C1C] text-[#C91C1C] hover:bg-red-50 text-sm font-medium transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
+                        </x-button>
+                        <x-button wire:click="deleteReel({{ $reel->id }})" variant="secondary"
+                            wire:confirm="Are you sure you want to delete this reel?">
+                            <flux:icon name="trash" class="h-5 w-5" />
                             Delete
-                        </button>
+                        </x-button>
                     </div>
                 </div>
             </div>
@@ -93,10 +82,10 @@
                 </svg>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No reels found</h3>
                 <p class="text-gray-500 mb-4">Get started by adding your first reel.</p>
-                <button wire:click="openModal"
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    Add a new reel
-                </button>
+                <x-button wire:click="openModal">
+                    <flux:icon name="plus-circle" class="h-5 w-5" />
+                    Add new reel
+                </x-button>
             </div>
         @endforelse
     </div>
@@ -121,12 +110,9 @@
                         <h2 class="text-xl font-semibold text-gray-900">
                             {{ $editMode ? 'Edit Reel' : 'Add New Reel' }}
                         </h2>
-                        <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                        <x-button variant="secondary" wire:click="closeModal">
+                            <flux:icon name="x-mark" class="h-5 w-5" />
+                        </x-button>
                     </div>
 
                     <form wire:submit="{{ $editMode ? 'updateReel' : 'saveReel' }}" class="space-y-6">
@@ -182,10 +168,10 @@
                                     <div class="relative">
                                         <video controls class="w-full rounded-md"
                                             src="{{ $file->temporaryUrl() }}"></video>
-                                        <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                            ×
-                                        </button>
+                                        <x-button variant="secondary" class="!absolute -top-2 -right-2"
+                                            wire:click="removeVideo">
+                                            <flux:icon name="x-mark" class="h-4 w-4" />
+                                        </x-button>
                                     </div>
                                 @elseif ($editMode && $tempFile)
                                     {{-- If in edit mode and tempFile exists (meaning an existing video), use its storage path --}}
@@ -195,10 +181,10 @@
                                             <source src="{{ asset('storage/' . $tempFile) }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
-                                        <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                            ×
-                                        </button>
+                                        <x-button variant="secondary" class="!absolute -top-2 -right-2"
+                                            wire:click="removeVideo">
+                                            <flux:icon name="x-mark" class="h-4 w-4" />
+                                        </x-button>
                                     </div>
                                 @endif
                             </div>
@@ -208,16 +194,13 @@
                         </div>
 
                         <div class="flex justify-end space-x-3 pt-6 border-t">
-                            <button type="button" wire:click="closeModal"
-                                class="px-4 py-2 border border-gray-300 text-black rounded-md hover:bg-gray-50 font-medium">
+                            <x-button variant="secondary" wire:click="closeModal">
                                 Cancel
-                            </button>
-                            <button type="submit"
-                                class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md font-medium transition-colors"
-                                wire:loading.attr="disabled">
+                            </x-button>
+                            <x-button type="submit" wire:loading.attr="disabled">
                                 <span wire:loading.remove>{{ $editMode ? 'Update Reel' : 'Add Reel' }}</span>
                                 <span wire:loading>Saving...</span>
-                            </button>
+                            </x-button>
                         </div>
                     </form>
                 </div>
