@@ -245,7 +245,7 @@
                         x-intersect:enter="currentVideoId = '{{ $video['id'] }}'">
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
+                                class="video-container scrollbar-hide w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
 
                                 {{-- Top-left Volume Control --}}
                                 <div class="absolute top-4 left-4 z-[5000]">
