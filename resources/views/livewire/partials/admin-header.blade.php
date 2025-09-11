@@ -44,17 +44,20 @@
                             class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                             <div class="p-4 space-y-2 overflow-hidden">
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                    href="{{ route('admin.profile') }}" wire:navigate="">
+                                    href="{{ route('profile') }}" wire:navigate="">
                                     <flux:icon name="user-circle" /> Profile
                                 </x-button>
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                     href="{{ route('admin.products') }}" wire:navigate>
-                                    <flux:icon name="user-circle" /> Products
+                                    <flux:icon name="box" /> Product
                                 </x-button>
-
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                    href="{{ route('admin.products') }}" wire:navigate>
-                                    <flux:icon name="box" /> Dashboard
+                                    href="{{ route('admin.product.reels') }}" wire:navigate>
+                                    <flux:icon name="film" /> Reel
+                                </x-button>
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('admin.area') }}" wire:navigate>
+                                    <flux:icon name="map" /> Area
                                 </x-button>
 
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
@@ -103,7 +106,7 @@
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
                     </x-button>
-                    <x-button href="{{ route('admin.profile') }}" wire:navigate
+                    <x-button href="{{ route('profile') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile

@@ -25,7 +25,7 @@ class AdminEditProfile extends Component
     public $postCodes = ['1000', '2000'];
     public $states = ['State 1', 'State 2'];
 
-  
+
 
 public function mount()
 {
@@ -78,11 +78,11 @@ public function mount()
         foreach ($data as $key => $value) {
             $user->$key = $value;
         }
-       
+
 
         session()->flash('success', 'Profile updated successfully!');
-        
-        return redirect()->route('admin.profile'); 
+
+        return redirect()->route('profile');
     }
     public function render()
     {
