@@ -143,7 +143,7 @@
         }
     </style>
 
-    <div class="relative max-w-lg w-full mx-auto h-fit">
+    <div class="relative max-w-lg w-full mx-auto h-fit scrollbar-hide">
         @if (!$productDetails)
             <div x-data="{ liked: false }" class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <button @click="liked = !liked"
@@ -245,7 +245,7 @@
                         x-intersect:enter="currentVideoId = '{{ $video['id'] }}'">
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
+                                class="video-container scrollbar-hide w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
 
                                 {{-- Top-left Volume Control --}}
                                 <div class="absolute top-4 left-4 z-[5000]">
