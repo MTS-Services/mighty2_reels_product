@@ -5,6 +5,7 @@ namespace App\Livewire\Backend;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -48,7 +49,7 @@ class Profile extends Component
         $this->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(), // Ensure email is unique except for the current user
+            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(), 
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
@@ -87,11 +88,10 @@ class Profile extends Component
         if (!empty($this->password)) {
             $user->password = Hash::make($this->password);
         }
-dd($user);
-        // $user->save(); // Save all changes to the database
 
+        $user->save();
         session()->flash('success', 'Profile updated successfully!');
-        return redirect()->route('profile');
+        return redirect()->route('home');
     }
     public function render()
     {

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->boolean('is_admin')->default(User::NOT_ADMIN);
             $table->string('phone')->unique()->nullable();
             $table->tinyInteger('status')->default(User::STATUS_ACTIVE);
-            $table->tinyInteger('gender')->nullable();
+            $table->string('gender')->nullable();
             $table->string('date_of_birth')->nullable();
             $table->string('street')->nullable();
             $table->string('suburb')->nullable();

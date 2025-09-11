@@ -99,7 +99,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Location</label>
-                            <select wire:model.defer="location"
+                            <select wire:model.defer="suburb"
                                 class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 <option value="">Select Location</option>
                                 @foreach ($suburbs as $suburb)
@@ -110,7 +110,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Post Code</label>
-                            <select wire:model.defer="post_code"
+                            <select wire:model.defer="postcode"
                                 class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 <option value="">Select Post Code</option>
                                 @foreach ($postCodes as $code)
