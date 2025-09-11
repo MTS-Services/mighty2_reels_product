@@ -7,7 +7,6 @@ use App\Livewire\Backend\ProductDetails;
 use App\Livewire\Backend\Product;
 use App\Livewire\Backend\Details;
 use App\Livewire\Backend\ProductReel;
-use App\Livewire\Backend\Profile;
 use App\Livewire\Backend\Reel;
 use Illuminate\Support\Facades\Route;
 
