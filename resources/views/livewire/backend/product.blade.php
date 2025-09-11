@@ -7,13 +7,10 @@
 
         <div class="flex flex-col sm:flex-row gap-4">
             <button wire:click="openModal"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
-                Add a new product
+                class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+                <flux:icon name="plus-circle" class="h-5 w-5" />
+                Add new product
             </button>
-            <a href="{{ route('admin.area') }}"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
-                Areas
-            </a>
         </div>
     </div>
 
@@ -295,7 +292,7 @@
                                             Your browser does not support the video tag.
                                         </video>
                                         <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full 
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full
                                             w-6 h-6 flex items-center justify-center text-xs">
                                             ×
                                         </button>
@@ -307,7 +304,7 @@
                                             Your browser does not support the video tag.
                                         </video>
                                         <button type="button" wire:click="removeVideo"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full 
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full
                                             w-6 h-6 flex items-center justify-center text-xs">
                                             ×
                                         </button>
