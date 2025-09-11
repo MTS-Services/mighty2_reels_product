@@ -12,4 +12,4 @@ Route::get('/buttons', Buttons::class)->name('buttons');
 
 Route::get('/product/{id?}', Product::class)->name('product');
 
-Route::get('/user-profile',UserProfile::class)->name('user-profile');
+Route::get('/profile', UserProfile::class)->middleware('auth')->name('user.profile');

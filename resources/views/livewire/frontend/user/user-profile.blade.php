@@ -121,7 +121,7 @@
                         <label class="block text-sm font-medium text-gray-700">Gender</label>
                         <select
                             class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
-                            <option value="">Select loction</option>
+                            <option value="">Select Loction</option>
                             <option value="">2464 Royal Ln. Mesa</option>
                             <option value="">2464 Royal Ln. Mesa</option>
                             <option value="">2464 Royal Ln. Mesa</option>
@@ -141,7 +141,7 @@
                         <label class="block text-sm font-medium text-gray-700">Start</label>
                         <select
                             class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
-                            <option value="">Select state</option>
+                            <option value="">Select State</option>
                             <option value="">Connecticut 35624</option>
                             <option value="">Connecticut 35624</option>
                             <option value="">Connecticut 35624</option>

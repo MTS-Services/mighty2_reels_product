@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Backend\Admin\AdminEditProfile;
 use App\Livewire\Backend\Area;
 use App\Livewire\Backend\Dashboard;
 use App\Livewire\Backend\ProductDetails;
@@ -19,5 +20,6 @@ Route::middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('details', Details::class)->name('details');
     // Route::get('reels', Reel::class)->name('reels');
     Route::get('area', Area::class)->name('area');
+    Route::get('/admin-profile', AdminEditProfile::class)->name('profile');
 });
-Route::get('profile', Profile::class)->name('profile');
+

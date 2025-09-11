@@ -29,8 +29,8 @@
                             <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
                                 class="w-11 h-11 rounded-full object-cover">
                             <div class="flex flex-col">
-                                <span class="text-lg font-medium text-black">Admin Name</span>
-                                <span class="text-xs text-black">example@gmail.com</span>
+                                <span class="text-lg font-medium text-black">{{ user()->full_name }}</span>
+                                <span class="text-xs text-black">{{ user()->email }}</span>
                             </div>
                         </div>
 
@@ -43,17 +43,14 @@
                             x-transition:leave-end="grid-rows-[0fr] opacity-0"
                             class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                             <div class="p-4 space-y-2 overflow-hidden">
-
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                    href="{{ route('profile') }}" wire:navigate>
+                                    href="{{ route('admin.profile') }}" wire:navigate="">
                                     <flux:icon name="user-circle" /> Profile
                                 </x-button>
-                                @if (is_admin())
-                                    <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                        href="{{ route('admin.products') }}" wire:navigate>
-                                        <flux:icon name="user-circle" /> Products
-                                    </x-button>
-                                @endif
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('admin.products') }}" wire:navigate>
+                                    <flux:icon name="user-circle" /> Products
+                                </x-button>
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                     wire:click="logout">
                                     <flux:icon name="power" /> Logout
