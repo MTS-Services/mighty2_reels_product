@@ -51,7 +51,7 @@
                                 @if (is_admin())
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                         href="{{ route('admin.products') }}" wire:navigate>
-                                        <flux:icon name="user-circle" /> Products
+                                        <flux:icon name="box" /> Dashboard
                                     </x-button>
                                 @endif
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
@@ -100,7 +100,7 @@
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
                     </x-button>
-                    <x-button href="{{ route('admin.dashboard') }}" wire:navigate
+                    <x-button href="{{ route('profile') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
