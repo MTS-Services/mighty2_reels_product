@@ -89,7 +89,7 @@
         }
 
         .scrollbar-hide::-webkit-scrollbar {
-            display: none;
+            display: none !important;
         }
 
         .scrollbar-hide {
@@ -148,7 +148,7 @@
         }
     </style>
 
-    <div class="relative max-w-lg w-full mx-auto h-fit">
+    <div class="relative max-w-lg w-full mx-auto h-fit scrollbar-hide">
         {{-- Heart/Favorite button --}}
         <div x-data="{ liked: false }" class="absolute top-4 right-8 z-[5000] rounded-full">
             <button @click="liked = !liked"
