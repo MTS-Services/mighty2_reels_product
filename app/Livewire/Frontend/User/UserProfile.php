@@ -80,6 +80,7 @@ public function mount()
        
 
         session()->flash('success', 'Profile updated successfully!');
+        return redirect()->route('user.profile'); 
     }
     public function render()
     {

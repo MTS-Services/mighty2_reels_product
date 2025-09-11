@@ -81,6 +81,8 @@ public function mount()
        
 
         session()->flash('success', 'Profile updated successfully!');
+        
+        return redirect()->route('admin.profile'); 
     }
     public function render()
     {

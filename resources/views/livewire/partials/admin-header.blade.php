@@ -51,6 +51,12 @@
                                     href="{{ route('admin.products') }}" wire:navigate>
                                     <flux:icon name="user-circle" /> Products
                                 </x-button>
+
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('admin.products') }}" wire:navigate>
+                                    <flux:icon name="box" /> Dashboard
+                                </x-button>
+
                                 <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                     wire:click="logout">
                                     <flux:icon name="power" /> Logout
@@ -97,7 +103,7 @@
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
                     </x-button>
-                    <x-button href="{{ route('profile') }}" wire:navigate
+                    <x-button href="{{ route('admin.profile') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile

@@ -69,7 +69,7 @@
                         class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                         <div class="p-4 space-y-2 overflow-hidden">
                             <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                href="{{ is_admin() ? route('admin.profile') : route('user.profile') }}" wire:navigate>
+                                href="{{ is_admin() ? route('admin.profile ') : route('user.profile') }}" wire:navigate>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
                             @if (is_admin())
