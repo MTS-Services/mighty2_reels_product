@@ -39,15 +39,15 @@ class Product extends Component
     public $tempVideos;
 
     protected $rules = [
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'price' => 'required|numeric|min:0',
-        'room' => 'required|integer|min:1',
-        'city_id' => 'required|exists:cities,id',
-        'type' => 'required|in:0,1',
-        'status' => 'required|in:0,1',
-        'images.*' => 'nullable|image|max:10240', // 10MB
-        'videos' => 'nullable|mimes:mp4,avi,mov|max:51200', // 50MB
+        'title' => 'sometimes|required|string|max:255',
+        'description' => 'sometimes|nullable|string',
+        'price' => 'sometimes|required|numeric|min:0',
+        'room' => 'sometimes|required|integer|min:1',
+        'city_id' => 'sometimes|required|exists:cities,id',
+        'type' => 'sometimes|required|in:0,1',
+        'status' => 'sometimes|required|in:0,1',
+        'images.*' => 'sometimes|nullable|image|max:10240', // 10MB
+        'videos' => 'sometimes|nullable|max:51200', // 50MB
     ];
 
     protected $messages = [
