@@ -10,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Layout('app', ['title' => 'ProductReel', 'page_slug' => 'ProductReel'])]
+#[Layout('app', ['title' => 'ProductReel', 'page_slug' => 'product-reel'])]
 class ProductReel extends Component
 {
     use WithPagination, WithFileUploads;

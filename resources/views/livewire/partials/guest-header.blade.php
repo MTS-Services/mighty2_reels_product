@@ -8,18 +8,18 @@
                 </a>
                 <div class="items-center justify-end gap-6 w-auto hidden lg:flex">
                     @if (Route::is('login'))
-                        <x-button route="register" size="md">
+                        <x-button route="register" size="md" class="w-full !justify-start">
                             <flux:icon name="user-plus" /> Register
                         </x-button>
                     @elseif (Route::is('register'))
-                        <x-button variant="secondary" route="login" size="md">
+                        <x-button variant="secondary" class="w-full !justify-start" route="login" size="md">
                             <flux:icon name="log-in" /> Login
                         </x-button>
                     @else
-                        <x-button variant="secondary" route="login" size="md">
+                        <x-button variant="secondary" class="w-full !justify-start" route="login" size="md">
                             <flux:icon name="log-in" /> Login
                         </x-button>
-                        <x-button route="register" size="md">
+                        <x-button route="register" size="md" class="w-full !justify-start">
                             <flux:icon name="user-plus" /> Register
                         </x-button>
                     @endif
@@ -32,7 +32,7 @@
         </div>
     </header>
     {{-- Search Area --}}
-   @if (Route::is('home') || Route::is('product'))
+    @if (Route::is('home') || Route::is('product'))
         <div class="container mx-auto px-4 z-50  md:px-6 lg:px-8 max-w-lg  my-5 space-y-2">
             <div class="flex items-center gap-4">
                 <form class="flex-1">

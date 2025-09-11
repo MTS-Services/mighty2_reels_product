@@ -7,11 +7,15 @@
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
                 <div class="items-center justify-end gap-6 w-auto hidden lg:flex">
-                    <x-button href="{{ route('admin.product.reels') }}" variant="secondary" class="{{ $pageSlug != 'reels' ? 'text-black' : '' }}" size="lg"
-                        :linkText="$pageSlug != 'reels'">
-                        <flux:icon name="film" /> Reels
+                    <x-button href="{{ route('admin.area') }}" variant="secondary" wire:navigate
+                        class="{{ $pageSlug != 'reels' ? 'text-black' : '' }}" size="lg" :linkText="$pageSlug != 'area'">
+                        <flux:icon name="map" /> Area
                     </x-button>
-                    <x-button route="admin.products" variant="secondary"
+                    <x-button href="{{ route('admin.product.reels') }}" wire:navigate variant="secondary"
+                        class="{{ $pageSlug != 'reels' ? 'text-black' : '' }}" size="lg" :linkText="$pageSlug != 'product-reel'">
+                        <flux:icon name="film" /> Reel
+                    </x-button>
+                    <x-button href="{{ route('admin.products') }}" wire:navigate variant="secondary"
                         class="{{ $pageSlug != 'product' ? 'text-black' : '' }}" size="lg" :linkText="$pageSlug != 'product'">
                         <flux:icon name="box" /> Product
                     </x-button>
@@ -39,12 +43,19 @@
                             x-transition:leave-end="grid-rows-[0fr] opacity-0"
                             class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                             <div class="p-4 space-y-2 overflow-hidden">
-                                <x-button class="w-full" variant="secondary" size="sm"
-                                    href="{{ route('admin.dashboard') }}">
+
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('profile') }}" wire:navigate>
                                     <flux:icon name="user-circle" /> Profile
                                 </x-button>
-                                <flux:separator variant="subtle" />
-                                <x-button class="w-full" variant="secondary" size="sm" wire:click="logout">
+                                @if (is_admin())
+                                    <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                        href="{{ route('admin.products') }}" wire:navigate>
+                                        <flux:icon name="user-circle" /> Products
+                                    </x-button>
+                                @endif
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    wire:click="logout">
                                     <flux:icon name="power" /> Logout
                                 </x-button>
                             </div>
