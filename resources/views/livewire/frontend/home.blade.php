@@ -50,11 +50,10 @@
     </style>
 
     <div class="relative max-w-lg w-full mx-auto h-fit">
-        {{-- Favorite Button for the currently viewed video --}}
         {{-- It now dynamically updates based on `currentVideoId` --}}
         <div class="absolute top-4 right-6 z-[5000] rounded-full p-1" :class="$wire.favourite[currentVideoId]"
             wire:click="toggleFavourite(currentVideoId)">
-            <button class="transition-all duration-200 rounded-full p-1 shadow-lg hover:shadow-xl"
+            <button class="transition-all duration-200 rounded-full p-1 bg-white shadow-lg hover:shadow-xl"
                 :class="$wire.favourite[currentVideoId] ? 'text-white! animate-heart-jump bg-red-400' :
                     'text-white bg-white/20 hover:bg-white/30'">
                 <flux:icon name="heart" class="w-5 h-5 text-black" />
@@ -63,11 +62,7 @@
         <div class="absolute bottom-[100px] z-50 right-8">
             <a wire:navigate href="{{ route('product') }}"
                 class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
+             <flux:icon name="arrow-right" class="w-5 h-5" />
             </a>
         </div>
         <div class="overflow-y-scroll snap-y snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth"
