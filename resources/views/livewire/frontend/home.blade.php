@@ -206,14 +206,24 @@
             <div x-ref="videosContainer">
                 @foreach ($videos as $video)
                     <div class="snap-start pb-0.5" x-data="videoController('{{ $video['id'] }}')"
-                        x-intersect.once="currentVideoId = '{{ $video['id'] }}'">
+                        x-intersect.enter="
+            currentVideoId = '{{ $video['id'] }}';
+            let container = $el.querySelector('.animation-container');
+            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+            void container.offsetWidth; // Force reflow to restart animation
+            container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
+        "
+                        x-intersect.leave="
+            let container = $el.querySelector('.animation-container');
+            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+        ">
+
                         <div class="flex flex-col justify-center items-center relative">
                             <div
                                 class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl relative overflow-hidden shadow-2xl">
 
                                 {{-- Top-left Volume Control --}}
                                 <div class="absolute top-4 left-4 z-[5000]">
-                                    {{-- Main Volume Control Container with Hover Group --}}
                                     <div class="group flex items-center gap-2">
                                         {{-- Volume Icon Button --}}
                                         <button @click.stop="toggleMute()"
@@ -238,15 +248,13 @@
                                             </svg>
                                         </button>
 
-                                        {{-- Volume Slider Container --}}
-                                        <div class="relative w-0 group-hover:w-[80px] h-4   rounded-full transition-all duration-300
-                                              bg-gray-700/50 flex items-center overflow-hidden"
+                                        {{-- Volume Slider --}}
+                                        <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300
+                              bg-gray-700/50 flex items-center overflow-hidden"
                                             @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
                                             x-ref="topVolumeSlider">
-                                            {{-- Volume Progress --}}
                                             <div class="absolute top-1/2  -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
                                                 :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
-                                            {{-- Volume Handle --}}
                                             <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
                                                 :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
                                             </div>
@@ -327,8 +335,6 @@
                                                 <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
                                                     :style="{ left: progress + '%' }"></div>
                                             </div>
-
-                                           
                                         </div>
                                     </div>
                                 </div>
@@ -336,6 +342,7 @@
                         </div>
                     </div>
                 @endforeach
+
             </div>
         </div>
     </div>
