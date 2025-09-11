@@ -10,5 +10,3 @@ Route::get('/', Home::class)->name('home');
 Route::get('/buttons', Buttons::class)->name('buttons');
 
 Route::get('/product/{id?}', Product::class)->name('product');
-
-Route::get('/user-profile', UserProfile::class)->middleware('auth')->name('user.profile');
