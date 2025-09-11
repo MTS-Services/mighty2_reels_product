@@ -7,12 +7,10 @@
 
         <div class="flex flex-col sm:flex-row gap-4">
             <button wire:click="openModal"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
-                Add a new reel
+                class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
+                <flux:icon name="plus-circle" class="h-5 w-5" />
+                Add new reel
             </button>
-            {{-- <a href="{{ route('admin.products') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-md sm:text-md font-medium transition-colors">
-                Products
-            </a> --}}
         </div>
     </div>
 

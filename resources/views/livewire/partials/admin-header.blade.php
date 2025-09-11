@@ -97,7 +97,7 @@
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
                     </x-button>
-                    <x-button href="{{ route('admin.dashboard') }}" wire:navigate
+                    <x-button href="{{ route('profile') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
