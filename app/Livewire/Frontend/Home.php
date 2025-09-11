@@ -6,199 +6,77 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('app', ['title' => 'Home', 'page_slug' => 'home'])]
-
 class Home extends Component
 {
-    // public $message = '';
-    // public $formData = [
-    //     'name' => '',
-    //     'email' => '',
-    //     'message' => ''
-    // ];
-
-    // public function saveData()
-    // {
-    //     sleep(1); // Simulate processing time
-    //     $this->message = 'Data saved successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function deleteItem()
-    // {
-    //     sleep(1); // Simulate processing time
-    //     $this->message = 'Item deleted successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function refreshPage()
-    // {
-    //     sleep(1); // Simulate processing time
-    //     $this->message = 'Page refreshed!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function submitForm()
-    // {
-    //     $this->validate([
-    //         'formData.name' => 'required|min:2',
-    //         'formData.email' => 'required|email',
-    //         'formData.message' => 'required|min:10',
-    //     ]);
-
-    //     sleep(1); // Simulate processing time
-
-    //     $this->message = 'Form submitted successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-
-    //     // Reset form
-    //     $this->formData = ['name' => '', 'email' => '', 'message' => ''];
-    // }
-
-    // public function handleFormSubmit()
-    // {
-    //     $this->submitForm();
-    // }
-
-    // public function cancelForm()
-    // {
-    //     $this->formData = ['name' => '', 'email' => '', 'message' => ''];
-    //     $this->message = 'Form cancelled.';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function logout()
-    // {
-    //     // In real app: auth()->logout();
-    //     $this->message = 'Logout action triggered!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function refreshData()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Data refreshed!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function complexAction()
-    // {
-    //     sleep(2); // Longer processing time
-    //     $this->message = 'Complex action completed!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function slowAction()
-    // {
-    //     sleep(2);
-    //     $this->message = 'Slow action completed!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function uploadFile()
-    // {
-    //     sleep(3); // Simulate file upload
-    //     $this->message = 'File uploaded successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function saveChanges()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Changes saved!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function addToCart()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Item added to cart!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function buyNow()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Redirecting to checkout...';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function addToWishlist()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Added to wishlist!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function shareProduct()
-    // {
-    //     $this->message = 'Share dialog opened!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function uploadFiles()
-    // {
-    //     sleep(2);
-    //     $this->message = 'Files uploaded successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function clearFiles()
-    // {
-    //     $this->message = 'Files cleared!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function previewFiles()
-    // {
-    //     $this->message = 'Preview opened!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function selectAll()
-    // {
-    //     $this->message = 'All items selected!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function deleteSelected()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Selected items deleted!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function confirmDelete()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Item deleted successfully!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
-
-    // public function cancelDelete()
-    // {
-    //     $this->message = 'Delete action cancelled.';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'info');
-    // }
-
-    // public function saveDraft()
-    // {
-    //     sleep(1);
-    //     $this->message = 'Draft saved!';
-    //     $this->dispatch('show-toast', message: $this->message, type: 'success');
-    // }
+    // Use public properties for Livewire to manage them
+    public $productId = null;
     public $showVideo = true;
-    public $favourite = false;
+
+    /**
+     * @var array<string, bool>
+     * Stores the favorite status for each video ID.
+     * Example: ['1' => true, '2' => false]
+     */
+    public $favourite = [];
+
+    // Initialize the $favourite array with default values from your videos
+    public function mount()
+    {
+        // This should ideally match the default favourite status of your videos
+        // If your videos are fetched from a database, this would be done there.
+        // For this example, let's assume default is false for all, and true for video '2'.
+        $this->favourite = [
+            '1' => false,
+            '2' => true,
+            '3' => false,
+            // Add other video IDs here if you have more
+        ];
+    }
+
     public function toggleVideoDescription()
     {
         $this->showVideo = !$this->showVideo;
     }
-    public function toggleFavourite()
+
+    /**
+     * Toggles the favorite status of a given video.
+     * @param string|null $videoId The ID of the video to toggle.
+     */
+    public function toggleFavourite($videoId)
     {
-        $this->favourite = !$this->favourite;
+        if ($videoId === null || !array_key_exists($videoId, $this->favourite)) {
+            return;
+        }
+
+        $this->favourite[$videoId] = !$this->favourite[$videoId];
     }
 
     public function render()
     {
-        return view('livewire.frontend.home');
+        $videos = [
+            [
+                'id' => '1',
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                'title' => 'Timeless Elegance: The Chronos Collection',
+                'description' => 'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
+                'favourite' => $this->favourite['1'] ?? false, // Use the value from the $favourite array
+            ],
+            [
+                'id' => '2',
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                'title' => 'Urban Edge: The City Explorer',
+                'description' => 'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
+                'favourite' => $this->favourite['2'] ?? false,
+            ],
+            [
+                'id' => '3',
+                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                'title' => 'Minimalist Masterpiece: The Zenith Series',
+                'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
+                'favourite' => $this->favourite['3'] ?? false,
+            ],
+        ];
+
+        return view('livewire.frontend.home', compact('videos'));
     }
 }

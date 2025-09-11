@@ -126,6 +126,18 @@
                                 class="w-full h-full object-cover" loop autoplay playsinline>
                                 <source src="{{ $video['url'] }}" type="video/mp4">
                             </video>
+                            <button wire:click="toggleFavourite({{ $video['id'] }})" wire:loading.attr="disabled"
+                                class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl
+        {{ $video['favourite'] ? 'text-red-500' : 'text-gray-800' }}">
+                                <svg width="20" height="20" viewBox="0 0 24 24"
+                                    fill="{{ $video['favourite'] ? 'currentColor' : 'none' }}" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                    </path>
+                                </svg>
+                            </button>
+
 
                             <div x-show="!videoLoaded"
                                 class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
