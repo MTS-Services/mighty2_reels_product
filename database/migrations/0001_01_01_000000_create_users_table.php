@@ -6,8 +6,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-return new class extends Migration
-{
+return new class extends Migration {
     use SoftDeletes;
     /**
      * Run the migrations.
@@ -33,6 +32,7 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('photo')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

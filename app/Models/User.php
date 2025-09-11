@@ -34,6 +34,7 @@ class User extends Authenticatable
         'otp',
         'expires_at',
         'otp_token',
+        'photo',
     ];
 
 

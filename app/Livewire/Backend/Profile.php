@@ -49,7 +49,7 @@ class Profile extends Component
         $this->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(), 
+            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
@@ -64,12 +64,14 @@ class Profile extends Component
         $user = Auth::user();
 
         // Handle the photo upload first
-        if ($this->photo) {
+        if ($this->photo instanceof \Illuminate\Http\UploadedFile) {
             // Delete the old photo if it exists
-            if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
             }
-            $user->profile_photo_path = $this->photo->store('profile-photos', 'public');
+            $filename = time() . '_' . uniqid() . '.' . $this->photo->getClientOriginalExtension();
+            $user->photo = $this->photo->storeAs('profiles', $filename, 'public');
+
         }
 
         // Update all other fields
@@ -91,7 +93,6 @@ class Profile extends Component
 
         $user->save();
         session()->flash('success', 'Profile updated successfully!');
-        return redirect()->route('home');
     }
     public function render()
     {
