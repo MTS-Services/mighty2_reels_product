@@ -213,7 +213,7 @@
                                 void container.offsetWidth; // Force reflow to restart animation
                                 container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
                             "
-                               x-intersect.leave="
+                        x-intersect.leave="
                                 let container = $el.querySelector('.animation-container');
                                 container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
                             ">
@@ -304,14 +304,20 @@
                                 {{-- Title & Description --}}
                                 <div
                                     class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
-                                    <div class="animation-container">
-                                        <h2 class="text-white text-2xl mb-2 leading-tight font-bold animate-fade-in-up">
+                                    <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                        x-intersect:leave="visible = false">
+
+                                        <h2 x-show="visible" x-transition.opacity.duration.500ms
+                                            class="text-white text-2xl mb-2 leading-tight font-bold animate-fade-in-up">
                                             {{ $video['title'] }}
                                         </h2>
-                                        <p class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
+
+                                        <p x-show="visible" x-transition.opacity.duration.700ms
+                                            class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
                                             {{ $video['description'] }}
                                         </p>
                                     </div>
+
 
                                     {{-- Progress Bar & Controls --}}
                                     <div class="relative">

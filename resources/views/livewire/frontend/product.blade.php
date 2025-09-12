@@ -1,5 +1,6 @@
 <div class="max-w-7xl mx-auto pt-1.5">
     <style>
+        /* Progress Bar Styling */
         .progress-bar {
             background: linear-gradient(90deg,
                     #ff6b35 0%,
@@ -8,15 +9,18 @@
                     #4a4a4a 100%);
         }
 
+        /* Video Overlay */
         .video-overlay {
             background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
         }
 
+        /* Play Button */
         .play-button {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
 
+        /* Scrollbar Hiding */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -28,6 +32,7 @@
             /* Firefox */
         }
 
+        /* Animations */
         @keyframes heart-pop {
             0% {
                 transform: scale(1);
@@ -54,7 +59,6 @@
             }
         }
 
-        /* Apply the animation to the title */
         .animate-fade-in-up {
             animation: fadeInUp 0.8s ease-out forwards;
         }
@@ -65,7 +69,7 @@
             opacity: 0;
         }
 
-        /* Volume bar styling similar to progress bar */
+        /* Volume Bar */
         .volume-bar {
             background: linear-gradient(90deg,
                     #ff6b35 0%,
@@ -74,7 +78,7 @@
                     #4a4a4a 100%);
         }
 
-        /* Top-left volume control styling */
+        /* Top Volume Control */
         .top-volume-control {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
@@ -147,10 +151,7 @@
         @if (!$productDetails)
             <div x-data="{ liked: false }" class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <button @click="liked = !liked"
-                    :class="liked
-                        ?
-                        'bg-red-400 text-white' :
-                        'bg-white text-black hover:bg-white/70'"
+                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                     class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                     :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                     <flux:icon name="heart" class="w-5 h-5" />
@@ -167,10 +168,7 @@
         @else
             <div x-data="{ liked: false }" class="absolute top-4 right-4 z-[5000] rounded-full">
                 <button @click="liked = !liked"
-                    :class="liked
-                        ?
-                        'bg-red-400 text-white' :
-                        'bg-white text-black hover:bg-white/70'"
+                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                     class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                     :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                     <flux:icon name="heart" class="w-5 h-5" />
@@ -186,9 +184,8 @@
             </div>
         @endif
 
-        {{-- Video Feed --}}
         <div class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
-            x-data="{ product_details: false}">
+            x-data="{ product_details: false }">
             @foreach ($videos as $index => $video)
                 {{-- Product Details Section --}}
                 @if ($productDetails)
@@ -220,28 +217,36 @@
                                     class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg">
                                     <flux:icon name="chevron-right" class="w-5 h-5 text-gray-700" />
                                 </button>
-
                             </div>
 
-                            <div class="py-6">
-                                <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight">
-                                    {{ $video['title'] }}</h1>
+                            <div class="py-6" x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                x-intersect:leave="visible = false">
+
+                                <h1 class="text-3xl font-bold text-gray-900 mb-6 leading-tight"
+                                    :class="visible ? 'animate-fade-in-up' : ''">
+                                    {{ $video['title'] }}
+                                </h1>
+
                                 <div class="space-y-4 text-gray-700 leading-relaxed">
-                                    <p>{{ $video['description'] }}</p>
+                                    <p :class="visible ? 'animate-fade-in-up-delayed' : ''">{{ $video['description'] }}
+                                    </p>
+
                                     <div x-show="isExpanded" x-transition>
                                         <p>Extended product details here (dummy text)</p>
                                     </div>
+
                                     <button @click="toggleDescription"
                                         class="text-orange-500 hover:text-orange-600 font-medium"
-                                        x-text="isExpanded ? 'See less' : 'See more'"></button>
+                                        x-text="isExpanded ? 'See less' : 'See more'">
+                                    </button>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 @else
                     {{-- Video Section --}}
-                    <div id="video-{{ $index }}" class="snap-start pb-1"
-                        x-data="videoController('{{ $video['id'] }}')"
+                    <div id="video-{{ $index }}" class="snap-start pb-1" x-data="videoController('{{ $video['id'] }}')"
                         x-intersect:enter="currentVideoId = '{{ $video['id'] }}'">
                         <div class="flex flex-col justify-center items-center relative">
                             <div
@@ -275,8 +280,7 @@
                                         </button>
 
                                         {{-- Volume Slider Container --}}
-                                        <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300
-                                             bg-gray-700/50 flex items-center overflow-hidden"
+                                        <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden"
                                             @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
                                             x-ref="topVolumeSlider">
                                             {{-- Volume Progress --}}
@@ -294,12 +298,16 @@
                                 <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
                                     @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
                                     @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                                    @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop autoplay playsinline>
+                                    @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
+                                    autoplay playsinline>
                                     <source src="{{ $video['url'] }}" type="video/mp4">
+                                    Your browser does not support the video tag.
                                 </video>
+
+                                {{-- Like Button within Video Container --}}
                                 <button wire:click="toggleFavourite({{ $video['id'] }})" wire:loading.attr="disabled"
-                                    class="transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl
-                                     {{ $video['favourite'] ? 'text-red-500' : 'text-gray-800' }}">
+                                    class="absolute top-4 right-4 z-[5000] transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl
+                                               {{ $video['favourite'] ? 'text-red-500' : 'text-gray-800' }}">
                                     <svg width="20" height="20" viewBox="0 0 24 24"
                                         fill="{{ $video['favourite'] ? 'currentColor' : 'none' }}"
                                         stroke="currentColor" stroke-width="2">
@@ -310,12 +318,14 @@
                                 </button>
 
 
+                                {{-- Loading Indicator --}}
                                 <div x-show="!videoLoaded"
                                     class="absolute inset-0 bg-gray-900 flex items-center justify-center z-50">
                                     <div class="text-center">
                                         <div wire:loading.delay class="inline-block">
                                             <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-orange-500"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                     stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor"
@@ -344,6 +354,7 @@
 
                                 <div class="video-overlay absolute inset-0 pointer-events-none"></div>
 
+                                {{-- Play/Pause Button Overlay --}}
                                 <button @click="togglePlay()"
                                     class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                     :style="{ opacity: isPlaying ? '0' : '1' }">
@@ -357,39 +368,42 @@
                                     </svg>
                                 </button>
 
-
+                                {{-- Video Info and Progress Bar --}}
                                 <div
                                     class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                    <div class="animation-container">
-                                        <h2
+                                    <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                        x-intersect:leave="visible = false">
+
+                                        <h2 x-show="visible" x-transition.opacity.duration.500ms
                                             class="text-white text-2xl mb-2 leading-tight font-bold animate-fade-in-up">
                                             {{ $video['title'] }}
                                         </h2>
-                                        <p class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
+
+                                        <p x-show="visible" x-transition.opacity.duration.700ms
+                                            class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed">
                                             {{ $video['description'] }}
                                         </p>
                                     </div>
-                                    <div class="relative">
-                                        <div class="flex items-center space-x-3">
-                                            <button @click="togglePlay()"
-                                                class="text-white hover:text-orange-500 transition-colors">
-                                                <svg x-show="!isPlaying" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M8 5v14l11-7z" />
-                                                </svg>
-                                                <svg x-show="isPlaying" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
-                                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                                                </svg>
-                                            </button>
 
-                                            <div class="flex-1 relative">
-                                                <div class="progress-bar h-1.5 rounded-full cursor-pointer"
-                                                    @click="setProgress($event)" x-ref="progressBar"
-                                                    :style="{ '--progress': progress + '%' }"></div>
-                                                <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
-                                                    :style="{ left: progress + '%' }"></div>
-                                            </div>
+                                    <div class="flex items-center space-x-3">
+                                        <button @click="togglePlay()"
+                                            class="text-white hover:text-orange-500 transition-colors">
+                                            <svg x-show="!isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            <svg x-show="isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="flex-1 relative">
+                                            <div class="progress-bar h-1.5 rounded-full cursor-pointer"
+                                                @click="setProgress($event)" x-ref="progressBar"
+                                                :style="{ '--progress': progress + '%' }"></div>
+                                            <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
+                                                :style="{ left: progress + '%' }"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -422,10 +436,18 @@
             initVideo() {
                 const video = this.$refs.mainVideo;
                 this.progress = 0;
-                this.duration = video.duration;
+                // Ensure duration is available before setting it
+                if (video.duration) {
+                    this.duration = video.duration;
+                } else {
+                    // If duration is not immediately available, wait for the 'durationchange' event
+                    video.addEventListener('durationchange', () => {
+                        this.duration = video.duration;
+                    });
+                }
                 this.videoLoaded = true;
                 this.videoError = false;
-                this.isPlaying = video.autoplay;
+                this.isPlaying = video.autoplay; // Set initial play state based on autoplay
                 this.volume = video.volume;
                 this.isMuted = video.muted;
             },
@@ -434,13 +456,15 @@
                 if (!this.videoLoaded || this.videoError) return;
                 const video = this.$refs.mainVideo;
                 if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
+                // Use a short timeout to distinguish single tap from double tap
                 this.clickTimeout = setTimeout(() => {
                     if (video.paused) {
-                        video.play();
+                        video.play().catch(e => console.error("Error playing video:", e));
                     } else {
                         video.pause();
                     }
-                }, 200);
+                }, 200); // Adjust timeout as needed
             },
 
             handlePlay() {
@@ -453,24 +477,26 @@
 
             updateProgress() {
                 const video = this.$refs.mainVideo;
-                if (!video || !video.duration) return;
+                if (!video || !video.duration || isNaN(video.duration)) return; // Check for valid duration
                 this.currentTime = video.currentTime;
-                this.progress = (video.currentTime / video.duration) * 100;
+                // Calculate progress, ensuring not to divide by zero or NaN
+                this.progress = this.duration > 0 ? (video.currentTime / this.duration) * 100 : 0;
             },
 
             setProgress(event) {
                 if (!this.videoLoaded || this.videoError) return;
                 const video = this.$refs.mainVideo;
                 const progressBar = this.$refs.progressBar;
-                if (!video || !progressBar) return;
+                if (!video || !progressBar || !video.duration || isNaN(video.duration)) return;
+
                 const rect = progressBar.getBoundingClientRect();
-                const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+                // Use clientX for mouse events, and touches[0].clientX for touch events
+                const clientX = event.clientX || (event.touches && event.touches[0] && event.touches[0].clientX);
                 if (clientX === undefined) return;
-                const pos = (clientX - rect.left) / rect.width;
-                if (video.duration) {
-                    video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-                    this.updateProgress();
-                }
+
+                const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                video.currentTime = pos * video.duration;
+                this.updateProgress();
             },
 
             setTopVolume(event) {
@@ -478,17 +504,20 @@
                 const video = this.$refs.mainVideo;
                 const volumeSlider = this.$refs.topVolumeSlider;
                 if (!video || !volumeSlider) return;
+
                 const rect = volumeSlider.getBoundingClientRect();
-                const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+                const clientX = event.clientX || (event.touches && event.touches[0] && event.touches[0].clientX);
                 if (clientX === undefined) return;
+
                 const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
                 this.volume = pos;
                 video.volume = pos;
+
+                // Update muted state based on volume slider
                 if (pos > 0 && this.isMuted) {
                     this.isMuted = false;
                     video.muted = false;
-                }
-                if (pos === 0) {
+                } else if (pos === 0) {
                     this.isMuted = true;
                     video.muted = true;
                 }
@@ -497,19 +526,31 @@
             startTopVolumeDrag(event) {
                 if (!this.videoLoaded || this.videoError) return;
                 this.isDraggingVolume = true;
+
                 const handleDrag = (e) => {
                     if (!this.isDraggingVolume) return;
-                    e.preventDefault();
+                    e.preventDefault(); // Prevent default browser behavior
                     this.setTopVolume(e);
                 };
+
                 const stopDrag = () => {
                     this.isDraggingVolume = false;
                     document.removeEventListener('mousemove', handleDrag);
                     document.removeEventListener('mouseup', stopDrag);
+                    // Also remove touch listeners if needed for mobile
+                    document.removeEventListener('touchmove', handleDrag);
+                    document.removeEventListener('touchend', stopDrag);
                 };
+
+                // Add event listeners for mouse and touch
                 document.addEventListener('mousemove', handleDrag);
                 document.addEventListener('mouseup', stopDrag);
-                this.setTopVolume(event);
+                document.addEventListener('touchmove', handleDrag, {
+                    passive: false
+                }); // passive: false to allow preventDefault
+                document.addEventListener('touchend', stopDrag);
+
+                this.setTopVolume(event); // Set initial volume on drag start
             },
 
             toggleMute() {
@@ -518,13 +559,15 @@
                 if (this.isMuted) {
                     this.isMuted = false;
                     video.muted = false;
+                    // Restore last volume, default to 0.5 if it was 0
                     this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
                     video.volume = this.volume;
                 } else {
-                    this.lastVolume = this.volume;
+                    this.lastVolume = this.volume; // Save current volume before muting
                     this.isMuted = true;
                     video.muted = true;
                     video.volume = 0;
+                    this.volume = 0; // Update local volume state
                 }
             },
 
@@ -538,27 +581,33 @@
             handleDoubleClick(event) {
                 if (!this.videoLoaded || this.videoError) return;
                 const video = this.$refs.mainVideo;
+                if (!video || !video.duration || isNaN(video.duration)) return; // Ensure duration is valid
+
                 const rect = video.getBoundingClientRect();
-                const x = event.clientX - rect.left;
+                const x = event.clientX - rect.left; // Get click position relative to video
+
+                // Clear any pending single-click play/pause
                 if (this.clickTimeout) clearTimeout(this.clickTimeout);
-                if (x < rect.width / 2) {
+
+                if (x < rect.width / 2) { // Double tap on left half: seek backward 10 seconds
                     video.currentTime = Math.max(0, video.currentTime - 10);
-                } else {
+                } else { // Double tap on right half: seek forward 10 seconds
                     video.currentTime = Math.min(video.duration, video.currentTime + 10);
                 }
-                this.updateProgress();
+                this.updateProgress(); // Update progress bar after seeking
             },
 
             handleTouchEnd(event) {
                 if (!this.videoLoaded || this.videoError) return;
                 const currentTime = new Date().getTime();
                 const tapDiff = currentTime - this.lastTap;
-                if (tapDiff < 300) {
+
+                if (tapDiff < 300) { // Likely a double tap
                     this.handleDoubleClick(event);
-                } else {
+                } else { // Likely a single tap
                     this.togglePlay();
                 }
-                this.lastTap = currentTime;
+                this.lastTap = currentTime; // Update last tap time
             },
 
             handleVideoError() {
@@ -572,7 +621,7 @@
                 this.videoLoaded = false;
                 const video = this.$refs.mainVideo;
                 if (video) {
-                    video.load();
+                    video.load(); // Reload the video source
                 }
             }
         }
