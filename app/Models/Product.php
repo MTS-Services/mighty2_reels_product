@@ -17,6 +17,7 @@ class Product extends BaseModel
     const STATUS_ACTIVE = 1;
 
     protected $fillable = [
+        'sort_order',
         'title',
         'description',
         'price',
