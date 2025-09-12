@@ -54,8 +54,8 @@
                         <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
                             class="w-11 h-11 rounded-full object-cover">
                         <div class="flex flex-col">
-                            <span class="text-lg font-medium text-black">Admin Name</span>
-                            <span class="text-xs text-black">example@gmail.com</span>
+                            <span class="text-lg font-medium text-black">{{ user()->full_name }}</span>
+                            <span class="text-xs text-black">{{ user()->email }}</span>
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@
     </aside>
 
     {{-- Search Area --}}
-    <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2">
+    <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area">
         <div class="flex items-center gap-4">
             <form class="flex-1">
                 <input type="search" placeholder="Search for products..."
