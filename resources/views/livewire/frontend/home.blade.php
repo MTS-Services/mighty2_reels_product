@@ -2,7 +2,6 @@
          x-data="{ currentPlayingId: null, productId: @entangle('productId').live, favourite: @entangle('favourite').live }">
 
     <style>
-        /* Progress & Volume Bars */
         .progress-bar {
             background: linear-gradient(90deg,#ff6b35 0%,#ff6b35 var(--progress, 0%),#4a4a4a var(--progress, 0%),#4a4a4a 100%);
         }
@@ -77,7 +76,7 @@
                             <div class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl relative overflow-hidden shadow-2xl">
 
                                 {{-- Top-left Volume Control --}}
-                                <div class="absolute top-4 left-4 z-[5000]">
+                                 <div class="absolute top-4 left-4 z-[5000]">
                                     <div class="group flex items-center gap-2">
                                         <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -103,14 +102,13 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 {{-- Video --}}
                                 <video x-ref="mainVideo" data-video-id="{{ $video['id'] }}"
                                        @loadedmetadata="initVideo()" @timeupdate="updateProgress()" @play="handlePlay()"
                                        @pause="handlePause()" @click.stop="togglePlay()"
                                        @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
                                        @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
-                                       playsinline autoplay muted>
+                                       playsinline autoplay >
                                     <source src="{{ $video['url'] }}" type="video/mp4">
                                 </video>
 
@@ -126,13 +124,15 @@
                                 <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
                                 {{-- Center Play/Pause Button --}}
-                                <button @click.stop="togglePlay()"
-                                        class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-20"
-                                        :style="{ opacity: isPlaying ? '0' : '1' }">
-                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                  <button @click.stop="togglePlay()"
+                                    class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-20"
+                                    :style="{ opacity: isPlaying ? '0' : '1' }">
+                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor" class="text-gray-800">
                                         <path d="M8 5v14l11-7z" />
                                     </svg>
-                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor" class="text-gray-800">
                                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                     </svg>
                                 </button>
@@ -153,15 +153,17 @@
                                     {{-- Progress Bar --}}
                                     <div class="relative">
                                         <div class="flex items-center space-x-3">
-                                            <button @click.stop="togglePlay()"
-                                                    class="text-white hover:text-orange-500 transition-colors">
-                                                <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M8 5v14l11-7z" />
-                                                </svg>
-                                                <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
-                                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                                                </svg>
-                                            </button>
+                                            <button @click="togglePlay()"
+                                            class="text-white hover:text-orange-500 transition-colors">
+                                            <svg x-show="!isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            <svg x-show="isPlaying" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                            </svg>
+                                        </button>
 
                                             <div class="flex-1 relative">
                                                 <div class="progress-bar h-1.5 rounded-full cursor-pointer"
@@ -210,7 +212,6 @@
                     this.volume = video.volume;
                     this.isMuted = video.muted;
 
-                    // Auto-play if this is the first visible video
                     if (root.currentPlayingId === this.videoId) {
                         video.play();
                         this.isPlaying = true;
@@ -220,99 +221,40 @@
                 autoplayOnScroll() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-
-                    // Pause all other videos
-                    document.querySelectorAll('video').forEach(v => {
-                        if (v !== video) v.pause();
-                    });
-
-                    // Play current video
+                    document.querySelectorAll('video').forEach(v => { if (v !== video) v.pause(); });
                     video.play();
                     this.isPlaying = true;
                     root.currentPlayingId = this.videoId;
                 },
 
-                pauseVideo() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    video.pause();
-                    this.isPlaying = false;
-                },
+                pauseVideo() { const video = this.$refs.mainVideo; if (!video) return; video.pause(); this.isPlaying = false; },
+                togglePlay() { const video = this.$refs.mainVideo; if (!video) return; if (video.paused) video.play(); else video.pause(); this.isPlaying = !video.paused; },
+                updateProgress() { const video = this.$refs.mainVideo; if (!video || !video.duration) return; this.currentTime = video.currentTime; this.progress = (video.currentTime / video.duration) * 100; },
+                setProgress(event) { const video = this.$refs.mainVideo; const progressBar = this.$refs.progressBar; if (!video || !progressBar) return; const rect = progressBar.getBoundingClientRect(); const clientX = event.clientX || (event.touches && event.touches[0].clientX); if (clientX === undefined) return; const pos = (clientX - rect.left) / rect.width; video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration)); this.updateProgress(); },
 
-                togglePlay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-
-                    if (video.paused) video.play();
-                    else video.pause();
-
-                    this.isPlaying = !video.paused;
-                },
-
-                updateProgress() {
-                    const video = this.$refs.mainVideo;
-                    if (!video || !video.duration) return;
-                    this.currentTime = video.currentTime;
-                    this.progress = (video.currentTime / video.duration) * 100;
-                },
-
-                setProgress(event) {
-                    const video = this.$refs.mainVideo;
-                    const progressBar = this.$refs.progressBar;
-                    if (!video || !progressBar) return;
-
-                    const rect = progressBar.getBoundingClientRect();
-                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-                    if (clientX === undefined) return;
-
-                    const pos = (clientX - rect.left) / rect.width;
-                    video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-                    this.updateProgress();
-                },
-
-                // Volume methods
                 toggleMute() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-
-                    if (this.isMuted) {
-                        this.isMuted = false;
-                        video.muted = false;
-                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
-                        video.volume = this.volume;
-                    } else {
-                        this.lastVolume = this.volume;
-                        this.isMuted = true;
-                        video.muted = true;
-                        video.volume = 0;
-                    }
+                    if (this.isMuted) { this.isMuted = false; video.muted = false; this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5; video.volume = this.volume; }
+                    else { this.lastVolume = this.volume; this.isMuted = true; video.muted = true; video.volume = 0; }
                 },
 
-                updateVolumeDisplay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    this.volume = video.volume;
-                    this.isMuted = video.muted;
-                },
+                updateVolumeDisplay() { const video = this.$refs.mainVideo; if (!video) return; this.volume = video.volume; this.isMuted = video.muted; },
 
                 handleDoubleClick(event) {
                     const video = this.$refs.mainVideo;
                     const rect = video.getBoundingClientRect();
                     const x = event.clientX - rect.left;
-
                     if (x < rect.width / 2) video.currentTime = Math.max(0, video.currentTime - 10);
                     else video.currentTime = Math.min(video.duration, video.currentTime + 10);
-
                     this.updateProgress();
                 },
 
                 handleTouchEnd(event) {
                     const currentTime = new Date().getTime();
                     const tapDiff = currentTime - this.lastTap;
-
                     if (tapDiff < 300) this.handleDoubleClick(event);
                     else this.togglePlay();
-
                     this.lastTap = currentTime;
                 },
             }
