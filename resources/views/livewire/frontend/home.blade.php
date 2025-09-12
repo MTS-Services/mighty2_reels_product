@@ -32,9 +32,11 @@
             0% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.4);
             }
+
             100% {
                 transform: scale(1);
             }
@@ -45,6 +47,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -56,6 +59,7 @@
                 transform: translateY(100vh);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -67,6 +71,7 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+
             to {
                 transform: translateY(100vh);
                 opacity: 0;
@@ -79,6 +84,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 max-height: 200px;
                 opacity: 1;
@@ -92,6 +98,7 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+
             to {
                 max-height: 0;
                 opacity: 0;
@@ -134,12 +141,19 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
                 transform: translateX(0);
             }
+
             40% {
                 transform: translateX(-5px);
             }
+
             60% {
                 transform: translateX(-3px);
             }
@@ -153,8 +167,7 @@
             favourite: false,
             selectedVideoId: null,
             showInfoPanel: false,
-            videos: [
-                {
+            videos: [{
                     id: '1',
                     url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
                     title: 'Timeless Elegance: The Chronos Collection',
@@ -327,173 +340,241 @@
                 </div>
             </div>
 
-            <script>
-                function videoController(videoId, root, videoData) {
-                    return {
-                        isPlaying: false,
-                        progress: 0,
-                        duration: 0,
-                        currentTime: 0,
-                        videoLoaded: false,
-                        videoError: false,
-                        clickTimeout: null,
-                        videoId: videoId,
-                        volume: 1.0,
-                        isMuted: false,
-                        lastVolume: 1.0,
-                        isDraggingVolume: false,
-                        lastTap: 0,
-                        videoData: videoData,
-
-                        initVideo() {
-                            const video = this.$refs.mainVideo;
-                            this.progress = 0;
-                            this.duration = video.duration;
-                            this.videoLoaded = true;
-                            this.videoError = false;
-                            this.isPlaying = video.autoplay;
-                            this.volume = video.volume;
-                            this.isMuted = video.muted;
-
-                            if (root.currentPlayingId === this.videoId) {
-                                video.play();
-                                this.isPlaying = true;
-                            }
-                        },
-
-                        autoplayOnScroll() {
-                            const video = this.$refs.mainVideo;
-                            if (!video) return;
-                            document.querySelectorAll('video').forEach(v => {
-                                if (v !== video) v.pause();
-                            });
-                            video.play();
-                            this.isPlaying = true;
-                            root.currentPlayingId = this.videoId;
-                        },
-
-                        pauseVideo() {
-                            const video = this.$refs.mainVideo;
-                            if (!video) return;
-                            video.pause();
-                            this.isPlaying = false;
-                        },
-
-                        togglePlay() {
-                            const video = this.$refs.mainVideo;
-                            if (!video) return;
-                            if (video.paused) video.play();
-                            else video.pause();
-                            this.isPlaying = !video.paused;
-                        },
-
-                        updateProgress() {
-                            const video = this.$refs.mainVideo;
-                            if (!video || !video.duration) return;
-                            this.currentTime = video.currentTime;
-                            this.progress = (video.currentTime / video.duration) * 100;
-                        },
-
-                        setProgress(event) {
-                            const video = this.$refs.mainVideo;
-                            const progressBar = this.$refs.progressBar;
-                            if (!video || !progressBar) return;
-                            const rect = progressBar.getBoundingClientRect();
-                            const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-                            if (clientX === undefined) return;
-                            const pos = (clientX - rect.left) / rect.width;
-                            video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-                            this.updateProgress();
-                        },
-
-                        toggleMute() {
-                            const video = this.$refs.mainVideo;
-                            if (!video) return;
-                            if (this.isMuted) {
-                                this.isMuted = false;
-                                video.muted = false;
-                                this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
-                                video.volume = this.volume;
-                            } else {
-                                this.lastVolume = this.volume;
-                                this.isMuted = true;
-                                video.muted = true;
-                                video.volume = 0;
-                            }
-                        },
-
-                        updateVolumeDisplay() {
-                            const video = this.$refs.mainVideo;
-                            if (!video) return;
-                            this.volume = video.volume;
-                            this.isMuted = video.muted;
-                        },
-
-                        handleDoubleClick(event) {
-                            const video = this.$refs.mainVideo;
-                            const rect = video.getBoundingClientRect();
-                            const x = event.clientX - rect.left;
-                            if (x < rect.width / 2) video.currentTime = Math.max(0, video.currentTime - 10);
-                            else video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                            this.updateProgress();
-                        },
-
-                        handleTouchEnd(event) {
-                            const currentTime = new Date().getTime();
-                            const tapDiff = currentTime - this.lastTap;
-                            if (tapDiff < 300) this.handleDoubleClick(event);
-                            else this.togglePlay();
-                            this.lastTap = currentTime;
-                        },
-
-                        selectVideo(videoId) {
-                            this.$root.selectedVideoId = videoId;
-                            // Pause all videos and play selected one
-                            document.querySelectorAll('video').forEach(v => v.pause());
-                            const video = this.$refs.mainVideo;
-                            if (video) {
-                                video.play();
-                                this.isPlaying = true;
-                            }
-                        },
-
-                        // Volume drag functionality (simplified, you might need more robust implementation)
-                        startTopVolumeDrag(event) {
-                            this.isDraggingVolume = true;
-                            document.addEventListener('mousemove', this.handleTopVolumeDrag);
-                            document.addEventListener('mouseup', this.stopTopVolumeDrag);
-                            // Prevent text selection during drag
-                            event.preventDefault();
-                        },
-
-                        handleTopVolumeDrag(event) {
-                            if (!this.isDraggingVolume) return;
-                            const slider = this.$refs.topVolumeSlider;
-                            if (!slider) return;
-                            const rect = slider.getBoundingClientRect();
-                            const clientY = event.clientY; // Use Y for vertical slider
-                            const pos = (rect.bottom - clientY) / rect.height; // Calculate volume from bottom
-                            this.volume = Math.max(0, Math.min(1, pos));
-                            this.$refs.mainVideo.volume = this.volume;
-                            this.$refs.mainVideo.muted = false; // Unmute if dragging
-                            this.isMuted = false;
-                            this.lastVolume = this.volume;
-                        },
-
-                        stopTopVolumeDrag() {
-                            this.isDraggingVolume = false;
-                            document.removeEventListener('mousemove', this.handleTopVolumeDrag);
-                            document.removeEventListener('mouseup', this.stopTopVolumeDrag);
-                        },
-
-                        setTopVolume(event) {
-                            // This method might be redundant if you're using drag, but could be for clicks
-                            // You might want to handle direct clicks to set volume here if needed
-                        }
-                    };
-                }
-            </script>
 
         </div>
     </div>
+    <script>
+        function videoController(videoId, root, videoData) {
+            return {
+                isPlaying: false,
+                progress: 0,
+                duration: 0,
+                currentTime: 0,
+                videoLoaded: false,
+                videoError: false,
+                clickTimeout: null,
+                videoId: videoId,
+                volume: 1.0,
+                isMuted: false,
+                lastVolume: 1.0,
+                isDraggingVolume: false,
+                lastTap: 0,
+                videoData: videoData,
+                observer: null,
+
+                initVideo() {
+                    const video = this.$refs.mainVideo;
+                    this.progress = 0;
+                    this.duration = video.duration;
+                    this.videoLoaded = true;
+                    this.videoError = false;
+                    this.isPlaying = video.autoplay; // Consider if you want autoplay to respect user settings or be forced.
+                    this.volume = video.volume;
+                    this.isMuted = video.muted;
+
+                    // Ensure the initial volume is correctly reflected
+                    if (this.isMuted) {
+                        this.volume = 0;
+                    } else {
+                        this.lastVolume = this.volume; // Set lastVolume on init if not muted
+                    }
+
+                    if (root.currentPlayingId === this.videoId) {
+                        video.play();
+                        this.isPlaying = true;
+                    }
+
+                    // Initialize the IntersectionObserver
+                    this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
+                        root: null, // viewport
+                        rootMargin: '0px',
+                        threshold: 0.7 // Trigger when 70% of the video is in view
+                    });
+                    this.observer.observe(video);
+                },
+
+                handleIntersection(entries) {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            this.autoplayOnScroll();
+                        } else {
+                            this.pauseVideo();
+                        }
+                    });
+                },
+
+                autoplayOnScroll() {
+                    const video = this.$refs.mainVideo;
+                    if (!video || this.isPlaying) return; // Don't re-run if already playing
+
+                    // Pause all other videos
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v !== video) v.pause();
+                    });
+
+                    // Play this video
+                    video.play().then(() => {
+                        this.isPlaying = true;
+                        root.currentPlayingId = this.videoId;
+                    }).catch(error => {
+                        console.error("Autoplay failed:", error);
+                        this.isPlaying = false; // Set state to not playing if it fails
+                    });
+                },
+
+                pauseVideo() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    video.pause();
+                    this.isPlaying = false;
+                },
+
+                togglePlay() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    if (video.paused) {
+                        video.play();
+                        this.isPlaying = true;
+                        root.currentPlayingId = this.videoId;
+                    } else {
+                        video.pause();
+                        this.isPlaying = false;
+                    }
+                },
+
+                updateProgress() {
+                    const video = this.$refs.mainVideo;
+                    if (!video || !video.duration) return;
+                    this.currentTime = video.currentTime;
+                    if (video.duration > 0) {
+                        this.progress = (video.currentTime / video.duration) * 100;
+                    } else {
+                        this.progress = 0;
+                    }
+                },
+
+                setProgress(event) {
+                    const video = this.$refs.mainVideo;
+                    const progressBar = this.$refs.progressBar;
+                    if (!video || !progressBar) return;
+                    const rect = progressBar.getBoundingClientRect();
+                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+                    if (clientX === undefined) return;
+                    const pos = (clientX - rect.left) / rect.width;
+                    video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
+                    this.updateProgress();
+                },
+
+                toggleMute() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    if (this.isMuted) {
+                        this.isMuted = false;
+                        video.muted = false;
+                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                        video.volume = this.volume;
+                    } else {
+                        this.lastVolume = this.volume;
+                        this.isMuted = true;
+                        video.muted = true;
+                        video.volume = 0;
+                        this.volume = 0;
+                    }
+                    this.updateVolumeDisplay();
+                },
+
+                updateVolumeDisplay() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    this.volume = video.volume;
+                    this.isMuted = video.muted;
+                    if (this.isMuted) {
+                        this.volume = 0;
+                    }
+                },
+
+                handleDoubleClick(event) {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    const rect = video.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    if (x < rect.width / 2) {
+                        video.currentTime = Math.max(0, video.currentTime - 10);
+                    } else {
+                        video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                    }
+                    this.updateProgress();
+                },
+
+                handleTouchEnd(event) {
+                    const currentTime = new Date().getTime();
+                    const tapDiff = currentTime - this.lastTap;
+                    if (tapDiff < 300) {
+                        this.handleDoubleClick(event);
+                    } else {
+                        this.togglePlay();
+                    }
+                    this.lastTap = currentTime;
+                },
+
+                selectVideo(videoId) {
+                    this.$root.selectedVideoId = videoId;
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v.dataset.videoId !== videoId) {
+                            v.pause();
+                        }
+                    });
+                    const video = this.$refs.mainVideo;
+                    if (video && video.dataset.videoId === videoId) {
+                        video.play();
+                        this.isPlaying = true;
+                        root.currentPlayingId = videoId;
+                    }
+                },
+
+                // --- Volume Drag Functionality ---
+                startTopVolumeDrag(event) {
+                    this.isDraggingVolume = true;
+                    document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
+                    document.addEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
+                    event.preventDefault();
+                },
+
+                handleTopVolumeDrag(event) {
+                    if (!this.isDraggingVolume) return;
+                    const slider = this.$refs.topVolumeSlider;
+                    if (!slider) return;
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = event.clientX;
+                    const pos = (clientX - rect.left) / rect.width;
+                    this.volume = Math.max(0, Math.min(1, pos));
+                    this.$refs.mainVideo.volume = this.volume;
+                    this.$refs.mainVideo.muted = false;
+                    this.isMuted = false;
+                    this.lastVolume = this.volume;
+                    this.updateVolumeDisplay();
+                },
+
+                stopTopVolumeDrag() {
+                    this.isDraggingVolume = false;
+                    document.removeEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
+                    document.removeEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
+                },
+
+                setTopVolume(event) {
+                    const slider = this.$refs.topVolumeSlider;
+                    if (!slider || this.isDraggingVolume) return;
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = event.clientX;
+                    const pos = (clientX - rect.left) / rect.width;
+                    this.volume = Math.max(0, Math.min(1, pos));
+                    this.$refs.mainVideo.volume = this.volume;
+                    this.$refs.mainVideo.muted = false;
+                    this.isMuted = false;
+                    this.lastVolume = this.volume;
+                    this.updateVolumeDisplay();
+                }
+            };
+        }
+    </script>
 </section>
