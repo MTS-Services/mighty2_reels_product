@@ -183,9 +183,9 @@
                 </button>
             </div>
         @endif
-
         <div class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
-            x-data="{ product_details: false }">
+            x-data="{ product_details: false, currentVideoId: null }">
+
             @foreach ($videos as $index => $video)
                 {{-- Product Details Section --}}
                 @if ($productDetails)
@@ -247,7 +247,8 @@
                 @else
                     {{-- Video Section --}}
                     <div id="video-{{ $index }}" class="snap-start pb-1" x-data="videoController('{{ $video['id'] }}')"
-                        x-intersect:enter="currentVideoId = '{{ $video['id'] }}'">
+                        x-intersect:enter="onEnterViewport()" x-intersect:leave="onLeaveViewport()">
+
                         <div class="flex flex-col justify-center items-center relative">
                             <div
                                 class="video-container scrollbar-hide w-full h-[calc(100vh-165px)] max-w-lg rounded-xl overflow-hidden relative">
@@ -417,213 +418,211 @@
 </div>
 
 <script>
-    function videoController(videoId) {
-        return {
-            isPlaying: false,
-            progress: 0,
-            lastTap: 0,
-            duration: 0,
-            currentTime: 0,
-            videoLoaded: false,
-            videoError: false,
-            clickTimeout: null,
-            videoId: videoId,
-            volume: 1.0,
-            isMuted: false,
-            lastVolume: 1.0,
-            isDraggingVolume: false,
+   function videoController(videoId) {
+    return {
+        isPlaying: false,
+        progress: 0,
+        lastTap: 0,
+        duration: 0,
+        currentTime: 0,
+        videoLoaded: false,
+        videoError: false,
+        clickTimeout: null,
+        videoId: videoId,
+        volume: 1.0,
+        isMuted: false,
+        lastVolume: 1.0,
+        isDraggingVolume: false,
 
-            initVideo() {
-                const video = this.$refs.mainVideo;
-                this.progress = 0;
-                // Ensure duration is available before setting it
-                if (video.duration) {
+        initVideo() {
+            const video = this.$refs.mainVideo;
+            this.progress = 0;
+
+            if (video.duration) {
+                this.duration = video.duration;
+            } else {
+                video.addEventListener('durationchange', () => {
                     this.duration = video.duration;
-                } else {
-                    // If duration is not immediately available, wait for the 'durationchange' event
-                    video.addEventListener('durationchange', () => {
-                        this.duration = video.duration;
-                    });
-                }
-                this.videoLoaded = true;
-                this.videoError = false;
-                this.isPlaying = video.autoplay; // Set initial play state based on autoplay
-                this.volume = video.volume;
-                this.isMuted = video.muted;
-            },
-
-            togglePlay(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                const video = this.$refs.mainVideo;
-                if (this.clickTimeout) clearTimeout(this.clickTimeout);
-
-                // Use a short timeout to distinguish single tap from double tap
-                this.clickTimeout = setTimeout(() => {
-                    if (video.paused) {
-                        video.play().catch(e => console.error("Error playing video:", e));
-                    } else {
-                        video.pause();
-                    }
-                }, 200); // Adjust timeout as needed
-            },
-
-            handlePlay() {
-                this.isPlaying = true;
-            },
-
-            handlePause() {
-                this.isPlaying = false;
-            },
-
-            updateProgress() {
-                const video = this.$refs.mainVideo;
-                if (!video || !video.duration || isNaN(video.duration)) return; // Check for valid duration
-                this.currentTime = video.currentTime;
-                // Calculate progress, ensuring not to divide by zero or NaN
-                this.progress = this.duration > 0 ? (video.currentTime / this.duration) * 100 : 0;
-            },
-
-            setProgress(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                const video = this.$refs.mainVideo;
-                const progressBar = this.$refs.progressBar;
-                if (!video || !progressBar || !video.duration || isNaN(video.duration)) return;
-
-                const rect = progressBar.getBoundingClientRect();
-                // Use clientX for mouse events, and touches[0].clientX for touch events
-                const clientX = event.clientX || (event.touches && event.touches[0] && event.touches[0].clientX);
-                if (clientX === undefined) return;
-
-                const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                video.currentTime = pos * video.duration;
-                this.updateProgress();
-            },
-
-            setTopVolume(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                const video = this.$refs.mainVideo;
-                const volumeSlider = this.$refs.topVolumeSlider;
-                if (!video || !volumeSlider) return;
-
-                const rect = volumeSlider.getBoundingClientRect();
-                const clientX = event.clientX || (event.touches && event.touches[0] && event.touches[0].clientX);
-                if (clientX === undefined) return;
-
-                const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                this.volume = pos;
-                video.volume = pos;
-
-                // Update muted state based on volume slider
-                if (pos > 0 && this.isMuted) {
-                    this.isMuted = false;
-                    video.muted = false;
-                } else if (pos === 0) {
-                    this.isMuted = true;
-                    video.muted = true;
-                }
-            },
-
-            startTopVolumeDrag(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                this.isDraggingVolume = true;
-
-                const handleDrag = (e) => {
-                    if (!this.isDraggingVolume) return;
-                    e.preventDefault(); // Prevent default browser behavior
-                    this.setTopVolume(e);
-                };
-
-                const stopDrag = () => {
-                    this.isDraggingVolume = false;
-                    document.removeEventListener('mousemove', handleDrag);
-                    document.removeEventListener('mouseup', stopDrag);
-                    // Also remove touch listeners if needed for mobile
-                    document.removeEventListener('touchmove', handleDrag);
-                    document.removeEventListener('touchend', stopDrag);
-                };
-
-                // Add event listeners for mouse and touch
-                document.addEventListener('mousemove', handleDrag);
-                document.addEventListener('mouseup', stopDrag);
-                document.addEventListener('touchmove', handleDrag, {
-                    passive: false
-                }); // passive: false to allow preventDefault
-                document.addEventListener('touchend', stopDrag);
-
-                this.setTopVolume(event); // Set initial volume on drag start
-            },
-
-            toggleMute() {
-                if (!this.videoLoaded || this.videoError) return;
-                const video = this.$refs.mainVideo;
-                if (this.isMuted) {
-                    this.isMuted = false;
-                    video.muted = false;
-                    // Restore last volume, default to 0.5 if it was 0
-                    this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
-                    video.volume = this.volume;
-                } else {
-                    this.lastVolume = this.volume; // Save current volume before muting
-                    this.isMuted = true;
-                    video.muted = true;
-                    video.volume = 0;
-                    this.volume = 0; // Update local volume state
-                }
-            },
-
-            updateVolumeDisplay() {
-                const video = this.$refs.mainVideo;
-                if (!video) return;
-                this.volume = video.volume;
-                this.isMuted = video.muted;
-            },
-
-            handleDoubleClick(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                const video = this.$refs.mainVideo;
-                if (!video || !video.duration || isNaN(video.duration)) return; // Ensure duration is valid
-
-                const rect = video.getBoundingClientRect();
-                const x = event.clientX - rect.left; // Get click position relative to video
-
-                // Clear any pending single-click play/pause
-                if (this.clickTimeout) clearTimeout(this.clickTimeout);
-
-                if (x < rect.width / 2) { // Double tap on left half: seek backward 10 seconds
-                    video.currentTime = Math.max(0, video.currentTime - 10);
-                } else { // Double tap on right half: seek forward 10 seconds
-                    video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                }
-                this.updateProgress(); // Update progress bar after seeking
-            },
-
-            handleTouchEnd(event) {
-                if (!this.videoLoaded || this.videoError) return;
-                const currentTime = new Date().getTime();
-                const tapDiff = currentTime - this.lastTap;
-
-                if (tapDiff < 300) { // Likely a double tap
-                    this.handleDoubleClick(event);
-                } else { // Likely a single tap
-                    this.togglePlay();
-                }
-                this.lastTap = currentTime; // Update last tap time
-            },
-
-            handleVideoError() {
-                this.videoError = true;
-                this.videoLoaded = false;
-                console.error('Video failed to load:', this.videoId);
-            },
-
-            retryVideo() {
-                this.videoError = false;
-                this.videoLoaded = false;
-                const video = this.$refs.mainVideo;
-                if (video) {
-                    video.load(); // Reload the video source
-                }
+                });
             }
+
+            this.videoLoaded = true;
+            this.videoError = false;
+            this.isPlaying = !video.paused; // respect autoplay state
+            this.volume = video.volume;
+            this.isMuted = video.muted;
+        },
+
+        togglePlay() {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
+            this.clickTimeout = setTimeout(() => {
+                if (video.paused) {
+                    video.play().catch(e => console.error("Error playing video:", e));
+                } else {
+                    video.pause();
+                }
+            }, 200);
+        },
+
+        handlePlay() { this.isPlaying = true; },
+        handlePause() { this.isPlaying = false; },
+
+        updateProgress() {
+            const video = this.$refs.mainVideo;
+            if (!video || !video.duration || isNaN(video.duration)) return;
+            this.currentTime = video.currentTime;
+            this.progress = this.duration > 0 ? (video.currentTime / this.duration) * 100 : 0;
+        },
+
+        setProgress(event) {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            const progressBar = this.$refs.progressBar;
+            if (!video || !progressBar || !video.duration || isNaN(video.duration)) return;
+
+            const rect = progressBar.getBoundingClientRect();
+            const clientX = event.clientX || (event.touches?.[0]?.clientX);
+            if (clientX === undefined) return;
+
+            const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            video.currentTime = pos * video.duration;
+            this.updateProgress();
+        },
+
+        setTopVolume(event) {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            const slider = this.$refs.topVolumeSlider;
+            if (!video || !slider) return;
+
+            const rect = slider.getBoundingClientRect();
+            const clientX = event.clientX || (event.touches?.[0]?.clientX);
+            if (clientX === undefined) return;
+
+            const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            this.volume = pos;
+            video.volume = pos;
+
+            this.isMuted = pos === 0;
+            video.muted = pos === 0;
+        },
+
+        startTopVolumeDrag(event) {
+            if (!this.videoLoaded || this.videoError) return;
+            this.isDraggingVolume = true;
+
+            const handleDrag = (e) => {
+                if (!this.isDraggingVolume) return;
+                e.preventDefault();
+                this.setTopVolume(e);
+            };
+            const stopDrag = () => {
+                this.isDraggingVolume = false;
+                document.removeEventListener('mousemove', handleDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', handleDrag);
+                document.removeEventListener('touchend', stopDrag);
+            };
+
+            document.addEventListener('mousemove', handleDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', handleDrag, { passive: false });
+            document.addEventListener('touchend', stopDrag);
+
+            this.setTopVolume(event);
+        },
+
+        toggleMute() {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            if (this.isMuted) {
+                this.isMuted = false;
+                video.muted = false;
+                this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                video.volume = this.volume;
+            } else {
+                this.lastVolume = this.volume;
+                this.isMuted = true;
+                video.muted = true;
+                video.volume = 0;
+                this.volume = 0;
+            }
+        },
+
+        updateVolumeDisplay() {
+            const video = this.$refs.mainVideo;
+            if (!video) return;
+            this.volume = video.volume;
+            this.isMuted = video.muted;
+        },
+
+        handleDoubleClick(event) {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            if (!video || !video.duration || isNaN(video.duration)) return;
+
+            const rect = video.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+
+            if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
+            if (x < rect.width / 2) {
+                video.currentTime = Math.max(0, video.currentTime - 10);
+            } else {
+                video.currentTime = Math.min(video.duration, video.currentTime + 10);
+            }
+            this.updateProgress();
+        },
+
+        handleTouchEnd(event) {
+            if (!this.videoLoaded || this.videoError) return;
+            const now = new Date().getTime();
+            const diff = now - this.lastTap;
+
+            if (diff < 300) {
+                this.handleDoubleClick(event);
+            } else {
+                this.togglePlay();
+            }
+            this.lastTap = now;
+        },
+
+        handleVideoError() {
+            this.videoError = true;
+            this.videoLoaded = false;
+            console.error('Video failed to load:', this.videoId);
+        },
+
+        retryVideo() {
+            this.videoError = false;
+            this.videoLoaded = false;
+            const video = this.$refs.mainVideo;
+            if (video) video.load();
+        },
+
+        // --------------------------
+        // Scroll-triggered autoplay
+        // --------------------------
+        onEnterViewport() {
+            if (!this.videoLoaded || this.videoError) return;
+            const video = this.$refs.mainVideo;
+            // Pause all other videos
+            document.querySelectorAll('video').forEach(v => {
+                if (v !== video) v.pause();
+            });
+            video.play().catch(e => console.error("Error autoplay:", e));
+            this.isPlaying = true;
+        },
+
+        onLeaveViewport() {
+            if (!this.videoLoaded || this.videoError) return;
+            this.$refs.mainVideo.pause();
+            this.isPlaying = false;
         }
     }
+}
+
 </script>
