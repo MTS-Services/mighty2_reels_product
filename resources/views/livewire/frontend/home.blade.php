@@ -205,7 +205,7 @@
                 <div class="absolute bottom-[100px] z-50 right-8">
                     <a href="{{ route('product') }}"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
-                        <flux:icon name="arrow-up" class="w-5 h-5" />
+                        <flux:icon name="arrow-right" class="w-5 h-5" />
                     </a>
                 </div>
 
