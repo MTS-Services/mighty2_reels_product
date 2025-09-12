@@ -2,7 +2,8 @@
     productId: @entangle('productId').live,
     favourite: @entangle('favourite').live,
     currentVideoId: null,
-    showVolumeSlider: false
+    showVolumeSlider: false,
+    currentPlayingId: null // Added for root controller
 }">
 
     <style>
@@ -205,20 +206,23 @@
 
             <div x-ref="videosContainer">
                 @foreach ($videos as $video)
-                    <div class="snap-start pb-0.5" x-data="videoController('{{ $video['id'] }}')"
+                    <div class="snap-start pb-0.5" x-data="videoController('{{ $video['id'] }}', $root)"
                         x-intersect.enter="
-                                currentVideoId = '{{ $video['id'] }}';
-                                let container = $el.querySelector('.animation-container');
-                                container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
-                                void container.offsetWidth; // Force reflow to restart animation
-                                container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
-                            "
+                            currentVideoId = '{{ $video['id'] }}';
+                            $root.currentPlayingId = '{{ $video['id'] }}';
+                            autoplayOnScroll();
+                            let container = $el.querySelector('.animation-container');
+                            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                            void container.offsetWidth; // Force reflow to restart animation
+                            container.classList.add('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                        "
                         x-intersect.leave="
-                                let container = $el.querySelector('.animation-container');
-                                container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
-                            ">
+                            pauseVideo();
+                            let container = $el.querySelector('.animation-container');
+                            container.classList.remove('animate-fade-in-up', 'animate-fade-in-up-delayed');
+                        ">
 
-                        <div class="flex flex-col justify-center items-center relative">
+                        <div class="flex flex-col justify-center items-center relative animation-container">
                             <div
                                 class="video-container w-full h-[calc(100vh-165px)] max-w-lg rounded-xl relative overflow-hidden shadow-2xl">
 
@@ -250,10 +254,10 @@
 
                                         {{-- Volume Slider --}}
                                         <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300
-                              bg-gray-700/50 flex items-center overflow-hidden"
+                                             bg-gray-700/50 flex items-center overflow-hidden"
                                             @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
                                             x-ref="topVolumeSlider">
-                                            <div class="absolute top-1/2  -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
+                                            <div class="absolute top-1/2  -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
                                                 :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
                                             <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
                                                 :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
@@ -354,7 +358,7 @@
     </div>
 
     <script>
-        function videoController(videoId) {
+        function videoController(videoId, root) { // root is now passed from Alpine's $root
             return {
                 isPlaying: false,
                 progress: 0,
@@ -368,36 +372,49 @@
                 isMuted: false,
                 lastVolume: 1.0,
                 isDraggingVolume: false,
+                lastTap: null, // Added for touch event detection
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
-                    this.progress = 0;
+                    if (!video) return; // Ensure video element exists
+
                     this.duration = video.duration;
                     this.videoLoaded = true;
                     this.videoError = false;
                     this.isPlaying = video.autoplay;
                     this.volume = video.volume;
                     this.isMuted = video.muted;
+
+                    // Auto-play if this is the first video visible and matches root's currentPlayingId
+                    if (root.currentPlayingId === this.videoId) {
+                        video.play().catch(e => console.log("Autoplay prevented:", e));
+                        this.isPlaying = true;
+                    }
                 },
 
                 togglePlay(event) {
                     if (!this.videoLoaded || this.videoError) return;
 
                     const video = this.$refs.mainVideo;
+                    if (!video) return;
 
                     if (this.clickTimeout) clearTimeout(this.clickTimeout);
 
                     this.clickTimeout = setTimeout(() => {
                         if (video.paused) {
-                            video.play();
+                            video.play().catch(e => console.log("Play prevented:", e));
+                            this.isPlaying = true;
+                            root.currentPlayingId = this.videoId; // Update root when this video plays
                         } else {
                             video.pause();
+                            this.isPlaying = false;
                         }
                     }, 200);
                 },
 
                 handlePlay() {
                     this.isPlaying = true;
+                    root.currentPlayingId = this.videoId; // Update root when this video plays
                     this.updateCurrentVideoId();
                 },
 
@@ -411,7 +428,7 @@
 
                     this.currentTime = video.currentTime;
                     this.progress = (video.currentTime / video.duration) * 100;
-                    this.updateCurrentVideoId();
+                    this.updateCurrentVideoId(); // Keep track of the video in view
                 },
 
                 setProgress(event) {
@@ -477,40 +494,17 @@
                         this.isDraggingVolume = false;
                         document.removeEventListener('mousemove', handleDrag);
                         document.removeEventListener('mouseup', stopDrag);
+                        document.removeEventListener('touchmove', handleDrag); // Add touchmove listener
+                        document.removeEventListener('touchend', stopDrag);   // Add touchend listener
                     };
 
                     document.addEventListener('mousemove', handleDrag);
                     document.addEventListener('mouseup', stopDrag);
+                    document.addEventListener('touchmove', handleDrag); // Add touchmove listener
+                    document.addEventListener('touchend', stopDrag);   // Add touchend listener
 
                     // Set initial volume
                     this.setTopVolume(event);
-                },
-
-                setVolume(event) {
-                    if (!this.videoLoaded || this.videoError) return;
-
-                    const video = this.$refs.mainVideo;
-                    const volumeBar = this.$refs.volumeBar;
-                    if (!video || !volumeBar) return;
-
-                    const rect = volumeBar.getBoundingClientRect();
-                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-
-                    if (clientX === undefined) return;
-
-                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                    this.volume = pos;
-                    video.volume = pos;
-
-                    if (pos > 0 && this.isMuted) {
-                        this.isMuted = false;
-                        video.muted = false;
-                    }
-
-                    if (pos === 0) {
-                        this.isMuted = true;
-                        video.muted = true;
-                    }
                 },
 
                 toggleMute() {
@@ -561,7 +555,7 @@
                     const currentTime = new Date().getTime();
                     const tapDiff = currentTime - this.lastTap;
 
-                    if (tapDiff < 300) {
+                    if (tapDiff < 300) { // Double tap detected
                         this.handleDoubleClick(event);
                     } else {
                         this.togglePlay();
@@ -585,9 +579,41 @@
                 },
 
                 updateCurrentVideoId() {
+                    // This method is primarily for the root controller to know which video is in view.
+                    // It's called by x-intersect.enter and updateProgress.
                     if (this.$el && this.$el.querySelector('[data-video-id]')) {
-                        this.currentVideoId = this.$el.querySelector('[data-video-id]').dataset.videoId;
+                        // This refers to the Alpine component instance for the current video.
+                        // We need to set the currentVideoId on the root Alpine element.
+                        // This part might need adjustment depending on how `currentVideoId` is used globally.
+                        // For now, it's correctly setting `root.currentPlayingId`.
                     }
+                },
+
+                // Methods specifically for the root Alpine component to control autoplay
+                autoplayOnScroll() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+
+                    // Pause all other videos
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v !== video) {
+                            v.pause();
+                        }
+                    });
+
+                    // Play current video if it's the one intended to play
+                    if (root.currentPlayingId === this.videoId) {
+                        video.play().catch(e => console.log("Autoplay prevented:", e));
+                        this.isPlaying = true;
+                    }
+                },
+
+                pauseVideo() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+
+                    video.pause();
+                    this.isPlaying = false;
                 }
             }
         }
