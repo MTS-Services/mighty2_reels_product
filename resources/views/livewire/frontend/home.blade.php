@@ -1,7 +1,6 @@
 <section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{ currentPlayingId: null, productId: null, favourite: false, selectedVideoId: null, showInfoPanel: false }">
 
     <style>
-        /* ... (your existing CSS styles remain the same) ... */
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
         }
@@ -167,34 +166,13 @@
             favourite: false,
             selectedVideoId: null,
             showInfoPanel: false,
-            videos: [{
-                    id: '1',
-                    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                    title: 'Timeless Elegance: The Chronos Collection',
-                    description: 'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
-                    favourite: false,
-                },
-                {
-                    id: '2',
-                    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-                    title: 'Urban Edge: The City Explorer',
-                    description: 'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
-                    favourite: true,
-                },
-                {
-                    id: '3',
-                    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                    title: 'Minimalist Masterpiece: The Zenith Series',
-                    description: 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
-                    favourite: false,
-                }
-            ]
+            videos: @js($videos)
         }">
 
             <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
 
-                <div x-data="{ liked: false }" class="absolute top-4 right-8 z-[5000] rounded-full">
-                    <button @click="liked = !liked"
+                <div x-data="{ liked: @entangle('favourite').live }" class="absolute top-4 right-8 z-[5000] rounded-full">
+                    <button @click="$wire.toggleFavourite(selectedVideoId || (videos[0] && videos[0].id)); liked = !liked"
                         :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                         class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                         :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
@@ -255,15 +233,26 @@
                                         </div>
                                     </div>
 
-                                    <video x-ref="mainVideo" :data-video-id="video.id" @loadedmetadata="initVideo()"
-                                        @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                        @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
-                                        @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay >
-                                        <source :src="video.url" type="video/mp4">
-                                    </video>
+                                    <template x-if="video.file">
+                                        <video x-ref="mainVideo" :data-video-id="video.id" @loadedmetadata="initVideo()"
+                                            @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
+                                            @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
+                                            @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
+                                            class="w-full h-full object-cover" loop playsinline autoplay>
+                                            <source :src="video.file" type="video/mp4">
+                                        </video>
+                                    </template>
 
-                                    <div x-show="!videoLoaded"
+                                    <template x-if="!video.file">
+                                        <div class="w-full h-full bg-gray-900 flex items-center justify-center">
+                                            <div class="text-center">
+                                                <flux:icon name="film" class="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                                                <p class="text-gray-400 text-lg">No video available</p>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <div x-show="!videoLoaded && video.file"
                                         class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                         <div class="text-center">
                                             <div
@@ -275,7 +264,7 @@
 
                                     <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
-                                    <button @click="togglePlay()"
+                                    <button @click="togglePlay()" x-show="video.file"
                                         class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                         :style="{ opacity: isPlaying ? '0' : '1' }">
                                         <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
@@ -302,7 +291,7 @@
                                             </p>
                                         </div>
 
-                                        <div class="relative">
+                                        <div class="relative" x-show="video.file">
                                             <div class="flex items-center space-x-3">
                                                 <button @click="togglePlay()"
                                                     class="text-white hover:text-orange-500 transition-colors">
@@ -335,7 +324,6 @@
                 </div>
             </div>
 
-
         </div>
     </div>
     <script>
@@ -349,8 +337,8 @@
                 videoError: false,
                 clickTimeout: null,
                 videoId: videoId,
-                volume: 1.0,
-                isMuted: false,
+                volume: @entangle('volume').live,
+                isMuted: @entangle('isMuted').live,
                 lastVolume: 1.0,
                 isDraggingVolume: false,
                 lastTap: 0,
@@ -359,11 +347,13 @@
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
+                    if (!video) return;
+                    
                     this.progress = 0;
                     this.duration = video.duration;
                     this.videoLoaded = true;
                     this.videoError = false;
-                    this.isPlaying = video.autoplay; // Consider if you want autoplay to respect user settings or be forced.
+                    this.isPlaying = video.autoplay;
                     this.volume = video.volume;
                     this.isMuted = video.muted;
 
@@ -371,7 +361,7 @@
                     if (this.isMuted) {
                         this.volume = 0;
                     } else {
-                        this.lastVolume = this.volume; // Set lastVolume on init if not muted
+                        this.lastVolume = this.volume;
                     }
 
                     if (root.currentPlayingId === this.videoId) {
@@ -381,9 +371,9 @@
 
                     // Initialize the IntersectionObserver
                     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
-                        root: null, // viewport
+                        root: null,
                         rootMargin: '0px',
-                        threshold: 0.7 // Trigger when 70% of the video is in view
+                        threshold: 0.7
                     });
                     this.observer.observe(video);
                 },
@@ -400,7 +390,7 @@
 
                 autoplayOnScroll() {
                     const video = this.$refs.mainVideo;
-                    if (!video || this.isPlaying) return; // Don't re-run if already playing
+                    if (!video || this.isPlaying) return;
 
                     // Pause all other videos
                     document.querySelectorAll('video').forEach(v => {
@@ -413,7 +403,7 @@
                         root.currentPlayingId = this.videoId;
                     }).catch(error => {
                         console.error("Autoplay failed:", error);
-                        this.isPlaying = false; // Set state to not playing if it fails
+                        this.isPlaying = false;
                     });
                 },
 
@@ -476,6 +466,8 @@
                         this.volume = 0;
                     }
                     this.updateVolumeDisplay();
+                    $wire.set('isMuted', this.isMuted);
+                    $wire.set('volume', this.volume);
                 },
 
                 updateVolumeDisplay() {
@@ -527,7 +519,7 @@
                     }
                 },
 
-                // --- Volume Drag Functionality ---
+                // Volume Drag Functionality
                 startTopVolumeDrag(event) {
                     this.isDraggingVolume = true;
                     document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
@@ -548,6 +540,8 @@
                     this.isMuted = false;
                     this.lastVolume = this.volume;
                     this.updateVolumeDisplay();
+                    $wire.set('volume', this.volume);
+                    $wire.set('isMuted', this.isMuted);
                 },
 
                 stopTopVolumeDrag() {
@@ -558,16 +552,21 @@
 
                 setTopVolume(event) {
                     const slider = this.$refs.topVolumeSlider;
-                    if (!slider || this.isDraggingVolume) return;
+                    const video = this.$refs.mainVideo;
+                    if (!slider || !video || this.isDraggingVolume) return;
+                    
                     const rect = slider.getBoundingClientRect();
                     const clientX = event.clientX;
-                    const pos = (clientX - rect.left) / rect.width;
-                    this.volume = Math.max(0, Math.min(1, pos));
-                    this.$refs.mainVideo.volume = this.volume;
-                    this.$refs.mainVideo.muted = false;
-                    this.isMuted = false;
-                    this.lastVolume = this.volume;
-                    this.updateVolumeDisplay();
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                    
+                    this.volume = pos;
+                    video.volume = this.volume;
+                    video.muted = this.volume === 0;
+                    this.isMuted = this.volume === 0;
+                    
+                    if (this.volume > 0) {
+                        this.lastVolume = this.volume;
+                    }
                 }
             };
         }
