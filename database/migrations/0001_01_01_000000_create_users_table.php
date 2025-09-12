@@ -6,8 +6,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-return new class extends Migration
-{
+return new class extends Migration {
     use SoftDeletes;
     /**
      * Run the migrations.
@@ -25,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_admin')->default(User::NOT_ADMIN);
             $table->string('phone')->unique()->nullable();
             $table->tinyInteger('status')->default(User::STATUS_ACTIVE);
-            $table->tinyInteger('gender')->nullable();
+            $table->string('gender')->nullable();
             $table->string('date_of_birth')->nullable();
             $table->string('street')->nullable();
             $table->string('suburb')->nullable();
@@ -33,6 +32,7 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('photo')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

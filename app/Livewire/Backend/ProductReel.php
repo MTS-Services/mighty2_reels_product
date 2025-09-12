@@ -89,6 +89,8 @@ class ProductReel extends Component
         $rules = [
             'productId' => 'required|exists:products,id',
             'status' => 'required|integer',
+            'file' => 'sometimes|required|mimes:mp4,avi,mov|max:51200',
+
         ];
 
         // Only validate the file if a new one is being uploaded

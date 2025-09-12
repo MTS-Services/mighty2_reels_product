@@ -4,13 +4,10 @@
         <!-- Header -->
         <div>
             <div class="max-w-6xl mx-auto px-4 py-4">
-                <button class="flex items-center text-orange-500 hover:text-orange-600 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                    </svg>
+                <x-button variant="secondary" size="sm" href="{{ route('admin.products') }}" wire:navigate>
+                    <flux:icon name="arrow-left" class="h-5 w-5" />
                     Back to home screen
-                </button>
+                </x-button>
             </div>
         </div>
 
@@ -145,4 +142,3 @@
 
     </html>
 </section>
-

@@ -4,6 +4,9 @@ namespace App\Livewire\Backend;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
@@ -14,50 +17,45 @@ class Profile extends Component
     use WithFileUploads;
 
     public $first_name, $last_name, $email, $phone, $gender, $date_of_birth;
-    public $street, $location, $post_code, $state;
+    public $street, $suburb, $postcode, $state;
     public $password, $password_confirmation;
-    public $photo;
+    public $photo; // This holds the new file upload
 
+    // Properties for your dropdowns
     public $genders = ['Male', 'Female', 'Other'];
     public $streets = ['Street A', 'Street B'];
-    public $locations = ['Location 1', 'Location 2'];
+    public $suburbs = ['Location 1', 'Location 2'];
     public $postCodes = ['1000', '2000'];
     public $states = ['State 1', 'State 2'];
-
-
 
     public function mount()
     {
         $user = Auth::user();
-        $attributes = [
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'gender' => $user->gender,
-            'date_of_birth' => $user->date_of_birth,
-            'street' => $user->street,
-            'location' => $user->location,
-            'post_code' => $user->post_code,
-            'state' => $user->state,
-        ];
-        foreach ($attributes as $key => $value) {
-            $this->$key = $value;
-        }
+        $this->first_name = $user->first_name;
+        $this->last_name = $user->last_name;
+        $this->email = $user->email;
+        $this->phone = $user->phone;
+        $this->gender = $user->gender;
+        $this->date_of_birth = $user->date_of_birth;
+        $this->street = $user->street;
+        $this->suburb = $user->suburb;
+        $this->postcode = $user->postcode;
+        $this->state = $user->state;
+        // The `$photo` property is for a *new* upload, so we don't need to set it in mount
     }
 
     public function updateProfile()
     {
-        $data = $this->validate([
+        $this->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
             'street' => 'nullable|string',
-            'location' => 'nullable|string',
-            'post_code' => 'nullable|string',
+            'suburb' => 'nullable|string',
+            'postcode' => 'nullable|string',
             'state' => 'nullable|string',
             'password' => 'nullable|string|confirmed|min:6',
             'photo' => 'nullable|image|max:1024',
@@ -65,24 +63,36 @@ class Profile extends Component
 
         $user = Auth::user();
 
-        if ($this->password) {
-            $data['password'] = Hash::make($this->password);
-        } else {
-            unset($data['password']);
+        // Handle the photo upload first
+        if ($this->photo instanceof \Illuminate\Http\UploadedFile) {
+            // Delete the old photo if it exists
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $filename = time() . '_' . uniqid() . '.' . $this->photo->getClientOriginalExtension();
+            $user->photo = $this->photo->storeAs('profiles', $filename, 'public');
+
         }
 
-        if ($this->photo) {
-            $data['profile_photo_path'] = $this->photo->store('profile-photos', 'public');
+        // Update all other fields
+        $user->first_name = $this->first_name;
+        $user->last_name = $this->last_name;
+        $user->email = $this->email;
+        $user->phone = $this->phone;
+        $user->gender = $this->gender;
+        $user->date_of_birth = $this->date_of_birth;
+        $user->street = $this->street;
+        $user->suburb = $this->suburb;
+        $user->postcode = $this->postcode;
+        $user->state = $this->state;
+
+        // Handle password update
+        if (!empty($this->password)) {
+            $user->password = Hash::make($this->password);
         }
 
-        foreach ($data as $key => $value) {
-            $user->$key = $value;
-        }
-
-
+        $user->save();
         session()->flash('success', 'Profile updated successfully!');
-
-        return redirect()->route('profile');
     }
     public function render()
     {
