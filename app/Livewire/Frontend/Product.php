@@ -2,107 +2,165 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Models\Product as ProductModel;
+use App\Models\FavouretReel;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'Product'])]
 class Product extends Component
 {
-    public $productDetails = true; // Show product details first
-    public $favourite = false;
-    public $activeVideo = null; // Current selected video/product
-    public $videos = [];        // All videos/products
+    public $productDetails = true; // Start with product details view
+    public $favourite = [];
+    public $activeProduct = null;
+    public $videos = [];
+    public $productId;
+    public $volume = 1.0;
+    public $isMuted = false;
+    public $currentVideoId = null;
 
-
-
-    /**
-     * Initialize videos and set the default active video
-     */
-    public function mount()
+    public function mount($id = null)
     {
-        $this->videos = [
-            [
-                'id' => 1,
-                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                'title' => 'Timeless Elegance: The Chronos Collection',
-                'description' => 'A curated selection of classic watches that blend modern design with traditional craftsmanship.',
-                'favourite' => false,
-                'images' => [
-                    'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg',
-                    'https://images.pexels.com/photos/276287/pexels-photo-276287.jpeg'
-                ],
-            ],
-            [
-                'id' => 2,
-                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-                'title' => 'Urban Edge: The City Explorer',
-                'description' => 'Durable and stylish watches built for the urban adventurer. Perfect for those on the move.',
-                'favourite' => true,
-                'images' => [
-                    'https://images.pexels.com/photos/277414/pexels-photo-277414.jpeg',
-                    'https://images.pexels.com/photos/935985/pexels-photo-935985.jpeg'
-                ],
-            ],
-            [
-                'id' => 3,
-                'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                'title' => 'Minimalist Masterpiece: The Zenith Series',
-                'description' => 'Sleek, simple, and sophisticated. These watches redefine understated luxury.',
-                'favourite' => false,
-                'images' => [
-                    'https://images.pexels.com/photos/277452/pexels-photo-277452.jpeg',
-                    'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg'
-                ],
-            ],
-        ];
+        // Get all products for the video feed
+        $products = ProductModel::with(['reels', 'images', 'city'])->active()->orderBy('sort_order')->get();
+        
+        if ($products->isEmpty()) {
+            abort(404, 'No products found');
+        }
 
-        // Set the default active video/product
-        $this->activeVideo = $this->videos[0];
+        // If ID is provided, set it as active, otherwise use first product
+        $this->productId = $id ?? $products->first()->id;
+        
+        // Verify the product exists
+        $this->activeProduct = $products->firstWhere('id', $this->productId);
+        if (!$this->activeProduct) {
+            abort(404, 'Product not found');
+        }
+
+        // Get user favorites
+        $userFavorites = [];
+        if (Auth::check()) {
+            $userFavorites = FavouretReel::where('user_id', Auth::id())
+                ->pluck('product_id')
+                ->toArray();
+        }
+
+        // Build videos array with active product first, then others
+        $sortedProducts = $products->sortBy(function ($product) {
+            return $product->id == $this->productId ? 0 : 1;
+        });
+
+        foreach ($sortedProducts as $product) {
+            $isFavorite = in_array($product->id, $userFavorites);
+            $this->favourite[$product->id] = $isFavorite;
+            
+            $this->videos[] = [
+                'id' => $product->id,
+                'url' => $product->reels->first()?->file
+                    ? Storage::url($product->reels->first()->file)
+                    : null,
+                'title' => $product->title,
+                'description' => $product->description,
+                'price' => $product->price,
+                'room' => $product->room,
+                'city' => $product->city?->name,
+                'type_label' => $product->type_label,
+                'favourite' => $isFavorite,
+                'images' => $product->images->map(function ($image) {
+                    return Storage::url($image->file);
+                })->toArray(),
+            ];
+        }
+
+        // Set current video ID to active product
+        $this->currentVideoId = $this->productId;
     }
 
-    /**
-     * Toggle between product details and video feed
-     *
-     * @param int|null $videoId Optional video/product ID to show
-     */
-    public function toggleVideoDetails($videoId = null)
+    public function updateCurrentVideo($videoId)
     {
-            $this->productDetails = !$this->productDetails;
-
-        // if ($videoId) {
-        //     $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
-        //     $this->productDetails = true;
-        // } else {
-        //     $this->activeVideo = null;
-        //     $this->productDetails = false;
-        // }
+        $this->currentVideoId = $videoId;
+        
+        // Update active product when video changes
+        $this->activeProduct = ProductModel::with(['reels', 'images', 'city'])->find($videoId);
+        $this->productId = $videoId;
     }
 
-    /**
-     * Toggle favourite for the current product/video
-     */
-    public function toggleFavourite($videoId)
+    public function toggleVideoDetails()
     {
-        // Find the video index inside $videos
-        foreach ($this->videos as $index => $video) {
-            if ($video['id'] == $videoId) {
-                $this->videos[$index]['favourite'] = !$video['favourite'];
+        $this->productDetails = !$this->productDetails;
+    }
 
-                // Also update activeVideo if it matches
-                if ($this->activeVideo && $this->activeVideo['id'] === $videoId) {
-                    $this->activeVideo = $this->videos[$index];
-                }
+    public function toggleFavourite($productId = null)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to view your favorites');
+        }
 
-                break;
+        $targetId = $productId ?? $this->currentVideoId;
+        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
+            session()->flash('error', 'Product not found');
+            return;
+        }
+
+        $userId = Auth::id();
+        $isFavorite = $this->favourite[$targetId];
+
+        try {
+            if ($isFavorite) {
+                FavouretReel::where('user_id', $userId)
+                    ->where('product_id', $targetId)
+                    ->delete();
+                $this->favourite[$targetId] = false;
+                session()->flash('message', 'Removed from favorites');
+            } else {
+                FavouretReel::create([
+                    'user_id' => $userId,
+                    'product_id' => $targetId,
+                    'created_by' => $userId,
+                ]);
+                $this->favourite[$targetId] = true;
+                session()->flash('message', 'Added to favorites');
             }
+
+            // Update videos array
+            foreach ($this->videos as &$video) {
+                if ($video['id'] == $targetId) {
+                    $video['favourite'] = $this->favourite[$targetId];
+                    break;
+                }
+            }
+            unset($video);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while updating favorites');
         }
     }
-    
-    /**
-     * Render the Blade view
-     */
+
+    public function switchToProduct($productId)
+    {
+        return redirect()->route('product', ['id' => $productId]);
+    }
+
+    public function toggleMute()
+    {
+        $this->isMuted = !$this->isMuted;
+        if (!$this->isMuted && $this->volume == 0) {
+            $this->volume = 0.5;
+        }
+    }
+
+    public function setVolume($level)
+    {
+        $this->volume = max(0.0, min(1.0, (float) $level));
+        $this->isMuted = ($this->volume === 0);
+    }
+
     public function render()
     {
-        return view('livewire.frontend.product');
+        return view('livewire.frontend.product', [
+            'videos' => $this->videos,
+        ]);
     }
 }

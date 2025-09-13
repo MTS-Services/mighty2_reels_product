@@ -145,7 +145,8 @@
             opacity: 0;
             transform: translateY(10px);
         }
-           .arrow-bounce {
+
+        .arrow-bounce {
             animation: bounce 2s infinite;
         }
 
@@ -170,56 +171,60 @@
     </style>
 
     <div class="relative max-w-lg w-full mx-auto h-fit scrollbar-hide">
-        @if (!$productDetails)
-            <div x-data="{ liked: false }" class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
-                <button @click="liked = !liked"
-                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                    <flux:icon name="heart" class="w-5 h-5" />
-                </button>
-            </div>
+        {{-- Fixed Heart Button --}}
+        <div x-data="{ liked: @js($videos[0]['favourite'] ?? false) }" class="absolute top-4 right-4 z-[5000] rounded-full">
+            <button @click="liked = !liked; $wire.toggleFavourite()"
+                :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                <flux:icon name="heart" class="w-5 h-5" />
+            </button>
+        </div>
 
-            <div class="absolute bottom-15 lg:bottom-[100px] z-50 lg:right-4 right-2 arrow-bounce ">
+        {{-- Toggle Button with Dynamic Position --}}
+        @if ($productDetails)
+            <div class="absolute bottom-15 lg:bottom-[300px] z-50 lg:right-4 right-2 arrow-bounce">
                 <button wire:click="toggleVideoDetails"
-                    @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                    @click="setTimeout(() => { 
+                        const videoElement = document.getElementById('video-' + {{ $currentVideoId ?? 0 }});
+                        if (videoElement) {
+                            videoElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 100)"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
-                    <flux:icon name="arrow-down" class="w-5 h-5" />
+                    <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
             </div>
         @else
-            <div x-data="{ liked: false }" class="absolute top-4 right-4 z-[5000] rounded-full">
-                <button @click="liked = !liked"
-                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                    <flux:icon name="heart" class="w-5 h-5" />
-                </button>
-            </div>
-
-            <div class="absolute top-68 lg:top-99 z-50 right-4 arrow-bounce ">
+            <div class="absolute bottom-15 lg:bottom-[100px] z-50 lg:right-4 right-2 arrow-bounce">
                 <button wire:click="toggleVideoDetails"
-                    @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
+                    @click="setTimeout(() => { 
+                        const detailsElement = document.getElementById('details-' + {{ $currentVideoId ?? 0 }});
+                        if (detailsElement) {
+                            detailsElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 100)"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
             </div>
         @endif
+
         <div class="overflow-y-scroll scrollbar-hide snap-y snap-mandatory h-[calc(100vh-165px)] scroll-smooth"
-            x-data="{ product_details: false, currentVideoId: null }">
+            x-data="{ product_details: @js($productDetails), currentVideoId: @js($currentVideoId) }">
 
             @foreach ($videos as $index => $video)
                 {{-- Product Details Section --}}
                 @if ($productDetails)
-                    <div id="details-{{ $index }}">
-                        <div class="w-full max-w-lg h-[calc(100vh-165px)] mx-auto snap-start" x-data="{
+                    <div id="details-{{ $video['id'] }}" class="snap-start">
+                        <div class="w-full max-w-lg h-[calc(100vh-165px)] mx-auto" x-data="{
                             isFavorited: @json($video['favourite']),
                             isExpanded: false,
                             currentIndex: 0,
                             images: [],
                             toggleFavorite() {
                                 this.isFavorited = !this.isFavorited;
-                                $wire.toggleFavourite();
+                                $wire.toggleFavourite({{ $video['id'] }});
                             },
                             toggleDescription() { this.isExpanded = !this.isExpanded },
                             prevImage() { this.currentIndex = (this.currentIndex === 0) ? this.images.length - 1 : this.currentIndex - 1 },
@@ -268,8 +273,9 @@
                     </div>
                 @else
                     {{-- Video Section --}}
-                    <div id="video-{{ $index }}" class="snap-start pb-1" x-data="videoController('{{ $video['id'] }}')"
-                        x-intersect:enter="onEnterViewport()" x-intersect:leave="onLeaveViewport()">
+                    <div id="video-{{ $video['id'] }}" class="snap-start pb-1" x-data="videoController('{{ $video['id'] }}')"
+                        x-intersect:enter="onEnterViewport(); $wire.updateCurrentVideo({{ $video['id'] }})"
+                        x-intersect:leave="onLeaveViewport()">
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
@@ -317,7 +323,6 @@
                                     </div>
                                 </div>
 
-
                                 <video x-ref="mainVideo" @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
                                     @play="handlePlay()" @pause="handlePause()" @click="togglePlay()"
                                     @touchend="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
@@ -327,28 +332,13 @@
                                     Your browser does not support the video tag.
                                 </video>
 
-                                {{-- Like Button within Video Container
-                                <button wire:click="toggleFavourite({{ $video['id'] }})" wire:loading.attr="disabled"
-                                    class="absolute top-4 right-4 z-[5000] transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl
-                                               {{ $video['favourite'] ? 'text-red-500' : 'text-gray-800' }}">
-                                    <svg width="20" height="20" viewBox="0 0 24 24"
-                                        fill="{{ $video['favourite'] ? 'currentColor' : 'none' }}"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                                        </path>
-                                    </svg>
-                                </button> --}}
-
-
                                 {{-- Loading Indicator --}}
                                 <div x-show="!videoLoaded"
                                     class="absolute inset-0 bg-gray-900 flex items-center justify-center z-50">
                                     <div class="text-center">
                                         <div wire:loading.delay class="inline-block">
                                             <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-orange-500"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24">
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                     stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor"
@@ -440,211 +430,215 @@
 </div>
 
 <script>
-   function videoController(videoId) {
-    return {
-        isPlaying: false,
-        progress: 0,
-        lastTap: 0,
-        duration: 0,
-        currentTime: 0,
-        videoLoaded: false,
-        videoError: false,
-        clickTimeout: null,
-        videoId: videoId,
-        volume: 1.0,
-        isMuted: false,
-        lastVolume: 1.0,
-        isDraggingVolume: false,
+    function videoController(videoId) {
+        return {
+            isPlaying: false,
+            progress: 0,
+            lastTap: 0,
+            duration: 0,
+            currentTime: 0,
+            videoLoaded: false,
+            videoError: false,
+            clickTimeout: null,
+            videoId: videoId,
+            volume: 1.0,
+            isMuted: false,
+            lastVolume: 1.0,
+            isDraggingVolume: false,
 
-        initVideo() {
-            const video = this.$refs.mainVideo;
-            this.progress = 0;
+            initVideo() {
+                const video = this.$refs.mainVideo;
+                this.progress = 0;
 
-            if (video.duration) {
-                this.duration = video.duration;
-            } else {
-                video.addEventListener('durationchange', () => {
+                if (video.duration) {
                     this.duration = video.duration;
-                });
-            }
-
-            this.videoLoaded = true;
-            this.videoError = false;
-            this.isPlaying = !video.paused; // respect autoplay state
-            this.volume = video.volume;
-            this.isMuted = video.muted;
-        },
-
-        togglePlay() {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            if (this.clickTimeout) clearTimeout(this.clickTimeout);
-
-            this.clickTimeout = setTimeout(() => {
-                if (video.paused) {
-                    video.play().catch(e => console.error("Error playing video:", e));
                 } else {
-                    video.pause();
+                    video.addEventListener('durationchange', () => {
+                        this.duration = video.duration;
+                    });
                 }
-            }, 200);
-        },
 
-        handlePlay() { this.isPlaying = true; },
-        handlePause() { this.isPlaying = false; },
+                this.videoLoaded = true;
+                this.videoError = false;
+                this.isPlaying = !video.paused; // respect autoplay state
+                this.volume = video.volume;
+                this.isMuted = video.muted;
+            },
 
-        updateProgress() {
-            const video = this.$refs.mainVideo;
-            if (!video || !video.duration || isNaN(video.duration)) return;
-            this.currentTime = video.currentTime;
-            this.progress = this.duration > 0 ? (video.currentTime / this.duration) * 100 : 0;
-        },
+            togglePlay() {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                if (this.clickTimeout) clearTimeout(this.clickTimeout);
 
-        setProgress(event) {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            const progressBar = this.$refs.progressBar;
-            if (!video || !progressBar || !video.duration || isNaN(video.duration)) return;
+                this.clickTimeout = setTimeout(() => {
+                    if (video.paused) {
+                        video.play().catch(e => console.error("Error playing video:", e));
+                    } else {
+                        video.pause();
+                    }
+                }, 200);
+            },
 
-            const rect = progressBar.getBoundingClientRect();
-            const clientX = event.clientX || (event.touches?.[0]?.clientX);
-            if (clientX === undefined) return;
+            handlePlay() {
+                this.isPlaying = true;
+            },
+            handlePause() {
+                this.isPlaying = false;
+            },
 
-            const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-            video.currentTime = pos * video.duration;
-            this.updateProgress();
-        },
+            updateProgress() {
+                const video = this.$refs.mainVideo;
+                if (!video || !video.duration || isNaN(video.duration)) return;
+                this.currentTime = video.currentTime;
+                this.progress = this.duration > 0 ? (video.currentTime / this.duration) * 100 : 0;
+            },
+            setProgress(event) {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                const progressBar = this.$refs.progressBar;
+                if (!video || !progressBar || !video.duration || isNaN(video.duration)) return;
 
-        setTopVolume(event) {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            const slider = this.$refs.topVolumeSlider;
-            if (!video || !slider) return;
+                const rect = progressBar.getBoundingClientRect();
+                const clientX = event.clientX || (event.touches?.[0]?.clientX);
+                if (clientX === undefined) return;
 
-            const rect = slider.getBoundingClientRect();
-            const clientX = event.clientX || (event.touches?.[0]?.clientX);
-            if (clientX === undefined) return;
+                const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                video.currentTime = pos * video.duration;
+                this.updateProgress();
+            },
 
-            const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-            this.volume = pos;
-            video.volume = pos;
+            setTopVolume(event) {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                const slider = this.$refs.topVolumeSlider;
+                if (!video || !slider) return;
 
-            this.isMuted = pos === 0;
-            video.muted = pos === 0;
-        },
+                const rect = slider.getBoundingClientRect();
+                const clientX = event.clientX || (event.touches?.[0]?.clientX);
+                if (clientX === undefined) return;
 
-        startTopVolumeDrag(event) {
-            if (!this.videoLoaded || this.videoError) return;
-            this.isDraggingVolume = true;
+                const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                this.volume = pos;
+                video.volume = pos;
 
-            const handleDrag = (e) => {
-                if (!this.isDraggingVolume) return;
-                e.preventDefault();
-                this.setTopVolume(e);
-            };
-            const stopDrag = () => {
-                this.isDraggingVolume = false;
-                document.removeEventListener('mousemove', handleDrag);
-                document.removeEventListener('mouseup', stopDrag);
-                document.removeEventListener('touchmove', handleDrag);
-                document.removeEventListener('touchend', stopDrag);
-            };
+                this.isMuted = pos === 0;
+                video.muted = pos === 0;
+            },
 
-            document.addEventListener('mousemove', handleDrag);
-            document.addEventListener('mouseup', stopDrag);
-            document.addEventListener('touchmove', handleDrag, { passive: false });
-            document.addEventListener('touchend', stopDrag);
+            startTopVolumeDrag(event) {
+                if (!this.videoLoaded || this.videoError) return;
+                this.isDraggingVolume = true;
 
-            this.setTopVolume(event);
-        },
+                const handleDrag = (e) => {
+                    if (!this.isDraggingVolume) return;
+                    e.preventDefault();
+                    this.setTopVolume(e);
+                };
+                const stopDrag = () => {
+                    this.isDraggingVolume = false;
+                    document.removeEventListener('mousemove', handleDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                    document.removeEventListener('touchmove', handleDrag);
+                    document.removeEventListener('touchend', stopDrag);
+                };
 
-        toggleMute() {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            if (this.isMuted) {
-                this.isMuted = false;
-                video.muted = false;
-                this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
-                video.volume = this.volume;
-            } else {
-                this.lastVolume = this.volume;
-                this.isMuted = true;
-                video.muted = true;
-                video.volume = 0;
-                this.volume = 0;
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchmove', handleDrag, {
+                    passive: false
+                });
+                document.addEventListener('touchend', stopDrag);
+
+                this.setTopVolume(event);
+            },
+
+            toggleMute() {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                if (this.isMuted) {
+                    this.isMuted = false;
+                    video.muted = false;
+                    this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                    video.volume = this.volume;
+                } else {
+                    this.lastVolume = this.volume;
+                    this.isMuted = true;
+                    video.muted = true;
+                    video.volume = 0;
+                    this.volume = 0;
+                }
+            },
+
+            updateVolumeDisplay() {
+                const video = this.$refs.mainVideo;
+                if (!video) return;
+                this.volume = video.volume;
+                this.isMuted = video.muted;
+            },
+
+            handleDoubleClick(event) {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                if (!video || !video.duration || isNaN(video.duration)) return;
+
+                const rect = video.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+
+                if (this.clickTimeout) clearTimeout(this.clickTimeout);
+
+                if (x < rect.width / 2) {
+                    video.currentTime = Math.max(0, video.currentTime - 10);
+                } else {
+                    video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                }
+                this.updateProgress();
+            },
+
+            handleTouchEnd(event) {
+                if (!this.videoLoaded || this.videoError) return;
+                const now = new Date().getTime();
+                const diff = now - this.lastTap;
+
+                if (diff < 300) {
+                    this.handleDoubleClick(event);
+                } else {
+                    this.togglePlay();
+                }
+                this.lastTap = now;
+            },
+
+            handleVideoError() {
+                this.videoError = true;
+                this.videoLoaded = false;
+                console.error('Video failed to load:', this.videoId);
+            },
+
+            retryVideo() {
+                this.videoError = false;
+                this.videoLoaded = false;
+                const video = this.$refs.mainVideo;
+                if (video) video.load();
+            },
+
+            // --------------------------
+            // Scroll-triggered autoplay
+            // --------------------------
+            onEnterViewport() {
+                if (!this.videoLoaded || this.videoError) return;
+                const video = this.$refs.mainVideo;
+                // Pause all other videos
+                document.querySelectorAll('video').forEach(v => {
+                    if (v !== video) v.pause();
+                });
+                video.play().catch(e => console.error("Error autoplay:", e));
+                this.isPlaying = true;
+            },
+
+            onLeaveViewport() {
+                if (!this.videoLoaded || this.videoError) return;
+                this.$refs.mainVideo.pause();
+                this.isPlaying = false;
             }
-        },
-
-        updateVolumeDisplay() {
-            const video = this.$refs.mainVideo;
-            if (!video) return;
-            this.volume = video.volume;
-            this.isMuted = video.muted;
-        },
-
-        handleDoubleClick(event) {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            if (!video || !video.duration || isNaN(video.duration)) return;
-
-            const rect = video.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-
-            if (this.clickTimeout) clearTimeout(this.clickTimeout);
-
-            if (x < rect.width / 2) {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-            } else {
-                video.currentTime = Math.min(video.duration, video.currentTime + 10);
-            }
-            this.updateProgress();
-        },
-
-        handleTouchEnd(event) {
-            if (!this.videoLoaded || this.videoError) return;
-            const now = new Date().getTime();
-            const diff = now - this.lastTap;
-
-            if (diff < 300) {
-                this.handleDoubleClick(event);
-            } else {
-                this.togglePlay();
-            }
-            this.lastTap = now;
-        },
-
-        handleVideoError() {
-            this.videoError = true;
-            this.videoLoaded = false;
-            console.error('Video failed to load:', this.videoId);
-        },
-
-        retryVideo() {
-            this.videoError = false;
-            this.videoLoaded = false;
-            const video = this.$refs.mainVideo;
-            if (video) video.load();
-        },
-
-        // --------------------------
-        // Scroll-triggered autoplay
-        // --------------------------
-        onEnterViewport() {
-            if (!this.videoLoaded || this.videoError) return;
-            const video = this.$refs.mainVideo;
-            // Pause all other videos
-            document.querySelectorAll('video').forEach(v => {
-                if (v !== video) v.pause();
-            });
-            video.play().catch(e => console.error("Error autoplay:", e));
-            this.isPlaying = true;
-        },
-
-        onLeaveViewport() {
-            if (!this.videoLoaded || this.videoError) return;
-            this.$refs.mainVideo.pause();
-            this.isPlaying = false;
         }
     }
-}
-
 </script>
