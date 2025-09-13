@@ -173,10 +173,7 @@
                 <div class="absolute bottom-[100px] z-50 right-8">
                     <a :href="`/product/${currentVideoId || (videos[0] && videos[0].id)}`"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
+                        <flux:icon name="arrow-right" class="w-5 h-5" />
                     </a>
                 </div>
 
