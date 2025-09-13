@@ -21,6 +21,7 @@ class Product extends Component
      */
     public function mount($id = null)
     {
+        
         $this->selectedProductId = $id;
         
         // Load products from database
