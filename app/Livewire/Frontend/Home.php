@@ -12,7 +12,7 @@ use Livewire\Component;
 #[Layout('app', ['title' => 'Home', 'page_slug' => 'home'])]
 class Home extends Component
 {
-    public $currentVideoId = null; // Track the current video ID
+    public $currentVideoId = null;
     public $showVideo = true;
     public $favourite = [];
     public $volume = 1.0;
@@ -103,6 +103,12 @@ class Home extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while updating favorites');
         }
+    }
+
+    // Add method to navigate to product page
+    public function viewProduct($productId)
+    {
+        return redirect()->route('product', ['id' => $productId]);
     }
 
     public function toggleMute()
