@@ -115,13 +115,13 @@
         }
 
         .empty-state {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%));
         }
     </style>
 
     <div class="rounded-lg">
         <!-- Header -->
-      
+
         @if (session()->has('message'))
             <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 3000)"
                 class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -131,7 +131,7 @@
 
         @if (empty($videos))
             <!-- Empty State -->
-            <div class="empty-state rounded-xl p-12 text-center text-white">
+            <div class="empty-state rounded-xl max-w-lg!  mx-auto h-[calc(100vh-180px)]  p-12 text-center text-white">
                 <svg class="w-24 h-24 mx-auto mb-6 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
@@ -140,12 +140,12 @@
                 <h2 class="text-2xl font-bold mb-4">No Favorites Yet</h2>
                 <p class="text-lg mb-8 opacity-90">Start exploring videos and add them to your favorites!</p>
                 <a href="{{ route('home') }}"
-                    class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
+                    class="bg-white text-orange-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    Browse Videos
+                    Browse Reels
                 </a>
             </div>
         @else
@@ -177,7 +177,7 @@
                     <div class="absolute bottom-[100px] z-50 right-8">
                         <a :href="`/product/${currentVideoId || (videos[0] && videos[0].id)}`"
                             class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
-                         <flux:icon name="arrow-right" class="w-5 h-5" />
+                            <flux:icon name="arrow-right" class="w-5 h-5" />
                         </a>
                     </div>
 

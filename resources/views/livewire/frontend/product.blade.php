@@ -145,6 +145,28 @@
             opacity: 0;
             transform: translateY(10px);
         }
+           .arrow-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(0);
+            }
+
+            40% {
+                transform: translateX(-5px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+        }
     </style>
 
     <div class="relative max-w-lg w-full mx-auto h-fit scrollbar-hide">
@@ -158,7 +180,7 @@
                 </button>
             </div>
 
-            <div class="absolute bottom-15 lg:bottom-[100px] z-50 lg:right-4 right-2">
+            <div class="absolute bottom-15 lg:bottom-[100px] z-50 lg:right-4 right-2 arrow-bounce ">
                 <button wire:click="toggleVideoDetails"
                     @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
@@ -175,7 +197,7 @@
                 </button>
             </div>
 
-            <div class="absolute top-68 lg:top-99 z-50 right-4">
+            <div class="absolute top-68 lg:top-99 z-50 right-4 arrow-bounce ">
                 <button wire:click="toggleVideoDetails"
                     @click="document.getElementById('details-{{ 0 }}').scrollIntoView({ behavior: 'smooth' }), product_details = !product_details"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
@@ -305,7 +327,7 @@
                                     Your browser does not support the video tag.
                                 </video>
 
-                                {{-- Like Button within Video Container --}}
+                                {{-- Like Button within Video Container
                                 <button wire:click="toggleFavourite({{ $video['id'] }})" wire:loading.attr="disabled"
                                     class="absolute top-4 right-4 z-[5000] transition-all duration-200 bg-white rounded-full p-2 shadow-lg hover:shadow-xl
                                                {{ $video['favourite'] ? 'text-red-500' : 'text-gray-800' }}">
@@ -316,7 +338,7 @@
                                             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                                         </path>
                                     </svg>
-                                </button>
+                                </button> --}}
 
 
                                 {{-- Loading Indicator --}}
