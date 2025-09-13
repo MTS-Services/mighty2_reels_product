@@ -8,7 +8,7 @@
                 </a>
                 <div class="items-center gap-9 flex-1 hidden lg:flex justify-between">
                     <x-button href="{{ route('favorites') }}" variant="secondary"
-                        class="!rounded-full {{ request()->routeIs('favorites') ? 'bg-orange-500 text-white' : '' }}">
+                        class="!rounded-full {{ request()->routeIs('favorites') ? 'bg-orange-500 hover:bg-orange-600 text-white' : '' }}">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
 
