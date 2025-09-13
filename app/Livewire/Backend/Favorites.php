@@ -84,7 +84,7 @@ class Favorites extends Component
         // Remove from database
         FavouretReel::where('user_id', Auth::id())
             ->where('product_id', $targetId)
-            ->delete();
+            ->forceDelete();
 
         // Remove from local arrays
         unset($this->favourite[$targetId]);
