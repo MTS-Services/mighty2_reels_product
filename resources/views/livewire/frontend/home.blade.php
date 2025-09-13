@@ -148,7 +148,7 @@
                         const video = videos.find(v => v.id == value);
                         liked = video ? video.favourite : false;
                     }
-                })" class="absolute top-4 right-8 z-[5000] rounded-full">
+                })" class="absolute top-4 right-8 z-[5000] rounded-full ">
                     <button
                         @click="$wire.toggleFavourite(); 
                    if (currentVideoId && videos) {
@@ -161,11 +161,7 @@
                         :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                         class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                         :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+                       <flux:icon name="heart" class="w-5 h-5" />
                     </button>
                 </div>
 
