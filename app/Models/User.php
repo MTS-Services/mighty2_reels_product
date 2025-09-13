@@ -98,4 +98,29 @@ class User extends Authenticatable
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+     public function favouriteReels()
+    {
+        return $this->hasMany(FavouretReel::class);
+    }
+
+    /**
+     * Relationship: User has many favorite products through favorite reels
+     */
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'favouret_reels', 'user_id', 'product_id')
+                    ->withTimestamps()
+                    ->withPivot(['created_by', 'updated_by', 'deleted_by']);
+    }
+
+    /**
+     * Check if user has favorited a specific product
+     */
+    public function hasFavorited($productId)
+    {
+        return $this->favouriteReels()
+                    ->where('product_id', $productId)
+                    ->exists();
+    }
 }

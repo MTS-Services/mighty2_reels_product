@@ -31,7 +31,7 @@ class FavouretReel extends BaseModel
 
     public function productReel()
     {
-        return $this->belongsTo(ProductReel::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     /**
