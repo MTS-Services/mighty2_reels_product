@@ -77,34 +77,6 @@
             }
         }
 
-        @keyframes expandInfo {
-            from {
-                max-height: 0;
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                max-height: 200px;
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes collapseInfo {
-            from {
-                max-height: 200px;
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            to {
-                max-height: 0;
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-        }
-
         .animate-fade-in-up {
             animation: fadeInUp 0.8s ease-out forwards;
         }
@@ -113,22 +85,6 @@
             animation: fadeInUp 0.8s ease-out forwards;
             animation-delay: 0.3s;
             opacity: 0;
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        .animate-slide-down {
-            animation: slideDown 0.5s ease-in forwards;
-        }
-
-        .animate-expand-info {
-            animation: expandInfo 0.4s ease-out forwards;
-        }
-
-        .animate-collapse-info {
-            animation: collapseInfo 0.3s ease-in forwards;
         }
 
         .video-transform {
@@ -162,28 +118,65 @@
     <div class="rounded-lg">
         <div class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
+            currentVideoId: @entangle('currentVideoId').live,
             productId: null,
             favourite: false,
             selectedVideoId: null,
             showInfoPanel: false,
-            videos: @js($videos)
+            videos: @js($videos),
+        
+            init() {
+                // Listen for video change events
+                document.addEventListener('video-changed', (event) => {
+                    this.currentVideoId = event.detail.videoId;
+                    console.log('Video changed to:', event.detail.videoId);
+                });
+        
+                // Set initial video ID if available
+                if (this.videos && this.videos.length > 0) {
+                    this.currentVideoId = this.videos[0].id;
+                    console.log('Initial video ID set to:', this.currentVideoId);
+                }
+            }
         }">
 
             <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
 
-                <div x-data="{ liked: @entangle('favourite').live }" class="absolute top-4 right-8 z-[5000] rounded-full">
-                    <button @click="$wire.toggleFavourite(selectedVideoId || (videos[0] && videos[0].id)); liked = !liked"
+                <!-- Heart/Favorite Button - Now uses currentVideoId -->
+                <div x-data="{ liked: false }" x-init="$watch('currentVideoId', value => {
+                    if (value && videos) {
+                        const video = videos.find(v => v.id == value);
+                        liked = video ? video.favourite : false;
+                    }
+                })" class="absolute top-4 right-8 z-[5000] rounded-full">
+                    <button
+                        @click="$wire.toggleFavourite(); 
+                   if (currentVideoId && videos) {
+                       const video = videos.find(v => v.id == currentVideoId);
+                       if (video) {
+                           video.favourite = !video.favourite;
+                           liked = video.favourite;
+                       }
+                   }"
                         :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                         class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                         :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                        <flux:icon name="heart" class="w-5 h-5" />
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                clip-rule="evenodd"></path>
+                        </svg>
                     </button>
                 </div>
 
+                <!-- Arrow Button - Now uses currentVideoId -->
                 <div class="absolute bottom-[100px] z-50 right-8">
-                    <a href="{{ route('product') }}"
+                    <a :href="`/product/${currentVideoId || (videos[0] && videos[0].id)}`"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
-                        <flux:icon name="arrow-right" class="w-5 h-5" />
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                     </a>
                 </div>
 
@@ -192,18 +185,20 @@
 
                     <template x-for="(video, index) in videos" :key="video.id">
                         <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
-                            x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()"
-                            @click="selectVideo(video.id)">
+                            x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id)"
+                            x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
-                            <div class="flex flex-col justify-center items-center relative rounded-xl!">
+                            <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
                                     class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl">
 
+                                    <!-- Volume Control -->
                                     <div class="absolute top-4 left-4 z-[5000]">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
+                                                <!-- Volume icons (same as before) -->
                                                 <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="currentColor">
                                                     <path
@@ -233,6 +228,7 @@
                                         </div>
                                     </div>
 
+                                    <!-- Video Element -->
                                     <template x-if="video.file">
                                         <video x-ref="mainVideo" :data-video-id="video.id" @loadedmetadata="initVideo()"
                                             @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
@@ -246,12 +242,19 @@
                                     <template x-if="!video.file">
                                         <div class="w-full h-full bg-gray-900 flex items-center justify-center">
                                             <div class="text-center">
-                                                <flux:icon name="film" class="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                                                <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                                    </path>
+                                                </svg>
                                                 <p class="text-gray-400 text-lg">No video available</p>
                                             </div>
                                         </div>
                                     </template>
 
+                                    <!-- Loading Indicator -->
                                     <div x-show="!videoLoaded && video.file"
                                         class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                         <div class="text-center">
@@ -264,6 +267,7 @@
 
                                     <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
+                                    <!-- Play/Pause Button -->
                                     <button @click="togglePlay()" x-show="video.file"
                                         class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                         :style="{ opacity: isPlaying ? '0' : '1' }">
@@ -277,20 +281,21 @@
                                         </svg>
                                     </button>
 
+                                    <!-- Video Info Overlay -->
                                     <div
                                         class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
                                         <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                             x-intersect:leave="visible = false">
                                             <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                                class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl'">
+                                                class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl">
                                                 <span x-text="video.title"></span>
                                             </h2>
                                             <p x-show="visible" x-transition.opacity.duration.700ms
                                                 class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed"
-                                                x-text="video.description">
-                                            </p>
+                                                x-text="video.description"></p>
                                         </div>
 
+                                        <!-- Progress Bar -->
                                         <div class="relative" x-show="video.file">
                                             <div class="flex items-center space-x-3">
                                                 <button @click="togglePlay()"
@@ -315,6 +320,7 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -326,6 +332,7 @@
 
         </div>
     </div>
+
     <script>
         function videoController(videoId, root, videoData) {
             return {
@@ -337,8 +344,8 @@
                 videoError: false,
                 clickTimeout: null,
                 videoId: videoId,
-                volume: @entangle('volume').live,
-                isMuted: @entangle('isMuted').live,
+                volume: root.volume,
+                isMuted: root.isMuted,
                 lastVolume: 1.0,
                 isDraggingVolume: false,
                 lastTap: 0,
@@ -348,7 +355,7 @@
                 initVideo() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
-                    
+
                     this.progress = 0;
                     this.duration = video.duration;
                     this.videoLoaded = true;
@@ -357,7 +364,6 @@
                     this.volume = video.volume;
                     this.isMuted = video.muted;
 
-                    // Ensure the initial volume is correctly reflected
                     if (this.isMuted) {
                         this.volume = 0;
                     } else {
@@ -369,7 +375,6 @@
                         this.isPlaying = true;
                     }
 
-                    // Initialize the IntersectionObserver
                     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
                         root: null,
                         rootMargin: '0px',
@@ -392,12 +397,13 @@
                     const video = this.$refs.mainVideo;
                     if (!video || this.isPlaying) return;
 
-                    // Pause all other videos
+                    // Update the current video ID in the root component
+                    root.currentVideoId = this.videoId;
+
                     document.querySelectorAll('video').forEach(v => {
                         if (v !== video) v.pause();
                     });
 
-                    // Play this video
                     video.play().then(() => {
                         this.isPlaying = true;
                         root.currentPlayingId = this.videoId;
@@ -421,6 +427,7 @@
                         video.play();
                         this.isPlaying = true;
                         root.currentPlayingId = this.videoId;
+                        root.currentVideoId = this.videoId;
                     } else {
                         video.pause();
                         this.isPlaying = false;
@@ -466,8 +473,6 @@
                         this.volume = 0;
                     }
                     this.updateVolumeDisplay();
-                    $wire.set('isMuted', this.isMuted);
-                    $wire.set('volume', this.volume);
                 },
 
                 updateVolumeDisplay() {
@@ -505,7 +510,8 @@
                 },
 
                 selectVideo(videoId) {
-                    this.$root.selectedVideoId = videoId;
+                    root.selectedVideoId = videoId;
+                    root.currentVideoId = videoId;
                     document.querySelectorAll('video').forEach(v => {
                         if (v.dataset.videoId !== videoId) {
                             v.pause();
@@ -519,7 +525,7 @@
                     }
                 },
 
-                // Volume Drag Functionality
+                // Volume control methods (same as before)
                 startTopVolumeDrag(event) {
                     this.isDraggingVolume = true;
                     document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
@@ -540,8 +546,6 @@
                     this.isMuted = false;
                     this.lastVolume = this.volume;
                     this.updateVolumeDisplay();
-                    $wire.set('volume', this.volume);
-                    $wire.set('isMuted', this.isMuted);
                 },
 
                 stopTopVolumeDrag() {
@@ -554,16 +558,16 @@
                     const slider = this.$refs.topVolumeSlider;
                     const video = this.$refs.mainVideo;
                     if (!slider || !video || this.isDraggingVolume) return;
-                    
+
                     const rect = slider.getBoundingClientRect();
                     const clientX = event.clientX;
                     const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                    
+
                     this.volume = pos;
                     video.volume = this.volume;
                     video.muted = this.volume === 0;
                     this.isMuted = this.volume === 0;
-                    
+
                     if (this.volume > 0) {
                         this.lastVolume = this.volume;
                     }
@@ -571,4 +575,5 @@
             };
         }
     </script>
+
 </section>

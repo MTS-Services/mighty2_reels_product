@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('sort_order')->default(0);
 
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('product_reels')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
