@@ -15,6 +15,6 @@ Route::middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('reels', ProductReel::class)->name('product.reels');
     Route::get('details', Details::class)->name('details');
     Route::get('area', Area::class)->name('area');
-    Route::get('favorites', Favorites::class)->name('favorites');
 });
+Route::get('favorites', Favorites::class)->name('favorites')->middleware('auth');
 Route::get('/profile', Profile::class)->name('profile')->middleware('auth');

@@ -66,6 +66,10 @@ class Home extends Component
 
     public function toggleFavourite($productId = null)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to view your favorites');
+        }
+
         // Debug information
         Log::info('toggleFavourite called', [
             'productId' => $productId,
