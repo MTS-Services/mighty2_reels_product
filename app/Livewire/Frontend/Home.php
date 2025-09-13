@@ -12,6 +12,7 @@ class Home extends Component
 {
     public $productId = null;
     public $showVideo = true;
+    public $currentActiveVideoId = null; // Track currently active video
 
     /**
      * Stores the favorite status for each product ID.
@@ -75,6 +76,23 @@ class Home extends Component
     {
         $this->volume = max(0.0, min(1.0, (float) $level));
         $this->isMuted = ($this->volume === 0);
+    }
+
+    /**
+     * Navigate to product page with the currently active video ID
+     */
+    public function goToProduct()
+    {
+        $productId = $this->currentActiveVideoId ?? ($this->videos[0]['id'] ?? 1);
+        return redirect()->route('product', ['id' => $productId]);
+    }
+
+    /**
+     * Update the currently active video ID (called from frontend)
+     */
+    public function setActiveVideo($videoId)
+    {
+        $this->currentActiveVideoId = $videoId;
     }
 
     public function render()

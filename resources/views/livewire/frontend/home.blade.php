@@ -167,13 +167,14 @@
             favourite: false,
             selectedVideoId: null,
             showInfoPanel: false,
-            videos: @js($videos)
+            videos: @js($videos),
+            activeVideoId: null
         }">
 
             <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
 
                 <div x-data="{ liked: @entangle('favourite').live }" class="absolute top-4 right-8 z-[5000] rounded-full">
-                    <button @click="$wire.toggleFavourite(selectedVideoId || (videos[0] && videos[0].id)); liked = !liked"
+                    <button @click="$wire.toggleFavourite(activeVideoId || (videos[0] && videos[0].id)); liked = !liked"
                         :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                         class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                         :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
@@ -182,10 +183,10 @@
                 </div>
 
                 <div class="absolute bottom-[100px] z-50 right-8">
-                    <a href="{{ route('product') }}"
+                    <button @click="$wire.goToProduct()"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                         <flux:icon name="arrow-right" class="w-5 h-5" />
-                    </a>
+                    </button>
                 </div>
 
                 <div
@@ -355,11 +356,10 @@
                     this.duration = video.duration;
                     this.videoLoaded = true;
                     this.videoError = false;
-                    this.isPlaying = video.autoplay; // Consider if you want autoplay to respect user settings or be forced.
+                    this.isPlaying = video.autoplay;
                     this.volume = video.volume;
                     this.isMuted = video.muted;
 
-                    // Ensure the initial volume is correctly reflected
                     if (this.isMuted) {
                         this.volume = 0;
                     } else {
@@ -371,7 +371,6 @@
                         this.isPlaying = true;
                     }
 
-                    // Initialize the IntersectionObserver
                     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
                         root: null,
                         rootMargin: '0px',
@@ -393,6 +392,9 @@
                 autoplayOnScroll() {
                     const video = this.$refs.mainVideo;
                     if (!video || this.isPlaying) return;
+
+                    // Update the active video ID in the root component
+                    root.activeVideoId = this.videoId;
 
                     // Pause all other videos
                     document.querySelectorAll('video').forEach(v => {
@@ -423,6 +425,7 @@
                         video.play();
                         this.isPlaying = true;
                         root.currentPlayingId = this.videoId;
+                        root.activeVideoId = this.videoId;
                     } else {
                         video.pause();
                         this.isPlaying = false;
@@ -508,6 +511,7 @@
 
                 selectVideo(videoId) {
                     this.$root.selectedVideoId = videoId;
+                    root.activeVideoId = videoId;
                     document.querySelectorAll('video').forEach(v => {
                         if (v.dataset.videoId !== videoId) {
                             v.pause();
@@ -519,6 +523,15 @@
                         this.isPlaying = true;
                         root.currentPlayingId = videoId;
                     }
+                },
+
+                handlePlay() {
+                    this.isPlaying = true;
+                    root.activeVideoId = this.videoId;
+                },
+
+                handlePause() {
+                    this.isPlaying = false;
                 },
 
                 // Volume Drag Functionality
