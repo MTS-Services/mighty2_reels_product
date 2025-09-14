@@ -86,7 +86,7 @@
 
 
                 </form>
-                <x-button variant="secondary" class="w-full mt-3">
+                <x-button variant="secondary" href="{{route('auth.social.redirect', 'google')}}" class="w-full mt-3">
                     <img src="{{ asset('assets/images/google.svg') }}" alt="google" class="w-5 h-5">
                     <span>Continue With Google</span>
                 </x-button>

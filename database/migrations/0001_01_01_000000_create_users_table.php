@@ -31,8 +31,10 @@ return new class extends Migration {
             $table->string('postcode')->nullable();
             $table->string('state')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('photo')->nullable();
+            $table->string('provider')->nullable();
+            $table->integer('provider_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
 
