@@ -192,7 +192,7 @@
                         }
                     }, 100)"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600">
-                    <flux:icon name="arrow-up" class="w-5 h-5" />
+                    <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
         @else
