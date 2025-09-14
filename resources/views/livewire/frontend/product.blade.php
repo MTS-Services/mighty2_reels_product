@@ -99,20 +99,14 @@
     </style>
 
     <div class="relative h-full max-w-lg mx-auto">
-        <!-- Horizontal Mode Controls (Default) -->
-        <div x-show="!isVerticalMode">
+        <!-- Horizontal Mode Controls -->
+        <div x-show="isHorizontalMode">
             <div class="absolute bottom-15 right-4 z-50">
-                <button @click="window.history.back()"
+                <button @click="toggleHorizontalMode()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow 
                      transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
-                {{-- <button @click="toggleMode()"
-                    class="bg-orange-500 text-white p-3 rounded-full shadow 
-                     transition-all duration-300 transform hover:scale-110">
-                    <flux:icon name="arrow-up" class="w-5 h-5" />
-                </button> --}}
-                
             </div>
             <div class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <button @click="$wire.toggleFavourite(selectedVideoId || (displayVideos[0] && displayVideos[0].id))"
@@ -126,24 +120,24 @@
 
         <!-- Main Container -->
         <div class="relative w-full mx-auto h-full scrollbar-hide"
-            :class="!isVerticalMode ? 'max-w-none ' : 'max-w-lg'">
+            :class="isHorizontalMode ? 'max-w-none ' : 'max-w-lg'">
 
-            <!-- Vertical Mode Controls (Reels) -->
-            <div x-show="isVerticalMode">
+            <!-- Vertical Mode Controls -->
+            <div x-show="!isHorizontalMode">
                 <div class="absolute bottom-[100px] z-50 right-8">
-                    <button @click="toggleMode()"
+                    <button @click="toggleHorizontalMode()"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
-                        <flux:icon name="arrow-right" class="w-5 h-5" />
+                        <flux:icon name="arrow-up" class="w-5 h-5" />
                     </button>
                 </div>
 
-                <!-- Back Button (only in vertical mode) -->
+                {{-- <!-- Back Button (only in vertical mode) -->
                 <div class="absolute bottom-[180px] z-50 right-8">
                     <button @click="window.history.back()"
                         class="bg-gray-500 text-white p-3 rounded-full shadow hover:bg-gray-600 transition-all duration-300 transform hover:scale-110">
                         <flux:icon name="arrow-left" class="w-5 h-5" />
                     </button>
-                </div>
+                </div> --}}
 
                 <div class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
                     <button
@@ -158,7 +152,7 @@
 
             <!-- Video Container -->
             <div
-                :class="!isVerticalMode
+                :class="isHorizontalMode
                     ?
                     'flex flex-col items-center max-h-[75vh] overflow-y-auto space-y-2 scrollbar-hide mx-auto max-w-7xl snap-y snap-mandatory p-4 scroll-smooth' :
                     'overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth'">
@@ -166,23 +160,23 @@
                 <template x-for="video in displayVideos" :key="video.id">
                     <div class="video-item"
                         :class="[
-                            !isVerticalMode ?
+                            isHorizontalMode ?
                             'flex-shrink-0 w-[200px] snap-start cursor-pointer transition-all duration-300' :
                             'snap-start pb-0.5',
-                            !isVerticalMode && video.id === selectedVideoId ? 'selected-video' : ''
+                            isHorizontalMode && video.id === selectedVideoId ? 'selected-video' : ''
                         ]"
-                        x-data="videoController(video.id, $root)" x-intersect:enter="isVerticalMode && autoplayOnScroll()"
-                        x-intersect:leave="isVerticalMode && pauseVideo()"
-                        @click="!isVerticalMode && selectVideo(video.id)">
+                        x-data="videoController(video.id, $root)" x-intersect:enter="!isHorizontalMode && autoplayOnScroll()"
+                        x-intersect:leave="!isHorizontalMode && pauseVideo()"
+                        @click="isHorizontalMode && selectVideo(video.id)">
 
                         <div class="flex flex-col justify-center items-center relative"
-                            :class="!isVerticalMode ? 'mb-4 ' : ''">
+                            :class="isHorizontalMode ? 'mb-4 ' : ''">
 
                             <div class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative"
-                                :class="!isVerticalMode ? 'h-40 w-[200px]' : 'h-[calc(100vh-165px)] max-w-lg'">
+                                :class="isHorizontalMode ? 'h-40 w-[200px]' : 'h-[calc(100vh-165px)] max-w-lg'">
 
                                 <!-- Volume Control (only in vertical mode) -->
-                                <div x-show="isVerticalMode" class="absolute top-4 left-4 z-[5000]">
+                                <div x-show="!isHorizontalMode" class="absolute top-4 left-4 z-[5000]">
                                     <div class="group flex items-center gap-2">
                                         <button @click.stop="toggleMute()"
                                             class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -218,9 +212,9 @@
                                 <template x-if="video.url">
                                     <video x-ref="mainVideo" :data-video-id="video.id" @loadedmetadata="initVideo()"
                                         @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                        @click.stop="isVerticalMode && togglePlay()"
-                                        @touchend.prevent="isVerticalMode && handleTouchEnd($event)"
-                                        @dblclick="isVerticalMode && handleDoubleClick($event)"
+                                        @click.stop="!isHorizontalMode && togglePlay()"
+                                        @touchend.prevent="!isHorizontalMode && handleTouchEnd($event)"
+                                        @dblclick="!isHorizontalMode && handleDoubleClick($event)"
                                         @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
                                         playsinline autoplay muted>
                                         <source :src="video.url" type="video/mp4">
@@ -255,8 +249,8 @@
                                 <!-- Play/Pause Button -->
                                 <button @click.stop="togglePlay()"
                                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md"
-                                    :style="{ opacity: (isPlaying && isVerticalMode) ? '0' : '1' }"
-                                    :class="!isVerticalMode ? 'opacity-100 p-1' : 'p-4'">
+                                    :style="{ opacity: (isPlaying && !isHorizontalMode) ? '0' : '1' }"
+                                    :class="isHorizontalMode ? 'opacity-100 p-1' : 'p-4'">
                                     <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
                                         fill="currentColor" class="text-gray-800">
                                         <path d="M8 5v14l11-7z" />
@@ -269,21 +263,21 @@
 
                                 <!-- Video Info Overlay -->
                                 <div class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent"
-                                    :class="!isVerticalMode ? 'p-3' : ''">
+                                    :class="isHorizontalMode ? 'p-3' : ''">
                                     <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                         x-intersect:leave="visible = false">
                                         <h2 x-show="visible" x-transition.opacity.duration.500ms
                                             class="text-white mb-2 leading-tight font-bold animate-fade-in-up"
-                                            :class="!isVerticalMode ? 'text-sm' : 'text-2xl'" x-text="video.title">
+                                            :class="isHorizontalMode ? 'text-sm' : 'text-2xl'" x-text="video.title">
                                         </h2>
-                                        <p x-show="visible && isVerticalMode" x-transition.opacity.duration.700ms
+                                        <p x-show="visible && !isHorizontalMode" x-transition.opacity.duration.700ms
                                             class="text-gray-300 mb-2 text-sm animate-fade-in-up"
                                             x-text="video.description">
                                         </p>
                                     </div>
 
                                     <!-- Progress Bar (only in vertical mode) -->
-                                    <div x-show="isVerticalMode" class="relative">
+                                    <div x-show="!isHorizontalMode" class="relative">
                                         <div class="flex items-center space-x-3">
                                             <button @click="togglePlay()"
                                                 class="text-white hover:text-orange-500 transition-colors">
@@ -314,7 +308,7 @@
             </div>
 
             <!-- Horizontal Mode Detail Panel using Livewire data -->
-            <div x-show="!isVerticalMode && selectedVideoId" x-transition:enter="transition ease-out duration-300"
+            <div x-show="isHorizontalMode && selectedVideoId" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 transform translate-y-4"
                 x-transition:enter-end="opacity-100 transform translate-y-0"
                 class="mt-8 bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 max-w-4xl mx-auto">
@@ -324,6 +318,7 @@
                     <div x-show="selectedVideoId == {{ $activeVideo['id'] }}">
                         <h3 class="text-2xl font-bold text-white mb-2">{{ $activeVideo['title'] }}</h3>
                         <p class="text-gray-300 leading-relaxed mb-3">{{ $activeVideo['description'] }}</p>
+
                     </div>
                 @endif
             </div>
@@ -334,7 +329,7 @@
         function videoApp() {
             return {
                 currentPlayingId: null,
-                isVerticalMode: false, // Changed from isHorizontalMode to isVerticalMode, default is false (horizontal mode)
+                isHorizontalMode: false,
                 selectedVideoId: null,
                 activeVideoIdInView: null,
                 showInfoPanel: false,
@@ -374,25 +369,22 @@
                     this.displayVideos = @js($videos);
                 },
 
-                toggleMode() { // Changed from toggleHorizontalMode to toggleMode
-                    if (this.isVerticalMode) {
-                        // Switching FROM vertical TO horizontal mode
+                toggleHorizontalMode() {
+                    if (!this.isHorizontalMode) {
+                        // Switching TO horizontal mode
                         // Use the currently active video or the first one
-                        const videoToHighlight = this.activeVideoIdInView || (this.displayVideos[0] && this.displayVideos[0].id);
+                        const videoToHighlight = this.activeVideoIdInView || (this.displayVideos[0] && this.displayVideos[0]
+                            .id);
                         if (videoToHighlight) {
                             this.reorderVideosForHorizontal(videoToHighlight);
                         }
                     } else {
-                        // Switching FROM horizontal TO vertical mode
-                        // Keep the selected video as active when switching to vertical
-                        if (this.selectedVideoId) {
-                            this.activeVideoIdInView = this.selectedVideoId;
-                        }
+                        // Switching TO vertical mode
                         this.resetVideoOrder();
-                        // Don't reset selectedVideoId here - keep it for when we return to horizontal
+                        this.selectedVideoId = null;
                     }
 
-                    this.isVerticalMode = !this.isVerticalMode;
+                    this.isHorizontalMode = !this.isHorizontalMode;
 
                     // Pause all videos when switching modes
                     document.querySelectorAll('video').forEach(video => video.pause());
