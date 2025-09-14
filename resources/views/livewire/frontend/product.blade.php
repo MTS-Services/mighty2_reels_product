@@ -102,11 +102,17 @@
         <!-- Horizontal Mode Controls (Default) -->
         <div x-show="!isVerticalMode">
             <div class="absolute bottom-15 right-4 z-50">
-                <button @click="toggleMode()"
+                <button @click="window.history.back()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow 
                      transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
+                {{-- <button @click="toggleMode()"
+                    class="bg-orange-500 text-white p-3 rounded-full shadow 
+                     transition-all duration-300 transform hover:scale-110">
+                    <flux:icon name="arrow-up" class="w-5 h-5" />
+                </button> --}}
+                
             </div>
             <div class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <button @click="$wire.toggleFavourite(selectedVideoId || (displayVideos[0] && displayVideos[0].id))"
