@@ -107,7 +107,7 @@
     <div class="relative h-full max-w-lg mx-auto">
         <!-- Horizontal Mode Controls -->
         <div x-show="isHorizontalMode">
-            <div class="absolute bottom-4 right-4 z-50">
+            <div class="absolute bottom-15 right-4 z-50">
                 <button @click="toggleHorizontalMode()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow 
                      transition-all duration-300 transform hover:scale-110">
@@ -157,22 +157,22 @@
 
             <!-- Video Container -->
             <div :class="isHorizontalMode
-                ? 'flex flex-col items-center overflow-y-auto space-y-4 scrollbar-hide mx-auto max-w-7xl snap-y snap-mandatory p-4 scroll-smooth'
+                ? 'flex flex-col items-center max-h-[73vh] overflow-y-auto space-y-4 scrollbar-hide mx-auto max-w-7xl snap-y snap-mandatory p-4 scroll-smooth'
                 : 'overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth'">
 
                 <template x-for="video in videos" :key="video.id">
                     <div class="video-item"
-                        :class="isHorizontalMode ? 'flex-shrink-0 w-[200px] snap-start cursor-pointer' : 'snap-start pb-0.5'"
+                        :class="isHorizontalMode ? 'flex-shrink-0 w-[200px]  snap-start cursor-pointer' : 'snap-start pb-0.5'"
                         x-data="videoController(video.id, $root)"
                         x-intersect:enter="!isHorizontalMode && autoplayOnScroll()"
                         x-intersect:leave="!isHorizontalMode && pauseVideo()"
                         @click="isHorizontalMode && selectVideo(video.id)">
 
                         <div class="flex flex-col justify-center items-center relative"
-                            :class="isHorizontalMode ? 'mb-4' : ''">
+                            :class="isHorizontalMode ? 'mb-4 ' : ''">
 
                             <div class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative"
-                                :class="isHorizontalMode ? 'h-52 w-[200px]' : 'h-[calc(100vh-165px)] max-w-lg'">
+                                :class="isHorizontalMode ? 'h-44 w-[200px]' : 'h-[calc(100vh-165px)] max-w-lg'">
 
                                 <!-- Volume Control (only in vertical mode) -->
                                 <div x-show="!isHorizontalMode" class="absolute top-4 left-4 z-[5000]">
@@ -313,19 +313,7 @@
                     <div>
                         <h3 class="text-2xl font-bold text-white mb-4" x-text="selectedVideo.title"></h3>
                         <p class="text-gray-300 leading-relaxed mb-6" x-text="selectedVideo.description"></p>
-                        
-                        <!-- Product Images -->
-                        <template x-if="selectedVideo.images && selectedVideo.images.length > 0">
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                <template x-for="image in selectedVideo.images" :key="image">
-                                    <div class="aspect-square rounded-lg overflow-hidden">
-                                        <img :src="image" :alt="selectedVideo.title" 
-                                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                                    </div>
-                                </template>
-                            </div>
-                        </template>
-
+                       
                         <!-- Back Button in Horizontal Mode -->
                         <div class="mt-6">
                             <button @click="window.history.back()"

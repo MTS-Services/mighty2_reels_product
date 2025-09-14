@@ -120,15 +120,7 @@ class Product extends Component
         }
     }
 
-    /**
-     * Toggle between product details and video feed
-     *
-     * @param int|null $videoId Optional video/product ID to show
-     */
-    public function toggleVideoDetails($videoId = null)
-    {
-        $this->productDetails = !$this->productDetails;
-    }
+ 
 
     public function toggleVideoDetails()
     {
