@@ -378,8 +378,12 @@
                         }
                     } else {
                         // Switching FROM horizontal TO vertical mode
+                        // Keep the selected video as active when switching to vertical
+                        if (this.selectedVideoId) {
+                            this.activeVideoIdInView = this.selectedVideoId;
+                        }
                         this.resetVideoOrder();
-                        this.selectedVideoId = null;
+                        // Don't reset selectedVideoId here - keep it for when we return to horizontal
                     }
 
                     this.isVerticalMode = !this.isVerticalMode;
