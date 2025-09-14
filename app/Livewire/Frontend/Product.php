@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Models\FavouretReel;
 use App\Models\Product as ModelsProduct;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
