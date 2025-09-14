@@ -4,6 +4,7 @@ namespace App\Livewire\Frontend;
 
 use App\Models\Product as ProductModel;
 use App\Models\FavouretReel;
+use App\Models\City;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -20,23 +21,94 @@ class Product extends Component
     public $volume = 1.0;
     public $isMuted = false;
     public $currentVideoId = null;
+    
+    // Search properties
+    public $searchTerm = '';
+    public $searchRoom = '';
+    public $searchCity = '';
+    public $searchType = '';
+    public $noResults = false;
+    public $searchApplied = false;
+    public $originalProductId = null;
+
+    protected $listeners = ['search-updated' => 'handleSearch'];
 
     public function mount($id = null)
     {
-        // Get all products for the video feed
-        $products = ProductModel::with(['reels', 'images', 'city'])->active()->orderBy('sort_order')->get();
+        $this->originalProductId = $id;
+        $this->loadProducts();
+    }
+
+    public function loadProducts($search = null)
+    {
+        $query = ProductModel::with(['reels', 'images', 'city'])->active()->orderBy('sort_order');
+        
+        // Apply search filters if provided
+        if ($search) {
+            $this->searchTerm = $search['search'] ?? '';
+            $this->searchRoom = $search['room'] ?? '';
+            $this->searchCity = $search['city'] ?? '';
+            $this->searchType = $search['type'] ?? '';
+            
+            // Search by title or description
+            if (!empty($this->searchTerm)) {
+                $query->where(function ($q) {
+                    $q->where('title', 'like', '%' . $this->searchTerm . '%')
+                      ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
+                });
+            }
+            
+            // Filter by room count
+            if (!empty($this->searchRoom)) {
+                $query->where('room', $this->searchRoom);
+            }
+            
+            // Filter by city
+            if (!empty($this->searchCity)) {
+                $query->where('city_id', $this->searchCity);
+            }
+            
+            // Filter by type (rent/sale)
+            if ($this->searchType !== '') {
+                $query->where('type', $this->searchType);
+            }
+            
+            $this->searchApplied = !empty($this->searchTerm) || !empty($this->searchRoom) || !empty($this->searchCity) || $this->searchType !== '';
+        } else {
+            $this->searchApplied = false;
+        }
+        
+        $products = $query->get();
         
         if ($products->isEmpty()) {
-            abort(404, 'No products found');
+            if ($this->searchApplied) {
+                $this->noResults = true;
+                $this->videos = [];
+                $this->currentVideoId = null;
+                $this->activeProduct = null;
+                return;
+            } else {
+                abort(404, 'No products found');
+            }
         }
 
-        // If ID is provided, set it as active, otherwise use first product
-        $this->productId = $id ?? $products->first()->id;
+        $this->noResults = false;
+
+        // Determine which product to set as active
+        if ($this->searchApplied) {
+            // If searching, use the first result
+            $this->productId = $products->first()->id;
+        } else {
+            // If not searching, use original ID or first product
+            $this->productId = $this->originalProductId ?? $products->first()->id;
+        }
         
-        // Verify the product exists
+        // Verify the active product exists in results
         $this->activeProduct = $products->firstWhere('id', $this->productId);
         if (!$this->activeProduct) {
-            abort(404, 'Product not found');
+            // If original product not in results, use first available
+            $this->activeProduct = $products->first();
+            $this->productId = $this->activeProduct->id;
         }
 
         // Get user favorites
@@ -52,6 +124,7 @@ class Product extends Component
             return $product->id == $this->productId ? 0 : 1;
         });
 
+        $this->videos = [];
         foreach ($sortedProducts as $product) {
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
@@ -76,6 +149,29 @@ class Product extends Component
 
         // Set current video ID to active product
         $this->currentVideoId = $this->productId;
+        
+        // Dispatch event to update the video player
+        $this->dispatch('videos-updated');
+    }
+
+    public function handleSearch($searchData)
+    {
+        $this->loadProducts($searchData);
+    }
+
+    public function clearSearch()
+    {
+        $this->searchTerm = '';
+        $this->searchRoom = '';
+        $this->searchCity = '';
+        $this->searchType = '';
+        $this->searchApplied = false;
+        $this->noResults = false;
+        
+        $this->loadProducts();
+        
+        // Notify header to clear its search fields
+        $this->dispatch('searchCleared');
     }
 
     public function updateCurrentVideo($videoId)
@@ -157,10 +253,37 @@ class Product extends Component
         $this->isMuted = ($this->volume === 0);
     }
 
+    public function getSearchSummary()
+    {
+        $summary = [];
+        
+        if (!empty($this->searchTerm)) {
+            $summary[] = "'{$this->searchTerm}'";
+        }
+        
+        if (!empty($this->searchRoom)) {
+            $summary[] = "{$this->searchRoom} " . ($this->searchRoom > 1 ? 'rooms' : 'room');
+        }
+        
+        if (!empty($this->searchCity)) {
+            $city = City::find($this->searchCity);
+            if ($city) {
+                $summary[] = "in {$city->name}";
+            }
+        }
+        
+        if ($this->searchType !== '') {
+            $summary[] = "for " . ($this->searchType == ProductModel::TYPE_RENT ? 'rent' : 'sale');
+        }
+        
+        return empty($summary) ? '' : 'Showing results ' . implode(', ', $summary);
+    }
+
     public function render()
     {
         return view('livewire.frontend.product', [
             'videos' => $this->videos,
+            'searchSummary' => $this->getSearchSummary(),
         ]);
     }
 }
