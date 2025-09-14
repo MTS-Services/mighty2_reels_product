@@ -130,23 +130,54 @@ class Product extends Component
         $this->productDetails = !$this->productDetails;
     }
 
-    /**
-     * Toggle favourite for the current product/video
-     */
-    public function toggleFavourite($videoId)
+    public function toggleVideoDetails()
     {
-        // Find the video index inside $videos
-        foreach ($this->videos as $index => $video) {
-            if ($video['id'] == $videoId) {
-                $this->videos[$index]['favourite'] = !$video['favourite'];
+        $this->productDetails = !$this->productDetails;
+    }
 
-                // Also update activeVideo if it matches
-                if ($this->activeVideo && $this->activeVideo['id'] === $videoId) {
-                    $this->activeVideo = $this->videos[$index];
-                }
+    public function toggleFavourite($productId = null)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to view your favorites');
+        }
 
-                break;
+        $targetId = $productId ?? $this->currentVideoId;
+        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
+            session()->flash('error', 'Product not found');
+            return;
+        }
+
+        $userId = Auth::id();
+        $isFavorite = $this->favourite[$targetId];
+
+        try {
+            if ($isFavorite) {
+                FavouretReel::where('user_id', $userId)
+                    ->where('product_id', $targetId)
+                    ->delete();
+                $this->favourite[$targetId] = false;
+                session()->flash('message', 'Removed from favorites');
+            } else {
+                FavouretReel::create([
+                    'user_id' => $userId,
+                    'product_id' => $targetId,
+                    'created_by' => $userId,
+                ]);
+                $this->favourite[$targetId] = true;
+                session()->flash('message', 'Added to favorites');
             }
+
+            // Update videos array
+            foreach ($this->videos as &$video) {
+                if ($video['id'] == $targetId) {
+                    $video['favourite'] = $this->favourite[$targetId];
+                    break;
+                }
+            }
+            unset($video);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while updating favorites');
         }
     }
 
@@ -163,6 +194,8 @@ class Product extends Component
      */
     public function render()
     {
-        return view('livewire.frontend.product');
+        return view('livewire.frontend.product', [
+            'videos' => $this->videos,
+        ]);
     }
 }

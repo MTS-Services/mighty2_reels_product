@@ -251,7 +251,7 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Video</label>
+                                <label class="block text-sm font-medium  text-gray-700 mb-2">Upload Video</label>
 
                                 <div
                                     class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center relative">
@@ -273,7 +273,7 @@
 
                                     @if ($videos)
                                         <div class="relative">
-                                            <video controls class="w-full rounded-md"
+                                            <video controls class="w-full rounded-md h-48!"
                                                 src="{{ $videos->temporaryUrl() }}">
                                                 Your browser does not support the video tag.
                                             </video>
@@ -285,7 +285,7 @@
                                         </div>
                                     @elseif ($editMode && $tempVideos)
                                         <div class="relative">
-                                            <video controls class="w-full rounded-md"
+                                            <video controls class="w-full rounded-md h-48!"
                                                 src="{{ asset('storage/' . $tempVideos['file']) }}">
                                                 Your browser does not support the video tag.
                                             </video>

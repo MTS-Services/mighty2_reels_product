@@ -106,4 +106,37 @@ class Product extends BaseModel
     {
         return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
     }
+
+     public function favouriteReels()
+    {
+        return $this->hasMany(FavouretReel::class, 'product_id');
+    }
+
+    /**
+     * Relationship: Product is favorited by many users
+     */
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favouret_reels', 'product_id', 'user_id')
+                    ->withTimestamps()
+                    ->withPivot(['created_by', 'updated_by', 'deleted_by']);
+    }
+
+    /**
+     * Get favorites count
+     */
+    public function getFavoritesCountAttribute()
+    {
+        return $this->favouriteReels()->count();
+    }
+
+    /**
+     * Check if product is favorited by a specific user
+     */
+    public function isFavoritedBy($userId)
+    {
+        return $this->favouriteReels()
+                    ->where('user_id', $userId)
+                    ->exists();
+    }
 }

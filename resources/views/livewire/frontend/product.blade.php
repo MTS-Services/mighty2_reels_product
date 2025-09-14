@@ -79,6 +79,29 @@
                 transform: translateX(-3px);
             }
         }
+
+        .arrow-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(0);
+            }
+
+            40% {
+                transform: translateX(-5px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+        }
     </style>
 
     <div class="relative h-full max-w-lg mx-auto">

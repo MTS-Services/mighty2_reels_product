@@ -3,36 +3,37 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Product;
+use App\Models\FavouretReel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('app', ['title' => 'Home', 'page_slug' => 'home'])]
 class Home extends Component
 {
-    public $productId = null;
+    public $currentVideoId = null;
     public $showVideo = true;
-    public $currentActiveVideoId = null; // Track currently active video
-
-    /**
-     * Stores the favorite status for each product ID.
-     * Example: ['1' => true, '2' => false]
-     */
     public $favourite = [];
-
-    public $volume = 1.0; // Default volume
-    public $isMuted = false; // Default not muted
-
-    public $videos = []; // Store video data for frontend
+    public $volume = 1.0;
+    public $isMuted = false;
+    public $videos = [];
 
     public function mount()
     {
-        // Load products with reels
         $products = Product::with(['reels', 'images'])->active()->orderBy('sort_order')->get();
+        
+        $userFavorites = [];
+        if (Auth::check()) {
+            $userFavorites = FavouretReel::where('user_id', Auth::id())
+                ->pluck('product_id')
+                ->toArray();
+        }
 
         foreach ($products as $product) {
-            $this->favourite[$product->id] = false; // Default favorite status
-
+            $isFavorite = in_array($product->id, $userFavorites);
+            $this->favourite[$product->id] = $isFavorite;
+            
             $this->videos[] = [
                 'id' => $product->id,
                 'file' => $product->reels->first()?->file
@@ -40,9 +41,18 @@ class Home extends Component
                     : null,
                 'title' => $product->title,
                 'description' => $product->description,
-                'favourite' => $this->favourite[$product->id],
+                'favourite' => $isFavorite,
             ];
         }
+
+        if (!empty($this->videos)) {
+            $this->currentVideoId = $this->videos[0]['id'];
+        }
+    }
+
+    public function updateCurrentVideo($videoId)
+    {
+        $this->currentVideoId = $videoId;
     }
 
     public function toggleVideoDescription()
@@ -50,18 +60,55 @@ class Home extends Component
         $this->showVideo = !$this->showVideo;
     }
 
-    public function toggleFavourite($productId)
+    public function toggleFavourite($productId = null)
     {
-        if (!array_key_exists($productId, $this->favourite)) return;
-
-        $this->favourite[$productId] = !$this->favourite[$productId];
-        foreach ($this->videos as &$video) {
-            if ($video['id'] == $productId) {
-                $video['favourite'] = $this->favourite[$productId];
-                break;
-            }
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to view your favorites');
         }
-        unset($video); // Unset the reference
+
+        $targetId = $productId ?? $this->currentVideoId;
+        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
+            session()->flash('error', 'Video not found');
+            return;
+        }
+
+        $userId = Auth::id();
+        $isFavorite = $this->favourite[$targetId];
+
+        try {
+            if ($isFavorite) {
+                FavouretReel::where('user_id', $userId)
+                    ->where('product_id', $targetId)
+                    ->delete();
+                $this->favourite[$targetId] = false;
+                session()->flash('message', 'Removed from favorites');
+            } else {
+                FavouretReel::create([
+                    'user_id' => $userId,
+                    'product_id' => $targetId,
+                    'created_by' => $userId,
+                ]);
+                $this->favourite[$targetId] = true;
+                session()->flash('message', 'Added to favorites');
+            }
+
+            foreach ($this->videos as &$video) {
+                if ($video['id'] == $targetId) {
+                    $video['favourite'] = $this->favourite[$targetId];
+                    break;
+                }
+            }
+            unset($video);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while updating favorites');
+        }
+    }
+
+    // Add method to navigate to product page
+    public function viewProduct($productId)
+    {
+        return redirect()->route('product', ['id' => $productId]);
     }
 
     public function toggleMute()

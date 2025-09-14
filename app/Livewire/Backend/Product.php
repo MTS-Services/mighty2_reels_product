@@ -47,7 +47,7 @@ class Product extends Component
         'type' => 'sometimes|required|in:0,1',
         'status' => 'sometimes|required|in:0,1',
         'images.*' => 'sometimes|required|image|mimes:jpg,jpeg,png|max:10240', // 10MB
-        'videos' => 'sometimes|required|mimes:mp4,avi,mov|max:51200', // 50MB
+        'videos' => 'sometimes|required|mimes:mp4,avi,mov,m4v|max:51200', // 50MB
     ];
 
     protected $messages = [
