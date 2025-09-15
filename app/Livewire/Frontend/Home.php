@@ -26,9 +26,9 @@ class Home extends Component
         $products = Product::with(['reels', 'images'])
             ->active()
             ->has('reels') // Only get products that have reels
-            ->inRandomOrder() // This will randomize the order
+            ->inRandomOrder()
             ->get();
-        
+
         $userFavorites = [];
         if (Auth::check()) {
             $userFavorites = FavouretReel::where('user_id', Auth::id())
@@ -39,16 +39,15 @@ class Home extends Component
         foreach ($products as $product) {
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
-            
-            // Get active reels for this product and randomize them too
-            $activeReels = $product->reels()->active()->inRandomOrder()->get();
-            
-            // Add each reel as a separate video entry
-            foreach ($activeReels as $reel) {
+
+            // ✅ Get only ONE random active reel for this product
+            $randomReel = $product->reels()->active()->inRandomOrder()->first();
+
+            if ($randomReel) {
                 $this->videos[] = [
                     'id' => $product->id, // Product ID for navigation
-                    'reel_id' => $reel->id, // Reel ID for tracking
-                    'file' => $reel->file ? Storage::url($reel->file) : null,
+                    'reel_id' => $randomReel->id, // Reel ID for tracking
+                    'file' => $randomReel->file ? Storage::url($randomReel->file) : null,
                     'title' => $product->title,
                     'description' => $product->description,
                     'favourite' => $isFavorite,
@@ -63,6 +62,7 @@ class Home extends Component
             $this->currentVideoId = $this->videos[0]['id'];
         }
     }
+
 
     public function updateCurrentVideo($videoId)
     {
@@ -113,7 +113,6 @@ class Home extends Component
                 }
             }
             unset($video);
-
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while updating favorites');
         }
