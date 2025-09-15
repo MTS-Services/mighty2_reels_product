@@ -189,7 +189,7 @@ class Product extends Component
     public function render()
     {
         return view('livewire.frontend.product', [
-            'videos' => $this->videos,
+            'videos' => $this->videos
         ]);
     }
 }
