@@ -24,10 +24,11 @@ RUN apt-get update && apt-get install -y \
 
 
 # Install Node.js 20 LTS for better performance
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# The following line caused the error, it's commented out for now.
+# RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+#     && apt-get install -y nodejs \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
@@ -51,7 +52,8 @@ RUN mkdir -p storage/framework/{views,sessions,cache} \
 RUN composer install --no-dev --optimize-autoloader
 
 # Install npm dependencies and build assets
-RUN npm install && npm run build
+# Ensure you have Node.js installed in your environment or install it here if you uncomment the Node.js section
+# RUN npm install && npm run build
 
 # Laravel Artisan commands
 RUN php artisan config:clear \
