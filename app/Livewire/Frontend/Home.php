@@ -13,6 +13,7 @@ use Livewire\Component;
 class Home extends Component
 {
     public $currentVideoId = null;
+    public $currentActiveVideoId = null;
     public $showVideo = true;
     public $favourite = [];
     public $volume = 1.0;

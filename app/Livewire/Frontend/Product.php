@@ -13,7 +13,7 @@ use Livewire\Attributes\Layout;
 class Product extends Component
 {
     public $productDetails = true; // Show product details first
-    public $favourite = false;
+    public $favourite = [];    // Favorite status for products
     public $activeVideo = null; // Current selected video/product
     public $videos = [];        // All videos/products
     public $selectedProductId = null; // The product ID passed from home
