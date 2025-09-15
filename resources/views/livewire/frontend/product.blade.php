@@ -302,19 +302,19 @@
                             }">
 
                             <template x-if="media.type === 'video'">
-                                <div class="relative w-full h-44" @click="$wire.toggleMergedView()">
+                                <div class="relative w-full h-44" >
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
-                                        loop autoplay></video>
+                                        loop autoplay controls></video>
 
                                     <!-- Play icon in the center -->
-                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    {{-- <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <div class="bg-black/60 rounded-full p-4 shadow-lg">
                                             <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
                                                 <path d="M8 5v14l11-7z" />
                                             </svg>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                 </div>
                             </template>
