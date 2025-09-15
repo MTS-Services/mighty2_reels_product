@@ -14,6 +14,7 @@ class Home extends Component
 {
     public $currentVideoId = null;
     public $currentActiveVideoId = null;
+    public $currentReelId = null;
     public $showVideo = true;
     public $favourite = [];
     public $volume = 1.0;
@@ -40,7 +41,7 @@ class Home extends Component
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
 
-            // ✅ Get only ONE random active reel for this product
+            // Get only ONE random active reel for this product
             $randomReel = $product->reels()->active()->inRandomOrder()->first();
 
             if ($randomReel) {
@@ -60,13 +61,18 @@ class Home extends Component
 
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
+            $this->currentReelId = $this->videos[0]['reel_id'];
         }
     }
-
 
     public function updateCurrentVideo($videoId)
     {
         $this->currentVideoId = $videoId;
+        // Find the reel_id for this video
+        $video = collect($this->videos)->firstWhere('id', $videoId);
+        if ($video) {
+            $this->currentReelId = $video['reel_id'];
+        }
     }
 
     public function toggleVideoDescription()
@@ -118,7 +124,6 @@ class Home extends Component
         }
     }
 
-    // Add method to navigate to product page
     public function viewProduct($productId)
     {
         return redirect()->route('product', ['id' => $productId]);
@@ -139,12 +144,22 @@ class Home extends Component
     }
 
     /**
-     * Navigate to product page with the currently active video ID
+     * Navigate to product page with the currently active video ID and reel ID
      */
     public function goToProduct()
     {
         $productId = $this->currentActiveVideoId ?? ($this->videos[0]['id'] ?? 1);
-        return redirect()->route('product', ['id' => $productId]);
+        $reelId = $this->currentReelId ?? ($this->videos[0]['reel_id'] ?? null);
+        
+        // Pass both product ID and reel ID to the product page
+        if ($reelId) {
+            return redirect()->route('product', [
+                'id' => $productId,
+                'reel_id' => $reelId
+            ]);
+        } else {
+            return redirect()->route('product', ['id' => $productId]);
+        }
     }
 
     /**
@@ -153,6 +168,11 @@ class Home extends Component
     public function setActiveVideo($videoId)
     {
         $this->currentActiveVideoId = $videoId;
+        // Also update the current reel ID
+        $video = collect($this->videos)->firstWhere('id', $videoId);
+        if ($video) {
+            $this->currentReelId = $video['reel_id'];
+        }
     }
 
     /**
