@@ -1,7 +1,6 @@
 <section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{ currentPlayingId: null, productId: null, favourite: false, selectedVideoId: null, showInfoPanel: false }">
 
     <style>
-        /* ... (your existing CSS styles remain the same) ... */
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
         }
@@ -72,6 +71,26 @@
             40% { transform: translateX(-5px); }
             60% { transform: translateX(-3px); }
         }
+
+        .refresh-button {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.05);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .refresh-spinning {
+            animation: spin 1s linear infinite;
+        }
     </style>
 
     <div class="rounded-lg">
@@ -83,6 +102,7 @@
             selectedVideoId: null,
             showInfoPanel: false,
             videos: @js($videos),
+            isRefreshing: false,
         
             init() {
                 // Listen for video change events
@@ -90,11 +110,13 @@
                     this.currentVideoId = event.detail.videoId;
                 });
         
-                // Set initial video ID if available
+                {{-- // Set initial video ID if available
                 if (this.videos && this.videos.length > 0) {
                     this.currentVideoId = this.videos[0].id;
-                }
-            }
+                } --}}
+            },
+
+           
         }">
 
             <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
@@ -122,8 +144,8 @@
                     </button>
                 </div>
 
-                <!-- Arrow Button - Updated to navigate to product page -->
-                <div class="absolute bottom-[100px] z-50 right-8">
+                <!-- Arrow Button - Navigate to Product Page -->
+                <div class="absolute bottom-[70px] z-50 right-8">
                     <button @click="window.location.href = `/product/${currentVideoId || (videos[0] && videos[0].id)}`"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                         <flux:icon name="arrow-right" class="w-5 h-5" />
@@ -132,10 +154,12 @@
 
                 <div class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
 
-                    <template x-for="(video, index) in videos" :key="video.id">
-                        <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
-                            x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id)"
-                            x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
+                    <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
+                        <div class="video-item snap-start pb-0.5 rounded-lg" 
+                            x-data="videoController(video.id, $root, video)"
+                            x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
+                            x-intersect:leave="pauseVideo()" 
+                            @click="selectVideo(video.id)">
 
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
@@ -175,10 +199,15 @@
 
                                     <!-- Video Element -->
                                     <template x-if="video.file">
-                                        <video x-ref="mainVideo" :data-video-id="video.id" @loadedmetadata="initVideo()"
-                                            @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                            @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
-                                            @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
+                                        <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
+                                            @loadedmetadata="initVideo()"
+                                            @timeupdate="updateProgress()" 
+                                            @play="handlePlay()" 
+                                            @pause="handlePause()"
+                                            @click.stop="togglePlay()" 
+                                            @touchend.prevent="handleTouchEnd($event)"
+                                            @dblclick="handleDoubleClick($event)" 
+                                            @volumechange="updateVolumeDisplay()"
                                             class="w-full h-full object-cover" loop playsinline autoplay>
                                             <source :src="video.file" type="video/mp4">
                                         </video>
@@ -226,17 +255,6 @@
 
                                     <!-- Video Info Overlay -->
                                     <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
-                                        <div x-data="{ visible: false }" x-intersect:enter="visible = true"
-                                            x-intersect:leave="visible = false">
-                                            <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                                class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl">
-                                                <span x-text="video.title"></span>
-                                            </h2>
-                                            <p x-show="visible" x-transition.opacity.duration.700ms
-                                                class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed"
-                                                x-text="video.description"></p>
-                                        </div>
-
                                         <!-- Progress Bar -->
                                         <div class="relative" x-show="video.file">
                                             <div class="flex items-center space-x-3">
@@ -268,9 +286,27 @@
                         </div>
                     </template>
 
+                    <!-- Empty State -->
+                    <template x-if="!videos || videos.length === 0">
+                        <div class="flex items-center justify-center h-[calc(100vh-165px)]">
+                            <div class="text-center">
+                                <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <h3 class="text-gray-600 text-xl mb-2">No Reels Available</h3>
+                                <p class="text-gray-400">Check back later for new content!</p>
+                                <button @click="refreshReels()" 
+                                    class="mt-4 bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
+                                    Try Again
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
                 </div>
             </div>
-
 
         </div>
     </div>
@@ -286,8 +322,8 @@
                 videoError: false,
                 clickTimeout: null,
                 videoId: videoId,
-                volume: root.volume,
-                isMuted: root.isMuted,
+                volume: root.volume || 1.0,
+                isMuted: root.isMuted || false,
                 lastVolume: 1.0,
                 isDraggingVolume: false,
                 lastTap: 0,
@@ -516,6 +552,48 @@
                 }
             };
         }
+
+        // Notification system (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('notify', function(event) {
+                const { type, message } = event.detail;
+                
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
+                notification.textContent = message;
+                
+                // Add to DOM
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                    notification.style.opacity = '1';
+                }, 100);
+                
+                // Remove after delay
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            });
+        });
+
+        // Initialize Livewire listeners for video updates
+        document.addEventListener('livewire:load', function () {
+            Livewire.on('videosUpdated', function () {
+                // Refresh the videos array when updated
+                setTimeout(() => {
+                    window.location.reload();
+                }, 100);
+            });
+        });
     </script>
 
 </section>

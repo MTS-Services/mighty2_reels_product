@@ -22,7 +22,12 @@ class Home extends Component
 
     public function mount()
     {
-        $products = Product::with(['reels', 'images'])->active()->orderBy('sort_order')->get();
+        // Fetch products with reels in random order
+        $products = Product::with(['reels', 'images'])
+            ->active()
+            ->has('reels') // Only get products that have reels
+            ->inRandomOrder() // This will randomize the order
+            ->get();
         
         $userFavorites = [];
         if (Auth::check()) {
@@ -35,16 +40,24 @@ class Home extends Component
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
             
-            $this->videos[] = [
-                'id' => $product->id,
-                'file' => $product->reels->first()?->file
-                    ? Storage::url($product->reels->first()->file)
-                    : null,
-                'title' => $product->title,
-                'description' => $product->description,
-                'favourite' => $isFavorite,
-            ];
+            // Get active reels for this product and randomize them too
+            $activeReels = $product->reels()->active()->inRandomOrder()->get();
+            
+            // Add each reel as a separate video entry
+            foreach ($activeReels as $reel) {
+                $this->videos[] = [
+                    'id' => $product->id, // Product ID for navigation
+                    'reel_id' => $reel->id, // Reel ID for tracking
+                    'file' => $reel->file ? Storage::url($reel->file) : null,
+                    'title' => $product->title,
+                    'description' => $product->description,
+                    'favourite' => $isFavorite,
+                ];
+            }
         }
+
+        // Shuffle the final videos array for additional randomization
+        $this->videos = collect($this->videos)->shuffle()->toArray();
 
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
@@ -93,10 +106,10 @@ class Home extends Component
                 session()->flash('message', 'Added to favorites');
             }
 
+            // Update all videos with the same product ID
             foreach ($this->videos as &$video) {
                 if ($video['id'] == $targetId) {
                     $video['favourite'] = $this->favourite[$targetId];
-                    break;
                 }
             }
             unset($video);
@@ -141,6 +154,14 @@ class Home extends Component
     public function setActiveVideo($videoId)
     {
         $this->currentActiveVideoId = $videoId;
+    }
+
+    /**
+     * Refresh the videos with new random order
+     */
+    public function refreshReels()
+    {
+        $this->mount(); // Re-run the mount method to get new random order
     }
 
     public function render()
