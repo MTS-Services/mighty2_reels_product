@@ -27,14 +27,29 @@
         }
 
         @keyframes heart-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.4); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .animate-fade-in-up {
@@ -56,9 +71,22 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateX(0); }
-            40% { transform: translateX(-5px); }
-            60% { transform: translateX(-3px); }
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(0);
+            }
+
+            40% {
+                transform: translateX(-5px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
         }
 
         /* Highlight selected video in horizontal mode */
@@ -97,7 +125,7 @@
     </style>
 
     <div class="relative h-full max-w-lg mx-auto">
-        
+
         <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
             <!-- Up Arrow Button - Toggle Merged View -->
@@ -127,7 +155,7 @@
                     class="bg-gray-500 text-white p-3 rounded-full shadow hover:bg-gray-600 transition-all duration-300">
                     <flux:icon name="x-mark" class="w-5 h-5" />
                 </button>
-                
+
                 <!-- Heart/Favorite Button -->
                 <button @click="$wire.toggleFavourite($wire.selectedProductId)"
                     :class="getCurrentVideoFavourite() ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
@@ -142,36 +170,42 @@
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
 
             <!-- Regular Video View -->
-            <div x-show="!$wire.showMergedView" 
+            <div x-show="!$wire.showMergedView"
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
-                
+
                 <template x-for="video in displayVideos" :key="video.id + '-' + (video.reel_id || 'default')">
-                    <div class="video-item snap-start pb-0.5"
-                        x-data="videoController(video.id, $root)" 
-                        x-intersect:enter="autoplayOnScroll()"
-                        x-intersect:leave="pauseVideo()">
+                    <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root)"
+                        x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()">
 
                         <div class="flex flex-col justify-center items-center relative">
-                            <div class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-165px)] max-w-lg">
+                            <div
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-165px)] max-w-lg">
 
                                 <!-- Volume Control -->
                                 <div class="absolute top-4 left-4 z-[5000]">
                                     <div class="group flex items-center gap-2">
                                         <button @click.stop="toggleMute()"
                                             class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
-                                            <svg x-show="volume > 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                                            <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                                             </svg>
-                                            <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                                            <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
+                                                height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
                                             </svg>
-                                            <svg x-show="volume === 0 || isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                                            <svg x-show="volume === 0 || isMuted" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
                                             </svg>
                                         </button>
 
                                         <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden"
-                                            @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)" x-ref="topVolumeSlider">
+                                            @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
+                                            x-ref="topVolumeSlider">
                                             <div class="absolute top-1/2 -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
                                                 :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
                                             <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
@@ -184,22 +218,19 @@
                                 <!-- Video Element -->
                                 <template x-if="video.url && video.type === 'video'">
                                     <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                        @loadedmetadata="initVideo()"
-                                        @timeupdate="updateProgress()" 
-                                        @play="handlePlay()" 
-                                        @pause="handlePause()"
-                                        @click.stop="togglePlay()" 
-                                        @touchend.prevent="handleTouchEnd($event)"
-                                        @dblclick="handleDoubleClick($event)" 
-                                        @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay>
+                                        @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
+                                        @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
+                                        @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
+                                        @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
+                                        playsinline autoplay>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
 
                                 <!-- Image Element -->
                                 <template x-if="video.url && video.type === 'image'">
-                                    <img :src="video.url" :alt="video.title" class="w-full h-full object-cover">
+                                    <img :src="video.url" :alt="video.title"
+                                        class="w-full h-full object-cover">
                                 </template>
 
                                 <template x-if="!video.url">
@@ -215,45 +246,46 @@
                                 <div x-show="!videoLoaded && video.url && video.type === 'video'"
                                     class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                     <div class="text-center">
-                                        <div class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+                                        <div
+                                            class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
+                                        </div>
                                         <p class="text-white mt-4 text-sm">Loading video...</p>
                                     </div>
                                 </div>
 
                                 <!-- Video Overlay -->
-                                <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0"></div>
+                                <div
+                                    class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
+                                </div>
 
                                 <!-- Play/Pause Button (only for videos) -->
                                 <button x-show="video.type === 'video'" @click.stop="togglePlay()"
                                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4"
                                     :style="{ opacity: isPlaying ? '0' : '1' }">
-                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
+                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor" class="text-gray-800">
                                         <path d="M8 5v14l11-7z" />
                                     </svg>
-                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
+                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor" class="text-gray-800">
                                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                     </svg>
                                 </button>
 
                                 <!-- Media Info Overlay -->
-                                <div class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                    {{-- <div x-data="{ visible: false }" x-intersect:enter="visible = true" x-intersect:leave="visible = false">
-                                        <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                            class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl" 
-                                            x-text="video.title"></h2>
-                                        <p x-show="visible" x-transition.opacity.duration.700ms
-                                            class="text-gray-300 mb-2 text-sm animate-fade-in-up" 
-                                            x-text="video.description"></p>
-                                    </div> --}}
-
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
                                     <!-- Progress Bar (only for videos) -->
                                     <div x-show="video.type === 'video'" class="relative">
                                         <div class="flex items-center space-x-3">
-                                            <button @click="togglePlay()" class="text-white hover:text-orange-500 transition-colors">
-                                                <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                            <button @click="togglePlay()"
+                                                class="text-white hover:text-orange-500 transition-colors">
+                                                <svg x-show="!isPlaying" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M8 5v14l11-7z" />
                                                 </svg>
-                                                <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <svg x-show="isPlaying" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
                                                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                                 </svg>
                                             </button>
@@ -279,19 +311,21 @@
                 <div class="h-full flex flex-col">
                     <!-- Media Grid -->
                     <div class="merged-media-grid flex-1 p-4">
-                        <template x-for="(media, index) in allMediaItems" :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
-                            <div class="media-item" 
-                                :class="{ 'active': selectedMediaIndex === index }"
+                        <template x-for="(media, index) in allMediaItems"
+                            :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
+                            <div class="media-item" :class="{ 'active': selectedMediaIndex === index }"
                                 @click="selectMedia(index)">
-                                
+
                                 <!-- Video Media -->
                                 <template x-if="media.type === 'video'">
                                     <div class="relative w-full h-full">
-                                        <video :src="media.url" class="w-full h-full object-cover" muted loop autoplay>
+                                        <video :src="media.url" class="w-full h-full object-cover" muted loop
+                                            autoplay>
                                         </video>
                                         <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
                                             <div class="bg-white/90 rounded-full p-2">
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
+                                                <svg width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="currentColor" class="text-gray-800">
                                                     <path d="M8 5v14l11-7z" />
                                                 </svg>
                                             </div>
@@ -302,10 +336,13 @@
                                 <!-- Image Media -->
                                 <template x-if="media.type === 'image'">
                                     <div class="relative w-full h-full">
-                                        <img :src="media.url" :alt="media.title" class="w-full h-full object-cover">
+                                        <img :src="media.url" :alt="media.title"
+                                            class="w-full h-full object-cover">
                                         <div class="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-white">
-                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                            <svg width="16" height="16" viewBox="0 0 24 24"
+                                                fill="currentColor" class="text-white">
+                                                <path
+                                                    d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                                             </svg>
                                         </div>
                                     </div>
@@ -316,16 +353,31 @@
 
                     <!-- Product Details Section -->
                     <div class="bg-gray-900/90 backdrop-blur-sm p-6 border-t border-gray-700">
-                        <template x-if="$wire.productData">
+                        @if ($productData)
                             <div>
-                                <h2 class="text-2xl font-bold text-white mb-3" x-text="$wire.productData.title"></h2>
-                                <p class="text-gray-300 leading-relaxed mb-4" x-text="$wire.productData.description"></p>
+                                <h2 class="text-2xl font-bold text-white mb-3">{{ $productData->title }}</h2>
+                                <p class="text-gray-300 leading-relaxed mb-4">{{ $productData->description }}</p>
                                 <div class="flex items-center justify-between">
-                                    <div class="text-orange-400 font-semibold text-xl" x-text="' + $wire.productData.price"></div>
-                                    <div class="text-gray-400" x-text="$wire.productData.city ? $wire.productData.city.name : ''"></div>
+                                    <div class="text-orange-400 font-semibold text-xl">
+                                        @if ($productData->price)
+                                            ${{ number_format($productData->price, 2) }}
+                                        @endif
+                                    </div>
+                                    <div class="text-gray-400">
+                                        {{ $productData->city ? $productData->city->name : '' }}
+                                    </div>
                                 </div>
+                                @if ($productData->type !== null)
+                                    <div class="mt-3 text-sm text-gray-400">
+                                        Type: <span class="text-orange-300">{{ $productData->type_label }}</span>
+                                    </div>
+                                @endif
                             </div>
-                        </template>
+                        @else
+                            <div class="text-center text-gray-400">
+                                <p>Product details not available</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -344,7 +396,7 @@
                 init() {
                     this.displayVideos = @js($videos);
                     this.allMediaItems = @js($allMedia);
-                    
+
                     if (this.displayVideos.length > 0) {
                         this.activeVideoIdInView = this.displayVideos[0].id;
                     }
