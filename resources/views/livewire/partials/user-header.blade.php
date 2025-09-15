@@ -7,11 +7,11 @@
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
                 <div class="items-center gap-9 flex-1 hidden lg:flex justify-between">
-                    <x-button  variant="secondary" class="!rounded-full">
+                    <x-button variant="secondary" class="!rounded-full">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
 
-                    @if (!Route::is('profile'))
+                    @if (!Route::is('profile', 'products.show') && Route::is('home'))
                         <div class="flex flex-col md:flex-row gap-4">
 
                             <!-- Rooms Select -->
@@ -48,6 +48,7 @@
                     @endif
 
                 </div>
+
 
                 <div class="hidden lg:flex items-center gap-4 relative py-2"
                     x-on:click.away="openProfileDropdown = false">
@@ -88,6 +89,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="flex items-center gap-4">
                     <x-button variant="secondary" class="!rounded-full !hidden md:!flex lg:!hidden">
                         <flux:icon name="heart" class="fill-orange-normal" />
@@ -141,31 +143,32 @@
             </div>
         </div>
     </aside>
+    @if (Route::is('home'))
+        {{-- Search Area --}}
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area">
+            <div class="flex items-center gap-4">
+                <form class="flex-1">
+                    <input type="search" placeholder="Search for products..."
+                        class="w-full px-4 py-2 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal" />
+                </form>
+                <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
+                    <flux:icon name="funnel" />
+                </x-button>
+            </div>
 
-    {{-- Search Area --}}
-    <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area">
-        <div class="flex items-center gap-4">
-            <form class="flex-1">
-                <input type="search" placeholder="Search for products..."
-                    class="w-full px-4 py-2 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal" />
-            </form>
-            <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
-                <flux:icon name="funnel" />
-            </x-button>
+            <div x-show="filterOpen" x-cloak x-transition:enter="transition-all duration-300 ease-in-out"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition-all duration-300 ease-in-out" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0" class="space-y-2">
+                <select
+                    class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full w-full bg-orange-light/20">
+                    <option value="">Location</option>
+                    <option value="">1246, New York</option>
+                    <option value="">1346, New York</option>
+                    <option value="">1446, New York</option>
+                    <option value="">1546, New York</option>
+                </select>
+            </div>
         </div>
-
-        <div x-show="filterOpen" x-cloak x-transition:enter="transition-all duration-300 ease-in-out"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-all duration-300 ease-in-out" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0" class="space-y-2">
-            <select
-                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full w-full bg-orange-light/20">
-                <option value="">Location</option>
-                <option value="">1246, New York</option>
-                <option value="">1346, New York</option>
-                <option value="">1446, New York</option>
-                <option value="">1546, New York</option>
-            </select>
-        </div>
-    </div>
+    @endif
 </div>

@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class="max-w-7xl mx-auto px-4 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -97,34 +97,9 @@
         }
 
         /* Merged view styles */
-        .merged-media-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .media-item {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 9/16;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .media-item:hover {
-            transform: scale(1.05);
-        }
-
-        .media-item.active {
-            border: 3px solid #ff6b35;
-            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
-        }
     </style>
 
-    <div class="relative h-full max-w-lg mx-auto">
+    <div class="relative h-full  max-w-lg mx-auto">
 
         <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
@@ -149,13 +124,15 @@
 
         <!-- Merged View Controls -->
         <div x-show="$wire.showMergedView">
-            <div class="absolute top-4 right-4 z-[5000] flex gap-2">
+            <div class="absolute bottom-4 right-4 z-[5000] ">
                 <!-- Close Merged View Button -->
                 <button @click="$wire.toggleMergedView()"
-                    class="bg-gray-500 text-white p-3 rounded-full shadow hover:bg-gray-600 transition-all duration-300">
-                    <flux:icon name="x-mark" class="w-5 h-5" />
+                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                    <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
+            </div>
 
+            <div class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <!-- Heart/Favorite Button -->
                 <button @click="$wire.toggleFavourite($wire.selectedProductId)"
                     :class="getCurrentVideoFavourite() ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
@@ -166,12 +143,12 @@
         </div>
 
         <!-- Main Content Container -->
-        <div class="relative w-full mx-auto h-full scrollbar-hide"
+        <div class="relative w-full mx-auto h-full  scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
 
             <!-- Regular Video View -->
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
 
                 <template x-for="video in displayVideos" :key="video.id + '-' + (video.reel_id || 'default')">
                     <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root)"
@@ -179,7 +156,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-165px)] max-w-lg">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
 
                                 <!-- Volume Control -->
                                 <div class="absolute top-4 left-4 z-[5000]">
@@ -222,7 +199,7 @@
                                         @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
                                         @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
                                         @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
-                                        playsinline autoplay>
+                                        playsinline autoplay muted>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
@@ -307,80 +284,109 @@
             </div>
 
             <!-- Merged View -->
-            <div x-show="$wire.showMergedView" class="h-[calc(100vh-165px)]">
-                <div class="h-full flex flex-col">
-                    <!-- Media Grid -->
-                    <div class="merged-media-grid flex-1 p-4">
-                        <template x-for="(media, index) in allMediaItems"
-                            :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
-                            <div class="media-item" :class="{ 'active': selectedMediaIndex === index }"
-                                @click="selectMedia(index)">
+            <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-6"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition transform ease-in duration-500"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 translate-y-6"
+                class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
+                <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
+                    <template x-for="(media, index) in allMediaItems"
+                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
+                        <div @click="selectMedia(index)"
+                            class="relative rounded-2xl overflow-hidden mb-2  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+                            :class="{
+                                'bg-white': selectedMediaIndex ===
+                                    index
+                            }">
 
-                                <!-- Video Media -->
-                                <template x-if="media.type === 'video'">
-                                    <div class="relative w-full h-full">
-                                        <video :src="media.url" class="w-full h-full object-cover" muted loop
-                                            autoplay>
-                                        </video>
-                                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                            <div class="bg-white/90 rounded-full p-2">
-                                                <svg width="20" height="20" viewBox="0 0 24 24"
-                                                    fill="currentColor" class="text-gray-800">
-                                                    <path d="M8 5v14l11-7z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
+                            <template x-if="media.type === 'video'">
+                                <div class="relative w-full h-44" @click="$wire.toggleMergedView()">
+                                    <video :src="media.url"
+                                        class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
+                                        loop autoplay></video>
 
-                                <!-- Image Media -->
-                                <template x-if="media.type === 'image'">
-                                    <div class="relative w-full h-full">
-                                        <img :src="media.url" :alt="media.title"
-                                            class="w-full h-full object-cover">
-                                        <div class="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                                            <svg width="16" height="16" viewBox="0 0 24 24"
-                                                fill="currentColor" class="text-white">
-                                                <path
-                                                    d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                    <!-- Play icon in the center -->
+                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div class="bg-black/60 rounded-full p-4 shadow-lg">
+                                            <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                                                <path d="M8 5v14l11-7z" />
                                             </svg>
                                         </div>
                                     </div>
-                                </template>
-                            </div>
-                        </template>
-                    </div>
 
-                    <!-- Product Details Section -->
-                    <div class="bg-gray-900/90 backdrop-blur-sm p-6 border-t border-gray-700">
-                        @if ($productData)
-                            <div>
-                                <h2 class="text-2xl font-bold text-white mb-3">{{ $productData->title }}</h2>
-                                <p class="text-gray-300 leading-relaxed mb-4">{{ $productData->description }}</p>
-                                <div class="flex items-center justify-between">
-                                    <div class="text-orange-400 font-semibold text-xl">
-                                        @if ($productData->price)
-                                            ${{ number_format($productData->price, 2) }}
-                                        @endif
-                                    </div>
-                                    <div class="text-gray-400">
-                                        {{ $productData->city ? $productData->city->name : '' }}
+                                </div>
+                            </template>
+
+
+                            <template x-if="media.type === 'image'">
+                                <div class="relative w-[70%] mx-auto  hover:shadow-lg h-44">
+                                    <img :src="media.url" :alt="media.title"
+                                        class="w-full h-full object-cover rounded-2xl">
+                                    <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+                                            class="text-white">
+                                            <path
+                                                d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                        </svg>
                                     </div>
                                 </div>
-                                @if ($productData->type !== null)
-                                    <div class="mt-3 text-sm text-gray-400">
-                                        Type: <span class="text-orange-300">{{ $productData->type_label }}</span>
-                                    </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="bg-gray-900/95 backdrop-blur-md p-6 border-t border-gray-700 shadow-lg">
+                    @if ($productData)
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-white mb-3 tracking-tight">{{ $productData->title }}
+                            </h2>
+                            <div x-data="{ expanded: false }" class="space-y-2">
+                                <p x-bind:class="expanded ? '' : 'line-clamp-2'"
+                                    class="text-gray-300 leading-relaxed mb-2 text-lg transition-all duration-300">
+                                    {{ $productData->description }}
+                                </p>
+
+                                <!-- Show See more / See less button only if description is long -->
+                                @if (strlen($productData->description) > 100)
+                                    <button @click="expanded = !expanded"
+                                        class="text-orange-400 hover:underline text-sm font-medium">
+                                        <span x-text="expanded ? 'See less' : 'See more'"></span>
+                                    </button>
                                 @endif
                             </div>
-                        @else
-                            <div class="text-center text-gray-400">
-                                <p>Product details not available</p>
+
+                            <!-- Add Tailwind plugin for line-clamp in your tailwind.config.js -->
+                            <!-- npm install @tailwindcss/line-clamp -->
+
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div class="text-orange-400 font-semibold text-2xl">
+                                    @if ($productData->price)
+                                        ${{ number_format($productData->price, 2) }}
+                                    @endif
+                                </div>
+                                <div class="text-gray-400 text-sm">
+                                    {{ $productData->city ? $productData->city->name : '' }}
+                                </div>
                             </div>
-                        @endif
-                    </div>
+
+                            @if ($productData->type !== null)
+                                <div
+                                    class="mt-2 inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl text-sm text-gray-300">
+                                    <span class="uppercase tracking-wide text-gray-400">Type:</span>
+                                    <span class="text-orange-300 font-medium">{{ $productData->type_label }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="text-center text-gray-500 italic">
+                            <p>Product details not available</p>
+                        </div>
+                    @endif
                 </div>
             </div>
+
         </div>
     </div>
 

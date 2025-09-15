@@ -22,6 +22,7 @@ class Product extends Component
     public $selectedReelId = null; // The specific reel ID from home
     public $showMergedView = false; // Toggle for merged view
     public $productData = null; // Store product details
+    
 
     /**
      * Initialize videos and set the default active video based on the passed ID
@@ -138,10 +139,6 @@ class Product extends Component
 
   
 
-    public function toggleVideoDetails()
-    {
-        $this->productDetails = !$this->productDetails;
-    }
 
     /**
      * Toggle merged view (up arrow functionality)
@@ -180,14 +177,6 @@ class Product extends Component
             session()->flash('message', 'Added to favorites');
         }
     }
-    /**
-     * Set active video by ID
-     */
-    public function setActiveVideo($videoId)
-    {
-        $this->activeVideo = collect($this->videos)->firstWhere('id', $videoId);
-    }
-    
     /**
      * Render the Blade view
      */
