@@ -124,7 +124,7 @@
 
         <!-- Merged View Controls -->
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-4 right-4 z-[5000] ">
+            <div class="absolute bottom-[63px]! right-4 z-[5000] ">
                 <!-- Close Merged View Button -->
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
@@ -302,7 +302,7 @@
                             }">
 
                             <template x-if="media.type === 'video'">
-                                <div class="relative w-full h-44" >
+                                <div class="relative w-full h-44">
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
                                         loop autoplay controls></video>
@@ -344,7 +344,7 @@
                             </h2>
                             <div x-data="{ expanded: false }" class="space-y-2">
                                 <p x-bind:class="expanded ? '' : 'line-clamp-2'"
-                                    class="text-gray-300 leading-relaxed mb-2 text-lg transition-all duration-300">
+                                    class="text-gray-300 leading-relaxed mb-1 text-lg transition-all duration-300">
                                     {{ $productData->description }}
                                 </p>
 
@@ -360,24 +360,25 @@
                             <!-- Add Tailwind plugin for line-clamp in your tailwind.config.js -->
                             <!-- npm install @tailwindcss/line-clamp -->
 
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex flex-col mt-2 sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="text-orange-400 font-semibold text-2xl">
                                     @if ($productData->price)
                                         ${{ number_format($productData->price, 2) }}
                                     @endif
                                 </div>
+                                @if ($productData->type !== null)
+                                    <div
+                                        class="mt-2 inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl text-sm text-gray-300">
+                                        <span class="uppercase tracking-wide text-gray-400">Type:</span>
+                                        <span class="text-orange-300 font-medium">{{ $productData->type_label }}</span>
+                                    </div>
+                                @endif
                                 <div class="text-gray-400 text-sm">
                                     {{ $productData->city ? $productData->city->name : '' }}
                                 </div>
                             </div>
 
-                            @if ($productData->type !== null)
-                                <div
-                                    class="mt-2 inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl text-sm text-gray-300">
-                                    <span class="uppercase tracking-wide text-gray-400">Type:</span>
-                                    <span class="text-orange-300 font-medium">{{ $productData->type_label }}</span>
-                                </div>
-                            @endif
+
                         </div>
                     @else
                         <div class="text-center text-gray-500 italic">
