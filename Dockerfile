@@ -3,7 +3,8 @@ FROM php:8.3-fpm
 # Add custom php.ini file
 COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
+# Combining update, install, and cleanup in one RUN command
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
@@ -20,14 +21,15 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd
-
-
-# Install Node.js 20 LTS for better performance
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 LTS
+# Separating Node.js installation into distinct steps for clarity and cache efficiency
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
@@ -51,15 +53,13 @@ RUN mkdir -p storage/framework/{views,sessions,cache} \
 RUN composer install --no-dev --optimize-autoloader
 
 # Install npm dependencies and build assets
+# Combining npm install and build into one RUN command
 RUN npm install && npm run build
 
 # Laravel Artisan commands
-RUN php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
+# Grouping related commands
+RUN php artisan config:clear && php artisan route:clear && php artisan view:clear \
+    && php artisan config:cache && php artisan route:cache && php artisan view:cache \
     && php artisan migrate --force || true \
     && php artisan optimize:clear
 
@@ -72,4 +72,4 @@ COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 EXPOSE 80
 
 # Start all services
-CMD ["/usr/bin/supervisord", "-n"] 
+CMD ["/usr/bin/supervisord", "-n"]
