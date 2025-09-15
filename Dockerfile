@@ -1,8 +1,11 @@
 FROM php:8.3-fpm
 
-# Install bash and other necessary tools
+# Add custom php.ini file
+COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    bash \
+    nginx \
     git \
     unzip \
     curl \
@@ -17,12 +20,8 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd
 
-# Add custom php.ini file
-COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Install Node.js 20 LTS for better performance
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
