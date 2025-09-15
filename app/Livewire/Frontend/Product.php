@@ -2,115 +2,51 @@
 
 namespace App\Livewire\Frontend;
 
-use App\Models\Product as ProductModel;
 use App\Models\FavouretReel;
-use App\Models\City;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Product as ModelsProduct;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'Product'])]
 class Product extends Component
 {
-    public $productDetails = true; // Start with product details view
-    public $favourite = [];
-    public $activeProduct = null;
-    public $videos = [];
-    public $productId;
-    public $volume = 1.0;
-    public $isMuted = false;
-    public $currentVideoId = null;
+    public $productDetails = true; // Show product details first
+    public $favourite = [];    // Favorite status for products
+    public $activeVideo = null; // Current selected video/product
+    public $videos = [];        // All videos/products
+    public $images = [];        // All images for the product
+    public $allMedia = [];      // Combined images and videos
+    public $selectedProductId = null; // The product ID passed from home
+    public $selectedReelId = null; // The specific reel ID from home
+    public $showMergedView = false; // Toggle for merged view
+    public $productData = null; // Store product details
     
-    // Search properties
-    public $searchTerm = '';
-    public $searchRoom = '';
-    public $searchCity = '';
-    public $searchType = '';
-    public $noResults = false;
-    public $searchApplied = false;
-    public $originalProductId = null;
 
-    protected $listeners = ['search-updated' => 'handleSearch'];
-
-    public function mount($id = null)
+    /**
+     * Initialize videos and set the default active video based on the passed ID
+     */
+    public function mount($id = null, $reel_id = null)
     {
-        $this->originalProductId = $id;
-        $this->loadProducts();
+        $this->selectedProductId = $id;
+        $this->selectedReelId = $reel_id;
+        
+            $this->loadProductData($id);
+     
     }
 
-    public function loadProducts($search = null)
+    /**
+     * Load specific product data with all its media
+     */
+    private function loadProductData($productId)
     {
-        $query = ProductModel::with(['reels', 'images', 'city'])->active()->orderBy('sort_order');
+        $product = ModelsProduct::with(['reels', 'images', 'city'])->active()->find($productId);
         
-        // Apply search filters if provided
-        if ($search) {
-            $this->searchTerm = $search['search'] ?? '';
-            $this->searchRoom = $search['room'] ?? '';
-            $this->searchCity = $search['city'] ?? '';
-            $this->searchType = $search['type'] ?? '';
-            
-            // Search by title or description
-            if (!empty($this->searchTerm)) {
-                $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
-                });
-            }
-            
-            // Filter by room count
-            if (!empty($this->searchRoom)) {
-                $query->where('room', $this->searchRoom);
-            }
-            
-            // Filter by city
-            if (!empty($this->searchCity)) {
-                $query->where('city_id', $this->searchCity);
-            }
-            
-            // Filter by type (rent/sale)
-            if ($this->searchType !== '') {
-                $query->where('type', $this->searchType);
-            }
-            
-            $this->searchApplied = !empty($this->searchTerm) || !empty($this->searchRoom) || !empty($this->searchCity) || $this->searchType !== '';
-        } else {
-            $this->searchApplied = false;
-        }
-        
-        $products = $query->get();
-        
-        if ($products->isEmpty()) {
-            if ($this->searchApplied) {
-                $this->noResults = true;
-                $this->videos = [];
-                $this->currentVideoId = null;
-                $this->activeProduct = null;
-                return;
-            } else {
-                abort(404, 'No products found');
-            }
-        }
+       
 
-        $this->noResults = false;
-
-        // Determine which product to set as active
-        if ($this->searchApplied) {
-            // If searching, use the first result
-            $this->productId = $products->first()->id;
-        } else {
-            // If not searching, use original ID or first product
-            $this->productId = $this->originalProductId ?? $products->first()->id;
-        }
+        $this->productData = $product;
         
-        // Verify the active product exists in results
-        $this->activeProduct = $products->firstWhere('id', $this->productId);
-        if (!$this->activeProduct) {
-            // If original product not in results, use first available
-            $this->activeProduct = $products->first();
-            $this->productId = $this->activeProduct->id;
-        }
-
         // Get user favorites
         $userFavorites = [];
         if (Auth::check()) {
@@ -118,172 +54,140 @@ class Product extends Component
                 ->pluck('product_id')
                 ->toArray();
         }
+        
+        $isFavorite = in_array($product->id, $userFavorites);
+        $this->favourite[$product->id] = $isFavorite;
 
-        // Build videos array with active product first, then others
-        $sortedProducts = $products->sortBy(function ($product) {
-            return $product->id == $this->productId ? 0 : 1;
-        });
+        // Collect all media (images and reels) for this product
+        $allMedia = [];
 
-        $this->videos = [];
-        foreach ($sortedProducts as $product) {
-            $isFavorite = in_array($product->id, $userFavorites);
-            $this->favourite[$product->id] = $isFavorite;
-            
-            $this->videos[] = [
+        // Add reels as videos
+        foreach ($product->reels()->active()->get() as $reel) {
+            $allMedia[] = [
                 'id' => $product->id,
-                'url' => $product->reels->first()?->file
-                    ? Storage::url($product->reels->first()->file)
-                    : null,
+                'reel_id' => $reel->id,
+                'type' => 'video',
+                'url' => $reel->file ? Storage::url($reel->file) : null,
                 'title' => $product->title,
                 'description' => $product->description,
-                'price' => $product->price,
-                'room' => $product->room,
-                'city' => $product->city?->name,
-                'type_label' => $product->type_label,
                 'favourite' => $isFavorite,
-                'images' => $product->images->map(function ($image) {
-                    return Storage::url($image->file);
-                })->toArray(),
+                'sort_order' => $reel->sort_order ?? rand(1, 1000),
             ];
         }
 
-        // Set current video ID to active product
-        $this->currentVideoId = $this->productId;
-        
-        // Dispatch event to update the video player
-        $this->dispatch('videos-updated');
+        // Add images - FIX: Use correct attribute name
+        foreach ($product->images()->active()->get() as $image) {
+            $imageUrl = null;
+            
+            // Try different possible attribute names for the image file
+            if ($image->file) {
+                $imageUrl = Storage::url($image->file);
+            } elseif (isset($image->image) && $image->image) {
+                $imageUrl = Storage::url($image->image);
+            }
+
+            $allMedia[] = [
+                'id' => $product->id,
+                'image_id' => $image->id,
+                'type' => 'image',
+                'url' => $imageUrl,
+                'title' => $product->title,
+                'description' => $product->description,
+                'favourite' => $isFavorite,
+                'sort_order' => $image->sort_order ?? rand(1, 1000),
+            ];
+        }
+
+        // Sort by sort_order, then by random if sort_order is the same
+        usort($allMedia, function($a, $b) {
+            if ($a['sort_order'] == $b['sort_order']) {
+                return rand(-1, 1); // Random if same sort_order
+            }
+            return $a['sort_order'] <=> $b['sort_order'];
+        });
+
+        // If a specific reel was selected, move it to the front
+        if ($this->selectedReelId) {
+            $selectedIndex = null;
+            foreach ($allMedia as $index => $media) {
+                if ($media['type'] === 'video' && isset($media['reel_id']) && $media['reel_id'] == $this->selectedReelId) {
+                    $selectedIndex = $index;
+                    break;
+                }
+            }
+            
+            if ($selectedIndex !== null) {
+                $selectedMedia = $allMedia[$selectedIndex];
+                unset($allMedia[$selectedIndex]);
+                array_unshift($allMedia, $selectedMedia);
+                $allMedia = array_values($allMedia);
+            }
+        }
+
+        $this->allMedia = $allMedia;
+        $this->videos = array_filter($allMedia, function($media) {
+            return $media['type'] === 'video';
+        });
+        $this->images = array_filter($allMedia, function($media) {
+            return $media['type'] === 'image';
+        });
+
+        // Reset array keys
+        $this->videos = array_values($this->videos);
+        $this->images = array_values($this->images);
     }
 
-    public function handleSearch($searchData)
+  
+
+
+    /**
+     * Toggle merged view (up arrow functionality)
+     */
+    public function toggleMergedView()
     {
-        $this->loadProducts($searchData);
+        $this->showMergedView = !$this->showMergedView;
     }
 
-    public function clearSearch()
-    {
-        $this->searchTerm = '';
-        $this->searchRoom = '';
-        $this->searchCity = '';
-        $this->searchType = '';
-        $this->searchApplied = false;
-        $this->noResults = false;
-        
-        $this->loadProducts();
-        
-        // Notify header to clear its search fields
-        $this->dispatch('searchCleared');
-    }
-
-    public function updateCurrentVideo($videoId)
-    {
-        $this->currentVideoId = $videoId;
-        
-        // Update active product when video changes
-        $this->activeProduct = ProductModel::with(['reels', 'images', 'city'])->find($videoId);
-        $this->productId = $videoId;
-    }
-
-    public function toggleVideoDetails()
-    {
-        $this->productDetails = !$this->productDetails;
-    }
-
-    public function toggleFavourite($productId = null)
+   public function toggleFavourite($productId)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('message', 'Please login to view your favorites');
         }
 
-        $targetId = $productId ?? $this->currentVideoId;
-        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
+        if (!$productId) {
             session()->flash('error', 'Product not found');
             return;
         }
 
         $userId = Auth::id();
-        $isFavorite = $this->favourite[$targetId];
 
-        try {
-            if ($isFavorite) {
-                FavouretReel::where('user_id', $userId)
-                    ->where('product_id', $targetId)
-                    ->delete();
-                $this->favourite[$targetId] = false;
-                session()->flash('message', 'Removed from favorites');
-            } else {
-                FavouretReel::create([
-                    'user_id' => $userId,
-                    'product_id' => $targetId,
-                    'created_by' => $userId,
-                ]);
-                $this->favourite[$targetId] = true;
-                session()->flash('message', 'Added to favorites');
-            }
+        $check = FavouretReel::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
 
-            // Update videos array
-            foreach ($this->videos as &$video) {
-                if ($video['id'] == $targetId) {
-                    $video['favourite'] = $this->favourite[$targetId];
-                    break;
-                }
-            }
-            unset($video);
-
-        } catch (\Exception $e) {
-            session()->flash('error', 'An error occurred while updating favorites');
+        if ($check) {
+            $check->force();
+            session()->flash('message', 'Removed from favorites');
+        } else {
+            FavouretReel::create([
+                'user_id' => $userId,
+                'product_id' => $productId,
+                'created_by' => $userId,
+            ]);
+            session()->flash('message', 'Added to favorites');
         }
     }
-
-    public function switchToProduct($productId)
-    {
-        return redirect()->route('product', ['id' => $productId]);
-    }
-
-    public function toggleMute()
-    {
-        $this->isMuted = !$this->isMuted;
-        if (!$this->isMuted && $this->volume == 0) {
-            $this->volume = 0.5;
-        }
-    }
-
-    public function setVolume($level)
-    {
-        $this->volume = max(0.0, min(1.0, (float) $level));
-        $this->isMuted = ($this->volume === 0);
-    }
-
-    public function getSearchSummary()
-    {
-        $summary = [];
-        
-        if (!empty($this->searchTerm)) {
-            $summary[] = "'{$this->searchTerm}'";
-        }
-        
-        if (!empty($this->searchRoom)) {
-            $summary[] = "{$this->searchRoom} " . ($this->searchRoom > 1 ? 'rooms' : 'room');
-        }
-        
-        if (!empty($this->searchCity)) {
-            $city = City::find($this->searchCity);
-            if ($city) {
-                $summary[] = "in {$city->name}";
-            }
-        }
-        
-        if ($this->searchType !== '') {
-            $summary[] = "for " . ($this->searchType == ProductModel::TYPE_RENT ? 'rent' : 'sale');
-        }
-        
-        return empty($summary) ? '' : 'Showing results ' . implode(', ', $summary);
-    }
-
+    /**
+     * Render the Blade view
+     */
     public function render()
     {
         return view('livewire.frontend.product', [
             'videos' => $this->videos,
-            'searchSummary' => $this->getSearchSummary(),
+            'images' => $this->images,
+            'allMedia' => $this->allMedia,
+            'productData' => $this->productData,
+            'showMergedView' => $this->showMergedView,
         ]);
     }
 }
