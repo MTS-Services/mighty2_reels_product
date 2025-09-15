@@ -4,7 +4,6 @@ namespace App\Livewire\Frontend;
 
 use App\Models\Product;
 use App\Models\FavouretReel;
-use App\Models\City;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -20,64 +19,10 @@ class Home extends Component
     public $volume = 1.0;
     public $isMuted = false;
     public $videos = [];
-    
-    // Search properties
-    public $searchTerm = '';
-    public $searchRoom = '';
-    public $searchCity = '';
-    public $searchType = '';
-    public $noResults = false;
-    public $searchApplied = false;
-
-    protected $listeners = ['search-updated' => 'handleSearch'];
 
     public function mount()
     {
-        $this->loadVideos();
-    }
-
-    public function loadVideos($search = null)
-    {
-        $query = Product::with(['reels', 'images', 'city'])->active()->orderBy('sort_order');
-        
-        // Apply search filters if provided
-        if ($search) {
-            $this->searchTerm = $search['search'] ?? '';
-            $this->searchRoom = $search['room'] ?? '';
-            $this->searchCity = $search['city'] ?? '';
-            $this->searchType = $search['type'] ?? '';
-            
-            // Search by title or description
-            if (!empty($this->searchTerm)) {
-                $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
-                });
-            }
-            
-            // Filter by room count
-            if (!empty($this->searchRoom)) {
-                $query->where('room', $this->searchRoom);
-            }
-            
-            // Filter by city
-            if (!empty($this->searchCity)) {
-                $query->where('city_id', $this->searchCity);
-            }
-            
-            // Filter by type (rent/sale)
-            if ($this->searchType !== '') {
-                $query->where('type', $this->searchType);
-            }
-            
-            $this->searchApplied = !empty($this->searchTerm) || !empty($this->searchRoom) || !empty($this->searchCity) || $this->searchType !== '';
-        } else {
-            $this->searchApplied = false;
-        }
-        
-        $products = $query->get();
-        
-        $this->noResults = $products->isEmpty() && $this->searchApplied;
+        $products = Product::with(['reels', 'images'])->active()->orderBy('sort_order')->get();
         
         $userFavorites = [];
         if (Auth::check()) {
@@ -86,7 +31,6 @@ class Home extends Component
                 ->toArray();
         }
 
-        $this->videos = [];
         foreach ($products as $product) {
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
@@ -99,41 +43,12 @@ class Home extends Component
                 'title' => $product->title,
                 'description' => $product->description,
                 'favourite' => $isFavorite,
-                'room' => $product->room,
-                'city' => $product->city?->name ?? 'N/A',
-                'type' => $product->type_label,
-                'price' => $product->price,
             ];
         }
 
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
-        } else {
-            $this->currentVideoId = null;
         }
-        
-        // Dispatch event to update the video player
-        $this->dispatch('videos-updated');
-    }
-
-    public function handleSearch($searchData)
-    {
-        $this->loadVideos($searchData);
-    }
-
-    public function clearSearch()
-    {
-        $this->searchTerm = '';
-        $this->searchRoom = '';
-        $this->searchCity = '';
-        $this->searchType = '';
-        $this->searchApplied = false;
-        $this->noResults = false;
-        
-        $this->loadVideos();
-        
-        // Notify header to clear its search fields
-        $this->dispatch('searchCleared');
     }
 
     public function updateCurrentVideo($videoId)
@@ -191,6 +106,7 @@ class Home extends Component
         }
     }
 
+    // Add method to navigate to product page
     public function viewProduct($productId)
     {
         return redirect()->route('product', ['id' => $productId]);
