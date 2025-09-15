@@ -22,12 +22,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd
 
-
-# Install Node.js 20 LTS for better performance
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install Node.js 20 LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
@@ -51,17 +49,14 @@ RUN mkdir -p storage/framework/{views,sessions,cache} \
 RUN composer install --no-dev --optimize-autoloader
 
 # Install npm dependencies and build assets
-RUN npm install && npm run build
+RUN npm install
+RUN npm run build
 
 # Laravel Artisan commands
-RUN php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
-    && php artisan migrate --force || true \
-    && php artisan optimize:clear
+RUN php artisan config:clear && php artisan route:clear && php artisan view:clear
+RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
+RUN php artisan migrate --force || true
+RUN php artisan optimize:clear
 
 # Configure Nginx and Supervisor
 RUN rm -f /etc/nginx/sites-enabled/default
