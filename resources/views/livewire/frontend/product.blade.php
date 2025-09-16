@@ -284,12 +284,11 @@
         <!-- Main Content Container -->
         <div class="relative w-full mx-auto h-full  scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
-
             <!-- Regular Video View -->
             <div x-show="!$wire.showMergedView"
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
 
-                <template x-for="video in displayVideos" :key="video.id + '-' + (video.reel_id || 'default')">
+                <template x-for="video in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
                     <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
                         x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()">
 
@@ -298,47 +297,51 @@
                                 class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
 
                                 <!-- Volume Control -->
-                                <div class="absolute top-4 left-4 z-[5000]">
-                                    <div class="group flex items-center gap-2">
-                                        <button @click.stop="toggleMute()"
-                                            class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
-                                            <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="currentColor">
-                                                <path
-                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                                            </svg>
-                                            <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
-                                                height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                <path
-                                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                                            </svg>
-                                            <svg x-show="volume === 0 || isMuted" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="currentColor">
-                                                <path
-                                                    d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-                                            </svg>
-                                        </button>
+                                <!-- Volume Control (only for videos) -->
+                                <template x-if="video.type === 'video'">
+                                    <div class="absolute top-4 left-4 z-[5000]">
+                                        <div class="group flex items-center gap-2">
+                                            <button @click.stop="toggleMute()"
+                                                class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
+                                                <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="currentColor">
+                                                    <path
+                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                                                </svg>
+                                                <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
+                                                    height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path
+                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                                                </svg>
+                                                <svg x-show="volume === 0 || isMuted" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="currentColor">
+                                                    <path
+                                                        d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                                                </svg>
+                                            </button>
 
-                                        <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden"
-                                            @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
-                                            x-ref="topVolumeSlider">
-                                            <div class="absolute top-1/2 -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
-                                                :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
-                                            <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
-                                                :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
+                                            <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden"
+                                                @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
+                                                x-ref="topVolumeSlider">
+                                                <div class="absolute top-1/2 -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
+                                                    :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
+                                                <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
+                                                    :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </template>
+
 
                                 <!-- Video Element -->
                                 <template x-if="video.url && video.type === 'video'">
                                     <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                        @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
-                                        @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
-                                        @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
-                                        @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
-                                        playsinline autoplay muted>
+                                        @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()"
+                                        @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
+                                        @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
+                                        @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
+                                        class="w-full h-full object-cover" loop playsinline autoplay muted>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
@@ -391,10 +394,10 @@
                                 <!-- Media Info Overlay -->
                                 <div
                                     class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                    
+
                                     <!-- Enhanced Progress Bar (only for videos) -->
                                     <div x-show="video.type === 'video'" class="relative mb-2">
-                                        <div class="flex items-center space-x-3">
+                                        <div class="flex items-start space-x-3">
                                             <button @click="togglePlay()"
                                                 class="text-white hover:text-orange-500 transition-colors">
                                                 <svg x-show="!isPlaying" width="20" height="20"
@@ -402,34 +405,37 @@
                                                     <path d="M8 5v14l11-7z" />
                                                 </svg>
                                                 <svg x-show="isPlaying" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="currentColor"
-                                                    class="text-orange-500">
+                                                    viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
                                                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                                 </svg>
                                             </button>
 
-                                            <div class="flex-1 relative">
+                                            <div class="flex-1 relative mt-1">
                                                 <!-- Thumbnail Preview -->
-                                                <div class="thumbnail-preview" x-ref="thumbnailPreview" x-show="showThumbnail">
-                                                    <canvas x-ref="thumbnailCanvas" width="120" height="80"></canvas>
-                                                    <div class="thumbnail-time" x-text="formatTime(thumbnailTime)"></div>
+                                                <div class="thumbnail-preview" x-ref="thumbnailPreview"
+                                                    x-show="showThumbnail">
+                                                    <canvas x-ref="thumbnailCanvas" width="120"
+                                                        height="80"></canvas>
+                                                    <div class="thumbnail-time" x-text="formatTime(thumbnailTime)">
+                                                    </div>
                                                 </div>
 
                                                 <!-- Progress Container -->
-                                                <div class="progress-container" 
-                                                     x-ref="progressContainer"
-                                                     @mouseenter="handleProgressHover(true)"
-                                                     @mouseleave="handleProgressHover(false)"
-                                                     @mousemove="handleProgressMouseMove($event)"
-                                                     @mousedown="startProgressDrag($event)"
-                                                     @click="setProgress($event)">
-                                                    
+                                                <div class="progress-container" x-ref="progressContainer"
+                                                    @mouseenter="handleProgressHover(true)"
+                                                    @mouseleave="handleProgressHover(false)"
+                                                    @mousemove="handleProgressMouseMove($event)"
+                                                    @mousedown="startProgressDrag($event)"
+                                                    @click="setProgress($event)">
+
                                                     <!-- Buffer Bar -->
-                                                    <div class="progress-buffer" :style="{ width: bufferProgress + '%' }"></div>
-                                                    
+                                                    <div class="progress-buffer"
+                                                        :style="{ width: bufferProgress + '%' }"></div>
+
                                                     <!-- Progress Fill -->
                                                     <div class="progress-fill" :style="{ width: progress + '%' }">
-                                                        <div class="progress-handle" x-show="showProgressHandle"></div>
+                                                        <div class="progress-handle" x-show="showProgressHandle">
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -639,12 +645,12 @@
                 // Enhanced thumbnail generation
                 generateThumbnails() {
                     if (this.thumbnailsGenerated) return;
-                    
+
                     const video = this.$refs.mainVideo;
                     if (!video || !video.duration) return;
 
                     this.thumbnailsGenerated = true;
-                    
+
                     // Add buffer progress tracking
                     video.addEventListener('progress', () => {
                         if (video.buffered.length > 0) {
@@ -661,7 +667,7 @@
 
                 handleProgressMouseMove(event) {
                     if (!this.showProgressHandle && !this.isDraggingProgress) return;
-                    
+
                     const container = this.$refs.progressContainer;
                     const video = this.$refs.mainVideo;
                     if (!container || !video) return;
@@ -669,7 +675,7 @@
                     const rect = container.getBoundingClientRect();
                     const pos = (event.clientX - rect.left) / rect.width;
                     const time = pos * video.duration;
-                    
+
                     this.thumbnailTime = Math.max(0, Math.min(video.duration, time));
                     this.showThumbnailPreview(event.clientX - rect.left, time);
                 },
@@ -678,17 +684,17 @@
                     const preview = this.$refs.thumbnailPreview;
                     const canvas = this.$refs.thumbnailCanvas;
                     const container = this.$refs.progressContainer;
-                    
+
                     if (!preview || !canvas || !container) return;
 
                     // Position the preview
                     const containerRect = container.getBoundingClientRect();
                     const previewWidth = 120;
                     let leftPos = x - (previewWidth / 2);
-                    
+
                     // Keep preview within bounds
                     leftPos = Math.max(0, Math.min(containerRect.width - previewWidth, leftPos));
-                    
+
                     preview.style.left = leftPos + 'px';
                     preview.style.display = 'block';
                     this.showThumbnail = true;
@@ -700,23 +706,23 @@
                 updateThumbnailCanvas(time) {
                     const video = this.$refs.mainVideo;
                     const canvas = this.$refs.thumbnailCanvas;
-                    
+
                     if (!video || !canvas) return;
-                    
+
                     const ctx = canvas.getContext('2d');
-                    
+
                     // Use the current video element directly instead of creating a new one
                     const currentTime = video.currentTime;
                     const wasPlaying = !video.paused;
-                    
+
                     // Temporarily seek to the desired time
                     video.currentTime = time;
-                    
+
                     const drawFrame = () => {
                         try {
                             // Clear canvas
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            
+
                             // Draw the current video frame
                             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         } catch (error) {
@@ -726,27 +732,29 @@
                             ctx.fillStyle = '#ff6b35';
                             ctx.font = '12px Arial';
                             ctx.textAlign = 'center';
-                            ctx.fillText('Preview', canvas.width/2, canvas.height/2);
+                            ctx.fillText('Preview', canvas.width / 2, canvas.height / 2);
                         }
-                        
+
                         // Restore original time and play state
                         video.currentTime = currentTime;
                         if (wasPlaying) {
                             video.play();
                         }
                     };
-                    
+
                     // Wait for the seek to complete
-                    video.addEventListener('seeked', drawFrame, { once: true });
+                    video.addEventListener('seeked', drawFrame, {
+                        once: true
+                    });
                 },
 
                 startProgressDrag(event) {
                     this.isDraggingProgress = true;
                     this.showProgressHandle = true;
-                    
+
                     document.addEventListener('mousemove', this.handleProgressDrag.bind(this));
                     document.addEventListener('mouseup', this.stopProgressDrag.bind(this));
-                    
+
                     // Prevent text selection while dragging
                     event.preventDefault();
                     document.body.style.userSelect = 'none';
@@ -754,7 +762,7 @@
 
                 handleProgressDrag(event) {
                     if (!this.isDraggingProgress) return;
-                    
+
                     const container = this.$refs.progressContainer;
                     const video = this.$refs.mainVideo;
                     if (!container || !video) return;
@@ -762,11 +770,11 @@
                     const rect = container.getBoundingClientRect();
                     const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
                     const newTime = pos * video.duration;
-                    
+
                     video.currentTime = newTime;
                     this.currentTime = newTime;
                     this.progress = pos * 100;
-                    
+
                     // Update thumbnail preview during drag
                     this.thumbnailTime = newTime;
                     this.showThumbnailPreview(event.clientX - rect.left, newTime);
@@ -775,10 +783,10 @@
                 stopProgressDrag() {
                     this.isDraggingProgress = false;
                     this.showThumbnail = false;
-                    
+
                     document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
                     document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
-                    
+
                     // Re-enable text selection
                     document.body.style.userSelect = '';
                 },
@@ -786,7 +794,7 @@
                 // Utility function to format time
                 formatTime(seconds) {
                     if (!seconds || isNaN(seconds)) return '00:00';
-                    
+
                     const mins = Math.floor(seconds / 60);
                     const secs = Math.floor(seconds % 60);
                     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -836,7 +844,7 @@
                 updateProgress() {
                     const video = this.$refs.mainVideo;
                     if (!video || !video.duration || this.isDraggingProgress) return;
-                    
+
                     this.currentTime = video.currentTime;
                     if (video.duration > 0) {
                         this.progress = (video.currentTime / video.duration) * 100;
@@ -847,15 +855,15 @@
 
                 setProgress(event) {
                     if (this.isDraggingProgress) return; // Don't interfere with dragging
-                    
+
                     const video = this.$refs.mainVideo;
                     const progressBar = this.$refs.progressContainer;
                     if (!video || !progressBar) return;
-                    
+
                     const rect = progressBar.getBoundingClientRect();
                     const clientX = event.clientX || (event.touches && event.touches[0].clientX);
                     if (clientX === undefined) return;
-                    
+
                     const pos = (clientX - rect.left) / rect.width;
                     video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
                     this.updateProgress();
