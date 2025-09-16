@@ -12,12 +12,23 @@
                     </x-button>
 
                     @if (!Route::is('profile', 'products.show') && Route::is('home'))
-                        <div class="flex flex-col md:flex-row gap-4">
+                        <div x-data="{
+                            room: '',
+                            city: '',
+                            type: '',
+                            isSpinning: false,
+                            resetFilters() {
+                                this.room = '';
+                                this.city = '';
+                                this.type = '';
+                                this.isSpinning = true;
+                                setTimeout(() => this.isSpinning = false, 500);
+                            }
+                        }" class="flex flex-col md:flex-row gap-4">
 
-                            <!-- Rooms Select -->
-                            <select
-                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-6 py-2">
-                                <option value selected disabled="">Rooms</option>
+                            <select x-model="room"
+                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2">
+                                <option value="" selected disabled="">Rooms</option>
                                 @for ($room = 1; $room <= App\Models\Product::active()->max('room'); $room++)
                                     <option value="{{ $room }}">
                                         {{ $room . ' ' . ($room > 1 ? 'Rooms' : 'Room') }}
@@ -25,10 +36,9 @@
                                 @endfor
                             </select>
 
-                            <!-- City Select -->
-                            <select
-                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-6 py-2">
-                                <option value selected disabled="">City</option>
+                            <select x-model="city"
+                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2">
+                                <option value="" selected disabled="">City</option>
                                 @foreach (App\Models\City::active()->pluck('name', 'id') as $id => $name)
                                     <option value="{{ $id }}">
                                         {{ $name }}
@@ -36,19 +46,26 @@
                                 @endforeach
                             </select>
 
-                            <!-- Type Select -->
-                            <select
-                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1  px-6 py-2">
-                                <option value selected disabled="">Type</option>
+                            <select x-model="type"
+                                class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2">
+                                <option value="" selected disabled="">Type</option>
                                 <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
                                 <option value="{{ \App\Models\Product::TYPE_SALE }}">Sale</option>
                             </select>
 
+                            <div class="flex justify-center items-center">
+                                <button @click="resetFilters()" :class="{ 'rotate-180': isSpinning }"
+                                    class="p-2 text-gray-700  focus:outline-none transition-transform duration-300 ease-in-out">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     @endif
-
                 </div>
-
 
                 <div class="hidden lg:flex items-center gap-4 relative py-2"
                     x-on:click.away="openProfileDropdown = false">
@@ -144,31 +161,91 @@
         </div>
     </aside>
     @if (Route::is('home'))
-        {{-- Search Area --}}
-        <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area">
+        {{-- Search & Filters Area --}}
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area"
+            x-data="{
+                filterOpen: false,
+                room: '',
+                city: '',
+                type: '',
+                isSpinning: false,
+                resetFilters() {
+                    this.room = '';
+                    this.city = '';
+                    this.type = '';
+                    this.isSpinning = true;
+                    setTimeout(() => this.isSpinning = false, 500);
+                }
+            }">
+
             <div class="flex items-center gap-4">
-                <form class="flex-1">
-                    <input type="search" placeholder="Search for products..."
-                        class="w-full px-4 py-2 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal" />
-                </form>
-                <x-button variant="secondary" class="!rounded-full lg:hidden" x-on:click="filterOpen = !filterOpen">
-                    <flux:icon name="funnel" />
-                </x-button>
+
+                {{-- The main flex container for the search bar, filter options, and funnel icon. --}}
+                <div class="flex-1 flex items-center gap-4">
+
+                    {{-- Search form --}}
+                    <form class="flex-1" x-show="!filterOpen || window.innerWidth >= 1024"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                        <input type="search" placeholder="Search for products..."
+                            class="w-full px-4 py-2 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal" />
+                    </form>
+
+                    {{-- Filters and Refresh Button --}}
+                    <div x-show="filterOpen && window.innerWidth < 1024" x-cloak
+                        class="flex-1 flex items-center gap-2"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+                        <select x-model="room"
+                            class="select flex-1 focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1">
+                            <option value="" selected disabled>Rooms</option>
+                            @for ($room = 1; $room <= App\Models\Product::active()->max('room'); $room++)
+                                <option value="{{ $room }}">
+                                    {{ $room . ' ' . ($room > 1 ? 'Rooms' : 'Room') }}
+                                </option>
+                            @endfor
+                        </select>
+
+                        <select x-model="city"
+                            class="select flex-1 focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1">
+                            <option value="" selected disabled>City</option>
+                            @foreach (App\Models\City::active()->pluck('name', 'id') as $id => $name)
+                                <option value="{{ $id }}">
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select x-model="type"
+                            class="select flex-1 focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1">
+                            <option value="" selected disabled>Type</option>
+                            <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
+                            <option value="{{ \App\Models\Product::TYPE_SALE }}">Sale</option>
+                        </select>
+                        <button @click="resetFilters()" :class="{ 'rotate-180': isSpinning }"
+                            class="p-2 text-gray-700  focus:outline-none transition-transform duration-300 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Funnel button (mobile only) --}}
+                    <x-button variant="secondary" class="!rounded-full lg:hidden flex-shrink-0"
+                        x-on:click="filterOpen = !filterOpen">
+                        <flux:icon name="funnel" />
+                    </x-button>
+                </div>
             </div>
 
-            <div x-show="filterOpen" x-cloak x-transition:enter="transition-all duration-300 ease-in-out"
-                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                x-transition:leave="transition-all duration-300 ease-in-out" x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0" class="space-y-2">
-                <select
-                    class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal rounded-full w-full bg-orange-light/20">
-                    <option value="">Location</option>
-                    <option value="">1246, New York</option>
-                    <option value="">1346, New York</option>
-                    <option value="">1446, New York</option>
-                    <option value="">1546, New York</option>
-                </select>
-            </div>
         </div>
     @endif
+
 </div>
