@@ -89,7 +89,7 @@ class ProductReel extends Component
         $rules = [
             'productId' => 'required|exists:products,id',
             'status' => 'required|integer',
-            'file' => 'sometimes|required|mimes:mp4,avi,mov|max:51200',
+            'file' => 'sometimes|required|mimes:mp4,avi,mov,m4v|max:51200',
 
         ];
 
