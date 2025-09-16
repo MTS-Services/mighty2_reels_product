@@ -406,7 +406,7 @@
 
                                         <!-- Enhanced Progress Bar with Thumbnail Preview -->
                                         <div class="relative mb-2" x-show="video.file">
-                                            <div class="flex items-start space-x-3">
+                                            <div class="flex items-center space-x-3">
                                                 <button @click="togglePlay()"
                                                     class="text-white hover:text-orange-500 transition-colors">
                                                     <svg x-show="!isPlaying" width="20" height="20"
@@ -615,15 +615,39 @@
                     
                     const ctx = canvas.getContext('2d');
                     
-                    // Create a temporary video element for thumbnail capture
-                    const tempVideo = document.createElement('video');
-                    tempVideo.src = video.src;
-                    tempVideo.crossOrigin = 'anonymous';
-                    tempVideo.currentTime = time;
+                    // Use the current video element directly instead of creating a new one
+                    const currentTime = video.currentTime;
+                    const wasPlaying = !video.paused;
                     
-                    tempVideo.addEventListener('seeked', () => {
-                        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-                    }, { once: true });
+                    // Temporarily seek to the desired time
+                    video.currentTime = time;
+                    
+                    const drawFrame = () => {
+                        try {
+                            // Clear canvas
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Draw the current video frame
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        } catch (error) {
+                            // If drawing fails, show a placeholder
+                            ctx.fillStyle = '#4a4a4a';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#ff6b35';
+                            ctx.font = '12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('Preview', canvas.width/2, canvas.height/2);
+                        }
+                        
+                        // Restore original time and play state
+                        video.currentTime = currentTime;
+                        if (wasPlaying) {
+                            video.play();
+                        }
+                    };
+                    
+                    // Wait for the seek to complete
+                    video.addEventListener('seeked', drawFrame, { once: true });
                 },
 
                 startProgressDrag(event) {
