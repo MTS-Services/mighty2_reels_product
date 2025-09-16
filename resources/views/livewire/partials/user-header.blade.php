@@ -6,7 +6,7 @@
                     <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                     <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
-                <div class="items-center gap-9 flex-1 hidden lg:flex justify-between">
+                <div class="items-center gap-9 flex-1 -mr-10 hidden lg:flex justify-between">
                     <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
                         <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                     </x-button>
