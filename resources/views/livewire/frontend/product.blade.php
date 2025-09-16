@@ -104,7 +104,7 @@
         <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
             <!-- Up Arrow Button - Toggle Merged View -->
-            <div class="absolute bottom-[100px] z-50 right-8">
+            <div class="absolute bottom-[100px] z-50 right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
@@ -124,7 +124,7 @@
 
         <!-- Merged View Controls -->
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-[63px]! right-4 z-[5000] ">
+            <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
                 <!-- Close Merged View Button -->
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
@@ -136,6 +136,7 @@
                 <!-- Heart/Favorite Button -->
                 <button @click="$wire.toggleFavourite($wire.selectedProductId)"
                     :class="getCurrentVideoFavourite() ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                    :style="getCurrentVideoFavourite() ? 'animation: heart-pop 0.3s ease forwards;' : ''"
                     class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform">
                     <flux:icon name="heart" class="w-5 h-5" />
                 </button>
@@ -337,47 +338,61 @@
                     </template>
                 </div>
 
-                <div class="bg-gray-900/95 backdrop-blur-md p-6 border-t border-gray-700 shadow-lg">
+                <div class="bg-orange-light/20 p-4 shadow-sm rounded-2xl" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
+
                     @if ($productData)
-                        <div class="max-w-4xl mx-auto">
-                            <h2 class="text-3xl font-bold text-white mb-3 tracking-tight">{{ $productData->title }}
+                        <div class="max-w-3xl mx-auto">
+
+                            <!-- Title -->
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight ">
+                                {{ $productData->title }}
                             </h2>
-                            <div x-data="{ expanded: false }" class="space-y-2">
-                                <p x-bind:class="expanded ? '' : 'line-clamp-2'"
-                                    class="text-gray-300 leading-relaxed mb-1 text-lg transition-all duration-300">
+
+                            <!-- Badges -->
+                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                                <!-- Rooms -->
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+                                    {{ $productData->room }} {{ $productData->room > 1 ? 'Rooms' : 'Room' }}
+                                </span>
+
+                                <!-- Seller (or city if that's your data) -->
+                                @if ($productData->city)
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
+                                        {{ $productData->city->name }}
+                                    </span>
+                                @endif
+
+                                <!-- Type -->
+                                @if ($productData->type !== null)
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">
+                                        {{ $productData->type_label }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Price -->
+                            <div class="text-2xl font-bold text-orange-600 mb-2">
+                                @if ($productData->price)
+                                    ${{ number_format($productData->price, 2) }}
+                                @endif
+                            </div>
+
+                            <!-- Description -->
+                            <div class="space-y-2 text-gray-700 leading-relaxed">
+                                <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
                                     {{ $productData->description }}
                                 </p>
 
-                                <!-- Show See more / See less button only if description is long -->
                                 @if (strlen($productData->description) > 100)
-                                    <button @click="expanded = !expanded"
-                                        class="text-orange-400 hover:underline text-sm font-medium">
+                                    <button @click="toggleDescription"
+                                        class="text-orange-500 hover:text-orange-600 font-medium text-sm">
                                         <span x-text="expanded ? 'See less' : 'See more'"></span>
                                     </button>
                                 @endif
                             </div>
-
-                            <!-- Add Tailwind plugin for line-clamp in your tailwind.config.js -->
-                            <!-- npm install @tailwindcss/line-clamp -->
-
-                            <div class="flex flex-col mt-2 sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div class="text-orange-400 font-semibold text-2xl">
-                                    @if ($productData->price)
-                                        ${{ number_format($productData->price, 2) }}
-                                    @endif
-                                </div>
-                                @if ($productData->type !== null)
-                                    <div
-                                        class="mt-2 inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl text-sm text-gray-300">
-                                        <span class="uppercase tracking-wide text-gray-400">Type:</span>
-                                        <span class="text-orange-300 font-medium">{{ $productData->type_label }}</span>
-                                    </div>
-                                @endif
-                                <div class="text-gray-400 text-sm">
-                                    {{ $productData->city ? $productData->city->name : '' }}
-                                </div>
-                            </div>
-
 
                         </div>
                     @else
@@ -386,6 +401,8 @@
                         </div>
                     @endif
                 </div>
+
+
             </div>
 
         </div>
