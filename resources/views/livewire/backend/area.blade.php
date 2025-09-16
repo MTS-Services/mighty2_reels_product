@@ -1,6 +1,6 @@
 <section class="font-playfair max-w-7xl mx-auto px-4 py-6">
     <div class="flex items-center justify-between py-4">
-        <h2 class="font-medium text-3xl text-black mb-6">Manage your areas</h2>
+        <h2 class="font-medium text-xl sm:text-3xl text-black mb-0 sm:mb-6">Manage your areas</h2>
         <x-button wire:click="$set('showModal', true)">
             <flux:icon name="plus-circle" class="h-5 w-5" />
             Add Area

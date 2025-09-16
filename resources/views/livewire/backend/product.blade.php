@@ -25,15 +25,15 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         @forelse($products as $product)
             <div
-                class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[340px] lg:h-[380px] flex flex-col">
+                class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm lg:h-[430px] xl:h-[380px] flex flex-col">
                 <div class="aspect-video bg-gray-100 p-4">
                     @if ($product->images->count() > 0)
                         <a href="{{ route('admin.details') }}">
                             <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
-                                class="w-full h-48 object-cover rounded">
+                                class="w-full md:h-60 lg:h-48 object-cover rounded">
                         </a>
                     @else
                         <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">

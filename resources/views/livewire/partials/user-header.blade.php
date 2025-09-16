@@ -108,9 +108,9 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <x-button variant="secondary" class="!rounded-full !hidden md:!flex lg:!hidden">
+                    {{-- <x-button variant="secondary" class="!rounded-full !hidden md:!flex lg:!hidden">
                         <flux:icon name="heart" class="fill-orange-normal" />
-                    </x-button>
+                    </x-button> --}}
 
                     <x-button x-on:click="sidebarOpen = true" size="lg" variant="secondary" class="lg:hidden">
                         <flux:icon name="bars-4" />
@@ -121,15 +121,15 @@
     </header>
 
     {{-- Sidebar --}}
-    <aside class="fixed inset-0 z-50" x-show="sidebarOpen" x-cloak
+    <aside class="fixed inset-0 z-[50000]!" x-show="sidebarOpen" x-cloak
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
         x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
         x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"
         @click.outside="sidebarOpen = false">
-        <div class="relative w-full h-full">
+        <div class="relative w-full h-full ">
             <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
                 x-on:click="sidebarOpen = false"></button>
-            <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
+            <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[500]">
                 <div class="flex items-center justify-between px-4 py-3">
                     <a class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
@@ -146,7 +146,13 @@
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
                     </x-button>
-                    <x-button
+                    @if (is_admin())
+                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                    href="{{ route('admin.products') }}" wire:navigate>
+                                    <flux:icon name="box" /> Dashboard
+                                </x-button>
+                            @endif
+                    <x-button href="{{ route('favorites') }}"
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
