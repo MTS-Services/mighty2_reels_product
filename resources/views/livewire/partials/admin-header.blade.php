@@ -96,21 +96,27 @@
                 </div>
                 <flux:separator variant="subtle" class="my-2" />
                 <div class="px-4 flex flex-col items-start gap-4 flex-1">
-                    <x-button
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 ring-orange-normal!' : '' }}"
+                    <x-button href="{{ route('admin.area') }}" wire:navigate
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'area' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                        size="lg" linkText>
+                        <flux:icon name="map" /> Area
+                    </x-button>
+                    <x-button href="{{ route('admin.product.reels') }}" wire:navigate
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="film" /> Reels
                     </x-button>
                     <x-button
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'product' ? 'ring-2 ring-orange-normal!' : '' }}"
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'product' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
                     </x-button>
                     <x-button href="{{ route('profile') }}" wire:navigate
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
                     </x-button>
+
                     <flux:spacer />
                     <flux:separator variant="subtle" class="my-2" />
                     <x-button class="w-full mb-3" variant="secondary" size="lg">
