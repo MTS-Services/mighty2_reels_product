@@ -344,12 +344,12 @@
                         <div class="max-w-3xl mx-auto">
 
                             <!-- Title -->
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight ">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
                                 {{ $productData->title }}
                             </h2>
 
                             <!-- Badges -->
-                            <div class="flex flex-wrap items-center gap-3 mb-3">
+                            <div class="flex flex-wrap items-center gap-3 mb-3 animate-fade-in-up-delayed">
                                 <!-- Rooms -->
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
@@ -374,14 +374,14 @@
                             </div>
 
                             <!-- Price -->
-                            <div class="text-2xl font-bold text-orange-600 mb-2">
+                            <div class="text-2xl font-bold text-orange-600 mb-2 animate-fade-in-up-delayed">
                                 @if ($productData->price)
                                     ${{ number_format($productData->price, 2) }}
                                 @endif
                             </div>
 
                             <!-- Description -->
-                            <div class="space-y-2 text-gray-700 leading-relaxed">
+                            <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
                                 <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
                                     {{ $productData->description }}
                                 </p>

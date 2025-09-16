@@ -145,7 +145,7 @@
                 </div>
 
                 <!-- Arrow Button - Navigate to Product Page -->
-               <div class="absolute bottom-[70px] z-50 right-8">
+               <div class="absolute bottom-[70px] z-50 right-8 arrow-bounce">
                     <button @click="$wire.goToProduct()"
                         class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                         <flux:icon name="arrow-right" class="w-5 h-5" />
