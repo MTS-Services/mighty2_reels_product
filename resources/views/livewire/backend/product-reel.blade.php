@@ -25,70 +25,71 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        @forelse($reels as $reel)
-            <div
-                class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[340px] lg:h-[380px] flex flex-col">
-                <div class="aspect-video bg-gray-100 p-4">
-                    @if ($reel->file)
-                        <video controls class="w-full h-48 object-cover rounded">
-                            <source src="{{ $reel->url }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    @else
-                        <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                        </div>
-                    @endif
-                </div>
+ <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+    @forelse($reels as $reel)
+        <div class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm h-[400px]  flex flex-col">
+            <div class="aspect-video bg-gray-100">
+                @if ($reel->file)
+                    <video controls class="w-full h-56 object-cover rounded-t-lg">
+                        <source src="{{ $reel->url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @else
+                    <div class="w-full h-full bg-gray-200 rounded-t-lg flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                @endif
+            </div>
 
-                <div class="p-4 flex flex-col flex-1">
+            <div class="p-4 flex flex-col flex-1">
+                <div class="flex-grow">
                     <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-gray-900">{{ $reel->product->title ?? 'N/A' }}</h3>
+                        <h3 class="font-semibold text-gray-900 line-clamp-2">
+                            {{ $reel->product->title ?? 'N/A' }}
+                        </h3>
                         <span
                             class="px-2 py-1 text-xs rounded-full {{ $reel->status == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $reel->status == 1 ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                     <p class="text-sm text-gray-600 mb-2 line-clamp-2">
-                        {{ Str::limit($reel->product->description, 80) }}
+                        {{ Str::limit($reel->product->description ?? '', 100) }}
                     </p>
-                    <div class="mt-auto flex items-center justify-between">
-                        <x-button wire:click="editReel({{ $reel->id }})" variant="secondary">
-                            <flux:icon name="pencil" class="h-5 w-5" />
-                            Edit
-                        </x-button>
-                        <x-button wire:click="deleteReel({{ $reel->id }})" variant="secondary"
-                            wire:confirm="Are you sure you want to delete this reel?">
-                            <flux:icon name="trash" class="h-5 w-5" />
-                            Delete
-                        </x-button>
-                    </div>
+                </div>
+                <div class="mt-auto flex items-center justify-between space-x-2">
+                    <x-button wire:click="editReel({{ $reel->id }})" variant="secondary" class="flex-1">
+                        <flux:icon name="pencil" class="h-5 w-5 mr-1" />
+                        Edit
+                    </x-button>
+                    <x-button wire:click="deleteReel({{ $reel->id }})" variant="secondary"
+                        wire:confirm="Are you sure you want to delete this reel?" class="flex-1">
+                        <flux:icon name="trash" class="h-5 w-5 mr-1" />
+                        Delete
+                    </x-button>
                 </div>
             </div>
-
-        @empty
-            <div class="col-span-full text-center py-12">
-                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                    </path>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No reels found</h3>
-                <p class="text-gray-500 mb-4">Get started by adding your first reel.</p>
-                <x-button wire:click="openModal">
-                    <flux:icon name="plus-circle" class="h-5 w-5" />
-                    Add new reel
-                </x-button>
-            </div>
-        @endforelse
-    </div>
+        </div>
+    @empty
+        <div class="col-span-full text-center py-12">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                </path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No reels found</h3>
+            <p class="text-gray-500 mb-4">Get started by adding your first reel.</p>
+            <x-button wire:click="openModal">
+                <flux:icon name="plus-circle" class="h-5 w-5 mr-1" />
+                Add new reel
+            </x-button>
+        </div>
+    @endforelse
+</div>
 
     @if ($reels->hasPages())
         <div class="flex justify-between items-center">
