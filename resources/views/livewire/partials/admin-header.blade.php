@@ -70,7 +70,7 @@
 
                 </div>
 
-                <x-button x-on:click="sidebarOpen = true" size="lg" variant="secondary" class="lg:hidden">
+                <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
                     <flux:icon name="bars-4" />
                 </x-button>
             </nav>
@@ -86,7 +86,7 @@
                 x-on:click="sidebarOpen = false"></button>
             <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
                 <div class="flex items-center justify-between px-4 py-3">
-                    <a class="inline-flex items-center justify-start gap-4">
+                    <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                         <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>

@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class="max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -233,7 +233,7 @@
 
         </div>
 
-        <div x-show="$wire.showMergedView">
+        <div x-show="$wire.showMergedView" >
             <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
@@ -274,10 +274,10 @@
             </div>
         </div>
 
-        <div class="relative w-full mx-auto h-full  scrollbar-hide"
+        <div class="relative w-full mx-auto h-full mt-12 sm:mt-0  scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
 
                 <template x-for="(video, index) in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
                     <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
@@ -286,7 +286,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-[5000]">
