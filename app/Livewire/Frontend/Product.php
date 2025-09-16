@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('app', ['title' => 'Product', 'page_slug' => 'Product'])]
+#[Layout('app', ['title' => 'Product', 'page_slug' => 'product'])]
 class Product extends Component
 {
     public $productDetails = true; // Show product details first

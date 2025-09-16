@@ -193,7 +193,6 @@
     </style>
 
     <div class="relative h-full  max-w-lg mx-auto">
-
         <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
             <!-- Up Arrow Button - Toggle Merged View -->

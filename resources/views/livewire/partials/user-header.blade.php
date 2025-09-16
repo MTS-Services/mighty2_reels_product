@@ -128,18 +128,18 @@
                 <flux:separator variant="subtle" class="my-2" />
                 <div class="px-4 flex flex-col items-start gap-4 flex-1">
                     <x-button href="{{ route('profile') }}" wire:navigate
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'profile' ? 'ring-2 ring-orange-normal!' : '' }}"
+                        class="text-black !py-1 w-full justify-start  {{ $pageSlug == 'profile' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="user-circle" /> Profile
                     </x-button>
                     @if (is_admin())
-                        <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                            href="{{ route('admin.products') }}" wire:navigate>
+                        <x-button class="w-full !justify-start  {{ $pageSlug == 'product' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"  size="lg"  href="{{ route('admin.products') }}" wire:navigate linkText >
                             <flux:icon name="box" /> Dashboard
                         </x-button>
                     @endif
+
                     <x-button href="{{ route('favorites') }}"
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 ring-orange-normal!' : '' }}"
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
                     </x-button>
