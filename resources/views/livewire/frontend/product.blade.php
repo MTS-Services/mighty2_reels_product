@@ -475,7 +475,7 @@
                                 <div class="relative w-full h-44">
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
-                                        loop autoplay controls></video>
+                                        loop ></video>
                                 </div>
                             </template>
 
