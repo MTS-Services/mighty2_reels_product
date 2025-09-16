@@ -17,72 +17,77 @@
                 <!-- Product Image Section -->
                 <div>
                     <!-- Main Product Image -->
-                    <div class=" from-orange-50 to-red-50 rounded-2xl p-8 mb-6">
-                        <img src="{{ asset('assets/images/Frames.png') }}" alt="">
-                    </div>
+                    {{-- <div class=" from-orange-50 to-red-50 rounded-2xl p-8 mb-6">
+                        <img src="{{ storage_url($product->images->first()->file)}}" alt="{{$product->title}}">
+                    </div> --}}
 
                     <!-- Thumbnail Navigation -->
-                    <div class="flex space-x-3 justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mt-8 h-6 w-6 text-orange-500 mr-2" fill="none"
-                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <div
-                            class="w-16 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center hover:border-orange-300 cursor-pointer">
-                            <div class="w-10 h-12 bg-gradient-to-r from-orange-400 to-green-400 rounded">
-                                <img src="{{ asset('assets/images/Frames.png') }}" alt="Frame">
 
-                            </div>
-                        </div>
-                        <div
-                            class="w-16 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center hover:border-orange-300 cursor-pointer">
-                            <div class="w-10 h-12 bg-gradient-to-r from-orange-400 to-green-400 rounded">
-                                <img src="{{ asset('assets/images/Frames.png') }}" alt="Frame">
+                   <div class="bg-gradient-to-br rounded-2xl  mb-4 flex items-center justify-center">
+    @if ($activeType === 'image')
+        <img src="{{ storage_url($activeMedia) }}" alt="{{ $product->title }}" class="w-full h-80 object-contain rounded">
+    @elseif ($activeType === 'video')
+        <video class="w-full h-80 object-contain rounded" controls>
+            <source src="{{ storage_url($activeMedia) }}" type="video/mp4">
+        </video>
+    @endif
+</div>
 
-                            </div>
-                        </div>
-                        <div
-                            class="w-16 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center hover:border-orange-300 cursor-pointer">
-                            <div class="w-10 h-12 bg-gradient-to-r from-orange-400 to-green-400 rounded">
-                                <img src="{{ asset('assets/images/Frames.png') }}" alt="Frame">
+<div class="relative flex items-center">
+    <!-- Left Arrow -->
+    <button onclick="document.getElementById('thumbSlider').scrollBy({ left: -100, behavior: 'smooth' })"
+            class="absolute left-0 z-10  rounded-full p-2  ">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </button>
 
-                            </div>
-                        </div>
+    <!-- Thumbnails Slider -->
+    <div id="thumbSlider" class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8">
+        <!-- Images Thumbnails -->
+        @foreach ($product->images as $image)
+            <div wire:click="changeMedia('{{ $image->file }}', 'image')"
+                 class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                 {{ $activeMedia === $image->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+                <img src="{{ storage_url($image->file) }}" class="w-full h-full object-cover rounded">
+            </div>
+        @endforeach
 
-                        <div
-                            class="w-16 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center hover:border-orange-300 cursor-pointer">
+        <!-- Videos Thumbnails -->
+        @foreach ($videos as $video)
+            <div wire:click="changeMedia('{{ $video->file }}', 'video')"
+                 class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                 {{ $activeMedia === $video->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+                <video class="w-full h-full object-cover rounded">
+                    <source src="{{ storage_url($video->file) }}" type="video/mp4">
+                </video>
+            </div>
+        @endforeach
+    </div>
 
-                            <div class="w-10 h-12 bg-gradient-to-r from-orange-400 to-green-400 rounded">
-                                <img src="{{ asset('assets/images/Frames.png') }}" alt="Frame">
+    <!-- Right Arrow -->
+    <button onclick="document.getElementById('thumbSlider').scrollBy({ left: 100, behavior: 'smooth' })"
+            class="absolute right-0 z-10  rounded-full p-2 ">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+    </button>
+</div>
 
-                            </div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mt-8 h-6 w-6 text-orange-500 mr-2" fill="none"
-                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
 
-                    </div>
+
+
                 </div>
 
                 <!-- Product Details Section -->
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-4">Vitamin C-100ML-Original</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $product->title }}</h1>
 
                     <!-- Product Description -->
                     <div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
-                        <p class="text-gray-700 leading-relaxed mb-3">
-                            Vitamin C, also known as ascorbic acid, is a vital nutrient for various bodily functions,
-                            including the maintenance of healthy skin, blood vessels, bones, and cartilage. It also
-                            helps with wound healing and acts as an antioxidant.
-                            Read more...Vitamin C, also known as ascorbic acid, is a vital nutrient for various bodily
-                            functions, including the maintenance of healthy skin, blood vessels, bones, and cartilage.
-                            It also helps with wound healing and acts as an antioxidant.Vitamin C, also known as
-                            ascorbic acid, is a vital nutrient for various bodily functions, including the maintenance
-                            of healthy skin, blood vessels, bones, and cartilage. It also helps with wound healing and
-                            acts as an antioxidant.Vitamin C, also known as ascorbic acid, .
+                        <p class="text-gray-700 leading-relaxed mb-3">{{ $product->description }}
                         </p>
                         <button class="text-orange-500 font-medium hover:text-orange-600">Read more...</button>
                     </div>

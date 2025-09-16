@@ -31,7 +31,7 @@
                 class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm lg:h-[430px] xl:h-[380px] flex flex-col">
                 <div class="aspect-video bg-gray-100 p-4">
                     @if ($product->images->count() > 0)
-                        <a href="{{ route('admin.details') }}">
+                        <a href="{{ route('admin.details',['productId' => $product->id]) }}">
                             <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
                                 class="w-full md:h-60 lg:h-48 object-cover rounded">
                         </a>

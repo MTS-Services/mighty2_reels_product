@@ -42,7 +42,7 @@ class ProductImage extends BaseModel
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
-
+  
     /**
      * Get the full URL of the image.
      * This handles both 'file' and 'image' attributes for flexibility
