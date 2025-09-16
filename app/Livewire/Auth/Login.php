@@ -37,6 +37,7 @@ class Login extends Component
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
+                'password' => __('auth.failed'),
             ]);
         }
 

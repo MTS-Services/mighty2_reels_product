@@ -42,7 +42,9 @@
                             class="text-sm text-gray-500 hover:underline">Forgot password?</a>
                     </div>
 
-
+                    @error('password')
+                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     <div class="mt-1" x-data="{ show: false }">
                         <div class="relative">
                             <input id="password" wire:model="password" :type="show ? 'text' : 'password'" required
