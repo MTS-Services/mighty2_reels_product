@@ -197,7 +197,7 @@
         <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
             <!-- Up Arrow Button - Toggle Merged View -->
-            <div class="absolute bottom-[100px] z-50 right-8 arrow-bounce">
+            <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />

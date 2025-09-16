@@ -4,9 +4,11 @@ namespace App\Livewire\Frontend;
 
 use App\Models\Product;
 use App\Models\FavouretReel;
+use App\Models\City;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Layout('app', ['title' => 'Home', 'page_slug' => 'home'])]
@@ -21,54 +23,134 @@ class Home extends Component
     public $isMuted = false;
     public $videos = [];
 
+    // Filter properties with URL binding
+    #[Url(as: 'search')]
+    public $searchTerm = '';
+
+    #[Url(as: 'rooms')]
+    public $selectedRooms = '';
+
+    #[Url(as: 'city')]
+    public $selectedCity = '';
+
+    #[Url(as: 'type')]
+    public $selectedType = '';
+
+    // Loading state
+    public $isLoading = false;
+
+    protected $listeners = [
+        'updateHomeFilters' => 'applyFilters',
+    ];
+
     public function mount()
     {
-        // Fetch products with reels in random order
-        $products = Product::with(['reels', 'images'])
-            ->active()
-            ->has('reels') // Only get products that have reels
-            ->inRandomOrder()
-            ->get();
+        // Load videos initially
+        $this->loadVideos();
+    }
 
-        $userFavorites = [];
-        if (Auth::check()) {
-            $userFavorites = FavouretReel::where('user_id', Auth::id())
-                ->pluck('product_id')
-                ->toArray();
+    /**
+     * Handle property updates dynamically.
+     */
+    public function updated($property)
+    {
+        if (in_array($property, ['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType'])) {
+            $this->loadVideos();
         }
+    }
+
+    /**
+     * Apply filters coming from UserHeader component (via event dispatch)
+     */
+    public function applyFilters($filters)
+    {
+        $this->searchTerm = $filters['searchTerm'] ?? '';
+        $this->selectedRooms = $filters['selectedRooms'] ?? '';
+        $this->selectedCity = $filters['selectedCity'] ?? '';
+        $this->selectedType = $filters['selectedType'] ?? '';
+
+        $this->loadVideos();
+    }
+
+    public function loadVideos()
+    {
+        $this->isLoading = true;
+
+        // Build query with filters
+        $query = Product::with(['reels', 'images', 'city'])
+            ->active()
+            ->has('reels'); // Only products with reels
+
+        if ($this->searchTerm !== '') {
+            $query->where(function ($q) {
+                $q->where('title', 'like', '%' . $this->searchTerm . '%')
+                  ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
+            });
+        }
+
+        if ($this->selectedRooms !== '') {
+            $query->where('room', $this->selectedRooms);
+        }
+
+        if ($this->selectedCity !== '') {
+            $query->where('city_id', $this->selectedCity);
+        }
+
+        if ($this->selectedType !== '') {
+            $query->where('type', $this->selectedType);
+        }
+
+        $products = $query->inRandomOrder()->get();
+
+        // Get user favorites
+        $userFavorites = Auth::check()
+            ? FavouretReel::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
+        $this->videos = [];
+        $this->favourite = [];
 
         foreach ($products as $product) {
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
 
-            // Get only ONE random active reel for this product
             $randomReel = $product->reels()->active()->inRandomOrder()->first();
 
             if ($randomReel) {
                 $this->videos[] = [
-                    'id' => $product->id, // Product ID for navigation
-                    'reel_id' => $randomReel->id, // Reel ID for tracking
+                    'id' => $product->id,
+                    'reel_id' => $randomReel->id,
                     'file' => $randomReel->file ? Storage::url($randomReel->file) : null,
                     'title' => $product->title,
                     'description' => $product->description,
+                    'price' => $product->price,
+                    'room' => $product->room,
+                    'type' => $product->getTypeLabelAttribute(),
+                    'city_name' => $product->city?->name ?? 'Unknown',
                     'favourite' => $isFavorite,
                 ];
             }
         }
 
-        // Shuffle the final videos array for additional randomization
         $this->videos = collect($this->videos)->shuffle()->toArray();
 
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
             $this->currentReelId = $this->videos[0]['reel_id'];
         }
+
+        $this->isLoading = false;
+    }
+
+    public function resetFilters()
+    {
+        $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
+        $this->loadVideos();
     }
 
     public function updateCurrentVideo($videoId)
     {
         $this->currentVideoId = $videoId;
-        // Find the reel_id for this video
         $video = collect($this->videos)->firstWhere('id', $videoId);
         if ($video) {
             $this->currentReelId = $video['reel_id'];
@@ -112,7 +194,6 @@ class Home extends Component
                 session()->flash('message', 'Added to favorites');
             }
 
-            // Update all videos with the same product ID
             foreach ($this->videos as &$video) {
                 if ($video['id'] == $targetId) {
                     $video['favourite'] = $this->favourite[$targetId];
@@ -143,50 +224,41 @@ class Home extends Component
         $this->isMuted = ($this->volume === 0);
     }
 
-    /**
-     * Navigate to product page with the currently active video ID and reel ID
-     */
     public function goToProduct()
     {
         $productId = $this->currentActiveVideoId ?? ($this->videos[0]['id'] ?? 1);
         $reelId = $this->currentReelId ?? ($this->videos[0]['reel_id'] ?? null);
-        
-        // Pass both product ID and reel ID to the product page
+
         if ($reelId) {
             return redirect()->route('product', [
                 'id' => $productId,
                 'reel_id' => $reelId
             ]);
-        } else {
-            return redirect()->route('product', ['id' => $productId]);
         }
+
+        return redirect()->route('product', ['id' => $productId]);
     }
 
-    /**
-     * Update the currently active video ID (called from frontend)
-     */
     public function setActiveVideo($videoId)
     {
         $this->currentActiveVideoId = $videoId;
-        // Also update the current reel ID
         $video = collect($this->videos)->firstWhere('id', $videoId);
         if ($video) {
             $this->currentReelId = $video['reel_id'];
         }
     }
 
-    /**
-     * Refresh the videos with new random order
-     */
     public function refreshReels()
     {
-        $this->mount(); // Re-run the mount method to get new random order
+        $this->loadVideos();
     }
 
     public function render()
     {
         return view('livewire.frontend.home', [
             'videos' => $this->videos,
+            'cities' => City::active()->pluck('name', 'id'),
+            'maxRooms' => max(Product::active()->max('room') ?? 0, 5),
         ]);
     }
 }
