@@ -420,7 +420,7 @@
                                                     </svg>
                                                 </button>
 
-                                                <div class="flex-1 relative">
+                                                <div class="flex-1 relative mt-1">
                                                     <!-- Thumbnail Preview -->
                                                     <div class="thumbnail-preview" x-ref="thumbnailPreview" x-show="showThumbnail">
                                                         <canvas x-ref="thumbnailCanvas" width="120" height="80"></canvas>
