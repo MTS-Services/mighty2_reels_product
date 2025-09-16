@@ -22,7 +22,8 @@ class Product extends Component
     public $selectedReelId = null; // The specific reel ID from home
     public $showMergedView = false; // Toggle for merged view
     public $productData = null; // Store product details
-    
+    public $scrollToIndex = null; // Add this property to track the selected media index
+
 
     /**
      * Initialize videos and set the default active video based on the passed ID
@@ -31,10 +32,8 @@ class Product extends Component
     {
         $this->selectedProductId = $id;
         $this->selectedReelId = $reel_id;
-        
-            $this->loadProductData($id);
-            
-     
+
+        $this->loadProductData($id);
     }
 
     /**
@@ -43,11 +42,11 @@ class Product extends Component
     private function loadProductData($productId)
     {
         $product = ModelsProduct::with(['reels', 'images', 'city'])->active()->find($productId);
-        
-       
+
+
 
         $this->productData = $product;
-        
+
         // Get user favorites
         $userFavorites = [];
         if (Auth::check()) {
@@ -55,7 +54,7 @@ class Product extends Component
                 ->pluck('product_id')
                 ->toArray();
         }
-        
+
         $isFavorite = in_array($product->id, $userFavorites);
         $this->favourite[$product->id] = $isFavorite;
 
@@ -79,7 +78,7 @@ class Product extends Component
         // Add images - FIX: Use correct attribute name
         foreach ($product->images()->active()->get() as $image) {
             $imageUrl = null;
-            
+
             // Try different possible attribute names for the image file
             if ($image->file) {
                 $imageUrl = Storage::url($image->file);
@@ -100,7 +99,7 @@ class Product extends Component
         }
 
         // Sort by sort_order, then by random if sort_order is the same
-        usort($allMedia, function($a, $b) {
+        usort($allMedia, function ($a, $b) {
             if ($a['sort_order'] == $b['sort_order']) {
                 return rand(-1, 1); // Random if same sort_order
             }
@@ -116,7 +115,7 @@ class Product extends Component
                     break;
                 }
             }
-            
+
             if ($selectedIndex !== null) {
                 $selectedMedia = $allMedia[$selectedIndex];
                 unset($allMedia[$selectedIndex]);
@@ -126,10 +125,10 @@ class Product extends Component
         }
 
         $this->allMedia = $allMedia;
-        $this->videos = array_filter($allMedia, function($media) {
+        $this->videos = array_filter($allMedia, function ($media) {
             return $media['type'] === 'video';
         });
-        $this->images = array_filter($allMedia, function($media) {
+        $this->images = array_filter($allMedia, function ($media) {
             return $media['type'] === 'image';
         });
 
@@ -138,18 +137,28 @@ class Product extends Component
         $this->images = array_values($this->images);
     }
 
-  
+
 
 
     /**
-     * Toggle merged view (up arrow functionality)
+     * Toggle merged view (up arrow functionality) and reset scroll index.
      */
     public function toggleMergedView()
     {
         $this->showMergedView = !$this->showMergedView;
+        $this->scrollToIndex = null; // Reset scroll index on general toggle
     }
 
-   public function toggleFavourite($productId = null)
+    /**
+     * Switch to the regular view and set the index to scroll to.
+     */
+    public function switchToRegularView($index)
+    {
+        $this->scrollToIndex = $index;
+        $this->showMergedView = false;
+    }
+
+    public function toggleFavourite($productId = null)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('message', 'Please login to view your favorites');

@@ -289,11 +289,11 @@
                                             <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                                 x-intersect:leave="visible = false">
                                                 <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                                    class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl">
+                                                    class="text-white mb-2 line-clamp-1 leading-tight font-bold animate-fade-in-up text-2xl">
                                                     <span x-text="video.title"></span>
                                                 </h2>
                                                 <p x-show="visible" x-transition.opacity.duration.700ms
-                                                    class="text-gray-300 mb-2 text-sm animate-fade-in-up-delayed"
+                                                    class="text-gray-300 mb-2 text-sm line-clamp-1 animate-fade-in-up-delayed"
                                                     x-text="video.description"></p>
                                             </div>
 

@@ -193,17 +193,13 @@
     </style>
 
     <div class="relative h-full  max-w-lg mx-auto">
-        <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
-            <!-- Up Arrow Button - Toggle Merged View -->
             <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
-                <button @click="$wire.toggleMergedView()"
-                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                <button @click="$wire.toggleMergedView()" class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
             </div>
 
-            <!-- Heart/Favorite Button -->
             <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
             liked = @js($favourite[$productData->id] ?? false);
             
@@ -213,11 +209,9 @@
                     const video = displayVideos.find(v => v.id == value);
                     liked = video ? video.favourite : liked;
                 }
-            });"
-                class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+            });" class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
 
-                <button
-                    @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
+                <button @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
                     if (activeVideoIdInView && displayVideos) {
                         const video = displayVideos.find(v => v.id == activeVideoIdInView);
                         if (video) {
@@ -226,28 +220,21 @@
                         }
                     } else {
                         liked = !liked;
-                    }"
-                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                    }" :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'" class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform" :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                     <flux:icon name="heart" class="w-5 h-5" />
                 </button>
             </div>
 
         </div>
 
-        <!-- Merged View Controls -->
         <div x-show="$wire.showMergedView">
             <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
-                <!-- Close Merged View Button -->
-                <button @click="$wire.toggleMergedView()"
-                    class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                <button @click="$wire.toggleMergedView()" class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
 
             <div class="absolute top-0 right-0  z-[5000] rounded-full">
-                <!-- Heart/Favorite Button -->
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -257,11 +244,9 @@
                         const video = displayVideos.find(v => v.id == value);
                         liked = video ? video.favourite : liked;
                     }
-                });"
-                    class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
+                });" class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
 
-                    <button
-                        @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
+                    <button @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
                     if (activeVideoIdInView && displayVideos) {
                         const video = displayVideos.find(v => v.id == activeVideoIdInView);
                         if (video) {
@@ -270,62 +255,40 @@
                         }
                     } else {
                         liked = !liked;
-                    }"
-                        :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                        class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                        :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                    }" :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'" class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform" :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                         <flux:icon name="heart" class="w-5 h-5" />
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content Container -->
-        <div class="relative w-full mx-auto h-full  scrollbar-hide"
-            :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
-            <!-- Regular Video View -->
-            <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
+        <div class="relative w-full mx-auto h-full  scrollbar-hide" :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
+            <div x-show="!$wire.showMergedView" class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
 
-                <template x-for="video in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
-                    <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
-                        x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()">
+                <template x-for="(video, index) in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
+                    <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)" x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()" :id="`media-item-${index}`">
 
                         <div class="flex flex-col justify-center items-center relative">
-                            <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
+                            <div class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
 
-                                <!-- Volume Control -->
-                                <!-- Volume Control (only for videos) -->
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-[5000]">
                                         <div class="group flex items-center gap-2">
-                                            <button @click.stop="toggleMute()"
-                                                class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
-                                                <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                                            <button @click.stop="toggleMute()" class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
+                                                <svg x-show="volume > 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                                                 </svg>
-                                                <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
-                                                    height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                                                <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
                                                 </svg>
-                                                <svg x-show="volume === 0 || isMuted" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                                                <svg x-show="volume === 0 || isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
                                                 </svg>
                                             </button>
 
-                                            <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden"
-                                                @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)"
-                                                x-ref="topVolumeSlider">
-                                                <div class="absolute top-1/2 -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300"
-                                                    :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
-                                                <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300"
-                                                    :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
+                                            <div class="relative w-0 group-hover:w-[80px] h-4 rounded-full transition-all duration-300 bg-gray-700/50 flex items-center overflow-hidden" @click="setTopVolume($event)" @mousedown="startTopVolumeDrag($event)" x-ref="topVolumeSlider">
+                                                <div class="absolute top-1/2 -translate-y-1/2 left-1.5 h-1 rounded-full bg-orange-500 transition-all duration-300" :style="{ width: (isMuted ? 0 : volume * 100) + '%' }"></div>
+                                                <div class="absolute w-4 h-4 rounded-full bg-white transition-all duration-300" :style="{ left: `calc(${(isMuted ? 0 : volume * 100)}% - 0.5rem)` }">
                                                 </div>
                                             </div>
                                         </div>
@@ -333,22 +296,14 @@
                                 </template>
 
 
-                                <!-- Video Element -->
                                 <template x-if="video.url && video.type === 'video'">
-                                    <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                        @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()"
-                                        @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                        @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
-                                        @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay muted>
+                                    <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id" @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()" @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop playsinline autoplay muted>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
 
-                                <!-- Image Element -->
                                 <template x-if="video.url && video.type === 'image'">
-                                    <img :src="video.url" :alt="video.title"
-                                        class="w-full h-full object-cover">
+                                    <img :src="video.url" :alt="video.title" class="w-full h-full object-cover">
                                 </template>
 
                                 <template x-if="!video.url">
@@ -360,85 +315,56 @@
                                     </div>
                                 </template>
 
-                                <!-- Loading State -->
-                                <div x-show="!videoLoaded && video.url && video.type === 'video'"
-                                    class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
+                                <div x-show="!videoLoaded && video.url && video.type === 'video'" class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                     <div class="text-center">
-                                        <div
-                                            class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
+                                        <div class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
                                         </div>
                                         <p class="text-white mt-4 text-sm">Loading video...</p>
                                     </div>
                                 </div>
 
-                                <!-- Video Overlay -->
-                                <div
-                                    class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
+                                <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
                                 </div>
 
-                                <!-- Play/Pause Button (only for videos) -->
-                                <button x-show="video.type === 'video'" @click.stop="togglePlay()"
-                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4"
-                                    :style="{ opacity: isPlaying ? '0' : '1' }">
-                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor" class="text-gray-800">
+                                <button x-show="video.type === 'video'" @click.stop="togglePlay()" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4" :style="{ opacity: isPlaying ? '0' : '1' }">
+                                    <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
                                         <path d="M8 5v14l11-7z" />
                                     </svg>
-                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor" class="text-gray-800">
+                                    <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
                                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                     </svg>
                                 </button>
 
-                                <!-- Media Info Overlay -->
-                                <div
-                                    class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                                <div class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
 
-                                    <!-- Enhanced Progress Bar (only for videos) -->
                                     <div x-show="video.type === 'video'" class="relative mb-2">
                                         <div class="flex items-start space-x-3">
-                                            <button @click="togglePlay()"
-                                                class="text-white hover:text-orange-500 transition-colors">
-                                                <svg x-show="!isPlaying" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="currentColor">
+                                            <button @click="togglePlay()" class="text-white hover:text-orange-500 transition-colors">
+                                                <svg x-show="!isPlaying" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M8 5v14l11-7z" />
                                                 </svg>
-                                                <svg x-show="isPlaying" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <svg x-show="isPlaying" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
                                                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                                 </svg>
                                             </button>
 
                                             <div class="flex-1 relative mt-1">
-                                                <!-- Thumbnail Preview -->
-                                                <div class="thumbnail-preview" x-ref="thumbnailPreview"
-                                                    x-show="showThumbnail">
-                                                    <canvas x-ref="thumbnailCanvas" width="120"
-                                                        height="80"></canvas>
+                                                <div class="thumbnail-preview" x-ref="thumbnailPreview" x-show="showThumbnail">
+                                                    <canvas x-ref="thumbnailCanvas" width="120" height="80"></canvas>
                                                     <div class="thumbnail-time" x-text="formatTime(thumbnailTime)">
                                                     </div>
                                                 </div>
 
-                                                <!-- Progress Container -->
-                                                <div class="progress-container" x-ref="progressContainer"
-                                                    @mouseenter="handleProgressHover(true)"
-                                                    @mouseleave="handleProgressHover(false)"
-                                                    @mousemove="handleProgressMouseMove($event)"
-                                                    @mousedown="startProgressDrag($event)"
-                                                    @click="setProgress($event)">
+                                                <div class="progress-container" x-ref="progressContainer" @mouseenter="handleProgressHover(true)" @mouseleave="handleProgressHover(false)" @mousemove="handleProgressMouseMove($event)" @mousedown="startProgressDrag($event)" @click="setProgress($event)">
 
-                                                    <!-- Buffer Bar -->
-                                                    <div class="progress-buffer"
-                                                        :style="{ width: bufferProgress + '%' }"></div>
+                                                    <div class="progress-buffer" :style="{ width: bufferProgress + '%' }"></div>
 
-                                                    <!-- Progress Fill -->
                                                     <div class="progress-fill" :style="{ width: progress + '%' }">
                                                         <div class="progress-handle" x-show="showProgressHandle">
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Time Display -->
                                                 <div class="flex justify-between text-xs text-gray-300 mt-1">
                                                     <span x-text="formatTime(currentTime)">00:00</span>
                                                     <span x-text="formatTime(duration)">00:00</span>
@@ -453,41 +379,26 @@
                 </template>
             </div>
 
-            <!-- Merged View -->
-            <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
-                x-transition:enter-start="opacity-0 scale-95 translate-y-6"
-                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                x-transition:leave="transition transform ease-in duration-500"
-                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
+            <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700" x-transition:enter-start="opacity-0 scale-95 translate-y-6" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition transform ease-in duration-500" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-6" class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
                 <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
-                    <template x-for="(media, index) in allMediaItems"
-                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
-                        <div @click="selectMedia(index)"
-                            class="relative rounded-2xl overflow-hidden mb-2  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
-                            :class="{
+                    <template x-for="(media, index) in allMediaItems" :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
+                        <div @click="viewMediaItem(index)" class="relative rounded-2xl overflow-hidden mb-2  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]" :class="{
                                 'bg-white': selectedMediaIndex ===
                                     index
                             }">
 
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-44">
-                                    <video :src="media.url"
-                                        class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
-                                        loop ></video>
+                                    <video :src="media.url" class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted loop></video>
                                 </div>
                             </template>
 
                             <template x-if="media.type === 'image'">
                                 <div class="relative w-[70%] mx-auto  hover:shadow-lg h-44">
-                                    <img :src="media.url" :alt="media.title"
-                                        class="w-full h-full object-cover rounded-2xl">
+                                    <img :src="media.url" :alt="media.title" class="w-full h-full object-cover rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
-                                            class="text-white">
-                                            <path
-                                                d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-white">
+                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2s2 .9 2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                                         </svg>
                                     </div>
                                 </div>
@@ -499,64 +410,53 @@
                 <div class="bg-orange-light/20 p-4 shadow-sm rounded-2xl" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
 
                     @if ($productData)
-                        <div class="max-w-3xl mx-auto">
+                    <div class="max-w-3xl mx-auto">
 
-                            <!-- Title -->
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
-                                {{ $productData->title }}
-                            </h2>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
+                            {{ $productData->title }}
+                        </h2>
 
-                            <!-- Badges -->
-                            <div class="flex flex-wrap items-center gap-3 mb-3 animate-fade-in-up-delayed">
-                                <!-- Rooms -->
-                                <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
-                                    {{ $productData->room }} {{ $productData->room > 1 ? 'Rooms' : 'Room' }}
-                                </span>
+                        <div class="flex flex-wrap items-center gap-3 mb-3 animate-fade-in-up-delayed">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+                                {{ $productData->room }} {{ $productData->room > 1 ? 'Rooms' : 'Room' }}
+                            </span>
 
-                                <!-- Seller (or city if that's your data) -->
-                                @if ($productData->city)
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
-                                        {{ $productData->city->name }}
-                                    </span>
-                                @endif
+                            @if ($productData->city)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
+                                {{ $productData->city->name }}
+                            </span>
+                            @endif
 
-                                <!-- Type -->
-                                @if ($productData->type !== null)
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">
-                                        {{ $productData->type_label }}
-                                    </span>
-                                @endif
-                            </div>
-
-                            <!-- Price -->
-                            <div class="text-2xl font-bold text-orange-600 mb-2 animate-fade-in-up-delayed">
-                                @if ($productData->price)
-                                    ${{ number_format($productData->price, 2) }}
-                                @endif
-                            </div>
-
-                            <!-- Description -->
-                            <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
-                                <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
-                                    {{ $productData->description }}
-                                </p>
-
-                                @if (strlen($productData->description) > 100)
-                                    <button @click="toggleDescription"
-                                        class="text-orange-500 hover:text-orange-600 font-medium text-sm">
-                                        <span x-text="expanded ? 'See less' : 'See more'"></span>
-                                    </button>
-                                @endif
-                            </div>
-
+                            @if ($productData->type !== null)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">
+                                {{ $productData->type_label }}
+                            </span>
+                            @endif
                         </div>
+
+                        <div class="text-2xl font-bold text-orange-600 mb-2 animate-fade-in-up-delayed">
+                            @if ($productData->price)
+                            ${{ number_format($productData->price, 2) }}
+                            @endif
+                        </div>
+
+                        <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
+                            <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
+                                {{ $productData->description }}
+                            </p>
+
+                            @if (strlen($productData->description) > 100)
+                            <button @click="toggleDescription" class="text-orange-500 hover:text-orange-600 font-medium text-sm">
+                                <span x-text="expanded ? 'See less' : 'See more'"></span>
+                            </button>
+                            @endif
+                        </div>
+
+                    </div>
                     @else
-                        <div class="text-center text-gray-500 italic">
-                            <p>Product details not available</p>
-                        </div>
+                    <div class="text-center text-gray-500 italic">
+                        <p>Product details not available</p>
+                    </div>
                     @endif
                 </div>
 
@@ -581,6 +481,24 @@
                     if (this.displayVideos.length > 0) {
                         this.activeVideoIdInView = this.displayVideos[0].id;
                     }
+
+                    // Watch for the scrollToIndex property from Livewire to change
+                    this.$watch('$wire.scrollToIndex', (value) => {
+                        if (value !== null) {
+                            // Use $nextTick to wait for the DOM to be updated
+                            this.$nextTick(() => {
+                                const element = document.getElementById(`media-item-${value}`);
+                                if (element) {
+                                    // Scroll instantly to the element
+                                    element.scrollIntoView({
+                                        block: 'start'
+                                    });
+                                    // Reset the property on the server to prevent re-scrolling
+                                    this.$wire.set('scrollToIndex', null);
+                                }
+                            });
+                        }
+                    });
                 },
 
                 getCurrentVideoFavourite() {
@@ -588,8 +506,10 @@
                     return currentVideo ? currentVideo.favourite : false;
                 },
 
-                selectMedia(index) {
-                    this.selectedMediaIndex = index;
+                // This function is called when a media item is clicked in the merged view
+                viewMediaItem(index) {
+                    this.selectedMediaIndex = index; // Optional: for instant feedback
+                    this.$wire.switchToRegularView(index);
                 }
             }
         }
