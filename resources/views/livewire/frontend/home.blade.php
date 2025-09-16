@@ -406,7 +406,7 @@
 
                                         <!-- Enhanced Progress Bar with Thumbnail Preview -->
                                         <div class="relative mb-2" x-show="video.file">
-                                            <div class="flex items-center space-x-3">
+                                            <div class="flex items-start space-x-3">
                                                 <button @click="togglePlay()"
                                                     class="text-white hover:text-orange-500 transition-colors">
                                                     <svg x-show="!isPlaying" width="20" height="20"
