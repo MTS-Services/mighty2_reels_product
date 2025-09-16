@@ -33,6 +33,7 @@ class Product extends Component
         $this->selectedReelId = $reel_id;
         
             $this->loadProductData($id);
+            
      
     }
 
@@ -148,33 +149,47 @@ class Product extends Component
         $this->showMergedView = !$this->showMergedView;
     }
 
-   public function toggleFavourite($productId)
+   public function toggleFavourite($productId = null)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('message', 'Please login to view your favorites');
         }
 
-        if (!$productId) {
-            session()->flash('error', 'Product not found');
+        $targetId = $productId ?? $this->currentVideoId;
+        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
+            session()->flash('error', 'Video not found');
             return;
         }
 
         $userId = Auth::id();
+        $isFavorite = $this->favourite[$targetId];
 
-        $check = FavouretReel::where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->first();
+        try {
+            if ($isFavorite) {
+                FavouretReel::where('user_id', $userId)
+                    ->where('product_id', $targetId)
+                    ->delete();
+                $this->favourite[$targetId] = false;
+                session()->flash('message', 'Removed from favorites');
+            } else {
+                FavouretReel::create([
+                    'user_id' => $userId,
+                    'product_id' => $targetId,
+                    'created_by' => $userId,
+                ]);
+                $this->favourite[$targetId] = true;
+                session()->flash('message', 'Added to favorites');
+            }
 
-        if ($check) {
-            $check->force();
-            session()->flash('message', 'Removed from favorites');
-        } else {
-            FavouretReel::create([
-                'user_id' => $userId,
-                'product_id' => $productId,
-                'created_by' => $userId,
-            ]);
-            session()->flash('message', 'Added to favorites');
+            // Update all videos with the same product ID
+            foreach ($this->videos as &$video) {
+                if ($video['id'] == $targetId) {
+                    $video['favourite'] = $this->favourite[$targetId];
+                }
+            }
+            unset($video);
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while updating favorites');
         }
     }
     /**

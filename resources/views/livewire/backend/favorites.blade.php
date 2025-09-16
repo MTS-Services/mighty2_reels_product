@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8">
+<section class="max-w-7xl mx-auto px-4 pt-12 sm:px-6 lg:px-8">
 
     <style>
         .progress-bar {

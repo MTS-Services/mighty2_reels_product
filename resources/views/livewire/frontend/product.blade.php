@@ -112,14 +112,36 @@
             </div>
 
             <!-- Heart/Favorite Button -->
-            <div class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
-                <button @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id))"
-                    :class="getCurrentVideoFavourite() ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+            <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
+            liked = @js($favourite[$productData->id] ?? false);
+            
+            // Optional: If you have a watcher for activeVideoId, update liked dynamically
+            $watch('activeVideoIdInView', value => {
+                if (value && displayVideos) {
+                    const video = displayVideos.find(v => v.id == value);
+                    liked = video ? video.favourite : liked;
+                }
+            });"
+                class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+
+                <button
+                    @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
+                    if (activeVideoIdInView && displayVideos) {
+                        const video = displayVideos.find(v => v.id == activeVideoIdInView);
+                        if (video) {
+                            video.favourite = !video.favourite;
+                            liked = video.favourite;
+                        }
+                    } else {
+                        liked = !liked;
+                    }"
+                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
                     class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                    :style="getCurrentVideoFavourite() ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                    :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                     <flux:icon name="heart" class="w-5 h-5" />
                 </button>
             </div>
+
         </div>
 
         <!-- Merged View Controls -->
@@ -134,12 +156,35 @@
 
             <div class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
                 <!-- Heart/Favorite Button -->
-                <button @click="$wire.toggleFavourite($wire.selectedProductId)"
-                    :class="getCurrentVideoFavourite() ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                    :style="getCurrentVideoFavourite() ? 'animation: heart-pop 0.3s ease forwards;' : ''"
-                    class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform">
-                    <flux:icon name="heart" class="w-5 h-5" />
-                </button>
+                <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
+                liked = @js($favourite[$productData->id] ?? false);
+                
+                // Optional: If you have a watcher for activeVideoId, update liked dynamically
+                $watch('activeVideoIdInView', value => {
+                    if (value && displayVideos) {
+                        const video = displayVideos.find(v => v.id == value);
+                        liked = video ? video.favourite : liked;
+                    }
+                });"
+                    class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+
+                    <button
+                        @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
+                    if (activeVideoIdInView && displayVideos) {
+                        const video = displayVideos.find(v => v.id == activeVideoIdInView);
+                        if (video) {
+                            video.favourite = !video.favourite;
+                            liked = video.favourite;
+                        }
+                    } else {
+                        liked = !liked;
+                    }"
+                        :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                        class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                        :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                        <flux:icon name="heart" class="w-5 h-5" />
+                    </button>
+                </div>
             </div>
         </div>
 
