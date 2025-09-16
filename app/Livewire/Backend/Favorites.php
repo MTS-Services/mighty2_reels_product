@@ -18,7 +18,7 @@ class Favorites extends Component
     public $volume = 1.0;
     public $isMuted = false;
     public $videos = [];
-    
+
     public function mount()
     {
         // Check if user is logged in
@@ -39,28 +39,36 @@ class Favorites extends Component
         $products = Product::with(['reels', 'images'])
             ->whereIn('id', $favoriteProductIds)
             ->active()
-            ->orderBy('sort_order')
             ->get();
 
         foreach ($products as $product) {
-            $this->favourite[$product->id] = true; // All are favorites on this page
-            
-            $this->videos[] = [
-                'id' => $product->id,
-                'file' => $product->reels->first()?->file
-                    ? Storage::url($product->reels->first()->file)
-                    : null,
-                'title' => $product->title,
-                'description' => $product->description,
-                'favourite' => true,
-            ];
+            $this->favourite[$product->id] = true;
+
+            $randomReel = $product->reels()
+                ->active()
+                ->inRandomOrder()
+                ->first();
+
+            if ($randomReel) {
+                $this->videos[] = [
+                    'id' => $product->id,
+                    'file' => Storage::url($randomReel->file),
+                    'title' => $product->title,
+                    'description' => $product->description,
+                    'favourite' => true,
+                ];
+            }
         }
 
-        // Set the first video as current if available
+        // ✅ Randomize order of final videos (so products show randomly)
+        $this->videos = collect($this->videos)->shuffle()->toArray();
+
+        // ✅ Set first video as current
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
         }
     }
+
 
     public function updateCurrentVideo($videoId)
     {
@@ -76,7 +84,7 @@ class Favorites extends Component
     {
         // Use current video ID if no specific ID provided
         $targetId = $productId ?? $this->currentVideoId;
-        
+
         if (!$targetId || !Auth::check()) {
             return;
         }
@@ -88,7 +96,7 @@ class Favorites extends Component
 
         // Remove from local arrays
         unset($this->favourite[$targetId]);
-        $this->videos = array_filter($this->videos, function($video) use ($targetId) {
+        $this->videos = array_filter($this->videos, function ($video) use ($targetId) {
             return $video['id'] != $targetId;
         });
 
