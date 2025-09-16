@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" 
+<section class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" 
     x-data="{ 
         currentPlayingId: null, 
         productId: null, 
@@ -208,7 +208,7 @@
     </style>
 
     <div class="rounded-lg">
-        <div class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" 
+        <div class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" 
             x-data="{
                 currentPlayingId: null,
                 currentVideoId: @entangle('currentVideoId').live,
