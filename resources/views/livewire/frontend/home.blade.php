@@ -1,4 +1,11 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{ currentPlayingId: null, productId: null, favourite: false, selectedVideoId: null, showInfoPanel: false }">
+<section class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" 
+    x-data="{ 
+        currentPlayingId: null, 
+        productId: null, 
+        favourite: false, 
+        selectedVideoId: null, 
+        showInfoPanel: false 
+    }">
 
     <style>
         .progress-bar {
@@ -27,7 +34,6 @@
             scrollbar-width: none;
         }
 
-        /* Thumbnail Preview Styles */
         .thumbnail-preview {
             position: absolute;
             bottom: 100%;
@@ -63,7 +69,6 @@
             font-family: monospace;
         }
 
-        /* Enhanced Progress Bar Styles */
         .progress-container {
             position: relative;
             height: 6px;
@@ -121,53 +126,24 @@
         }
 
         @keyframes heart-pop {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.4);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideUp {
-            from {
-                transform: translateY(100vh);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(100vh); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         @keyframes slideDown {
-            from {
-                transform: translateY(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateY(100vh);
-                opacity: 0;
-            }
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100vh); opacity: 0; }
         }
 
         .animate-fade-in-up {
@@ -189,22 +165,9 @@
         }
 
         @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateX(0);
-            }
-
-            40% {
-                transform: translateX(-5px);
-            }
-
-            60% {
-                transform: translateX(-3px);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateX(0); }
+            40% { transform: translateX(-5px); }
+            60% { transform: translateX(-3px); }
         }
 
         .refresh-button {
@@ -219,108 +182,133 @@
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .refresh-spinning {
             animation: spin 1s linear infinite;
         }
+
+        /* Loading overlay */
+        .loading-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        /* No results animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
     </style>
 
     <div class="rounded-lg">
-        <div class="max-w-7xl mx-auto px-4 pt-1 sm:px-6 lg:px-8" x-data="{
-            currentPlayingId: null,
-            currentVideoId: @entangle('currentVideoId').live,
-            productId: null,
-            favourite: false,
-            selectedVideoId: null,
-            showInfoPanel: false,
-            videos: @js($videos),
-            isRefreshing: false,
-        
-            init() {
-                // Listen for video change events
-                document.addEventListener('video-changed', (event) => {
-                    this.currentVideoId = event.detail.videoId;
-                });
-            },
-        }">
+        <div class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" 
+            x-data="{
+                currentPlayingId: null,
+                currentVideoId: @entangle('currentVideoId').live,
+                productId: null,
+                favourite: false,
+                selectedVideoId: null,
+                showInfoPanel: false,
+                videos: @js($videos),
+                isRefreshing: false,
+                isLoading: @entangle('isLoading').live,
+            
+                init() {
+                    // Listen for video change events
+                    document.addEventListener('video-changed', (event) => {
+                        this.currentVideoId = event.detail.videoId;
+                    });
+
+                    // Watch for videos changes
+                    this.$watch('videos', (newVideos) => {
+                        if (newVideos && newVideos.length > 0 && !this.currentVideoId) {
+                            this.currentVideoId = newVideos[0].id;
+                        }
+                    });
+                },
+            }">
+
+            <!-- Loading Overlay -->
+            <div x-show="isLoading" x-transition:opacity.duration.300ms
+                class="fixed inset-0 z-50 loading-overlay flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
+                    <p class="text-gray-600">Loading videos...</p>
+                </div>
+            </div>
 
             <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
 
-                @if (!empty($videos))
-                    <!-- Heart/Favorite Button -->
-                    <div x-data="{ liked: false }" x-init="$watch('currentVideoId', value => {
-                        if (value && videos) {
-                            const video = videos.find(v => v.id == value);
-                            liked = video ? video.favourite : false;
-                        }
-                    })"
-                        class="absolute top-4 right-8 z-[5000] rounded-full">
-                        <button
-                            @click="$wire.toggleFavourite(); 
-                   if (currentVideoId && videos) {
-                       const video = videos.find(v => v.id == currentVideoId);
-                       if (video) {
-                           video.favourite = !video.favourite;
-                           liked = video.favourite;
-                       }
-                   }"
-                            :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
-                            class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
-                            :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                            <flux:icon name="heart" class="w-5 h-5" />
-                        </button>
-                    </div>
+                <template x-if="videos && videos.length > 0">
+                    <div>
+                        <!-- Heart/Favorite Button -->
+                        <div x-data="{ liked: false }" 
+                            x-init="$watch('currentVideoId', value => {
+                                if (value && videos) {
+                                    const video = videos.find(v => v.id == value);
+                                    liked = video ? video.favourite : false;
+                                }
+                            })"
+                            class="absolute top-4 right-4 md:right-8 z-[5000] rounded-full">
+                            <button
+                                @click="$wire.toggleFavourite(); 
+                                       if (currentVideoId && videos) {
+                                           const video = videos.find(v => v.id == currentVideoId);
+                                           if (video) {
+                                               video.favourite = !video.favourite;
+                                               liked = video.favourite;
+                                           }
+                                       }"
+                                :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                                class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
+                                :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
+                                <flux:icon name="heart" class="w-5 h-5" />
+                            </button>
+                        </div>
 
-                    <!-- Arrow Button - Navigate to Product Page -->
-                    <div class="absolute bottom-[70px] z-50 right-8 arrow-bounce">
-                        <button @click="$wire.goToProduct()"
-                            class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
-                            <flux:icon name="arrow-right" class="w-5 h-5" />
-                        </button>
+                        <!-- Arrow Button - Navigate to Product Page -->
+                        <div class="absolute bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
+                            <button @click="$wire.goToProduct()"
+                                class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
+                                <flux:icon name="arrow-right" class="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
-                @endif
+                </template>
 
-                <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
+                <div class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-165px)] pt-0.5 space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
-                        <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
+                        <div class="video-item snap-start pb-0.5 rounded-lg" 
+                            x-data="videoController(video.id, $root, video)"
                             x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
-                            x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
+                            x-intersect:leave="pauseVideo()" 
+                            @click="selectVideo(video.id)">
 
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
-                                <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl">
+                                <div class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl">
 
                                     <!-- Volume Control -->
-                                    <div class="absolute top-4 left-4 z-[5000]">
+                                    <div class="absolute top-6 left-4 z-[4000]">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
-                                                <!-- Volume icons -->
-                                                <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                                                <svg x-show="volume > 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                                                 </svg>
-                                                <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
-                                                    height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                                                <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
                                                 </svg>
-                                                <svg x-show="volume === 0 || isMuted" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                                                <svg x-show="volume === 0 || isMuted" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
                                                 </svg>
                                             </button>
 
@@ -353,8 +341,7 @@
                                             <div class="text-center">
                                                 <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
                                                     </path>
                                                 </svg>
@@ -367,9 +354,7 @@
                                     <div x-show="!videoLoaded && video.file"
                                         class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                         <div class="text-center">
-                                            <div
-                                                class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin">
-                                            </div>
+                                            <div class="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
                                             <p class="text-white mt-4 text-sm">Loading video...</p>
                                         </div>
                                     </div>
@@ -380,28 +365,37 @@
                                     <button @click="togglePlay()" x-show="video.file"
                                         class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                         :style="{ opacity: isPlaying ? '0' : '1' }">
-                                        <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="currentColor" class="text-gray-800">
+                                        <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
                                             <path d="M8 5v14l11-7z" />
                                         </svg>
-                                        <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="currentColor" class="text-gray-800">
+                                        <svg x-show="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-800">
                                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                         </svg>
                                     </button>
 
                                     <!-- Video Info Overlay -->
-                                    <div
-                                        class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
-                                        <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
+                                        <div x-data="{ visible: false }" x-intersect:enter="visible = true" x-intersect:leave="visible = false">
+                                             <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                             x-intersect:leave="visible = false">
                                             <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                                class="text-white mb-2 leading-tight font-bold animate-fade-in-up text-2xl">
+                                                class="text-white mb-2  leading-tight font-bold line-clamp-1 animate-fade-in-up text-xl  md:text-2xl">
                                                 <span x-text="video.title"></span>
                                             </h2>
                                             <p x-show="visible" x-transition.opacity.duration.700ms
                                                 class="text-gray-300 mb-4 text-sm animate-fade-in-up-delayed line-clamp-1"
                                                 x-text="video.description"></p>
+                                        </div>
+{{--                                             
+                                            <div class="flex justify-between items-center mb-4">
+                                                <p x-show="visible" x-transition.opacity.duration.700ms
+                                                    class="text-gray-300 text-sm animate-fade-in-up-delayed line-clamp-2 flex-1 mr-4"
+                                                    x-text="video.description"></p>
+                                                <div class="flex flex-col items-end text-xs text-gray-400 space-y-1">
+                                                    <span x-text="video.room + ' ' + (video.room > 1 ? 'Rooms' : 'Room')"></span>
+                                                    <span x-text="video.city_name"></span>
+                                                </div>
+                                            </div> --}}
                                         </div>
 
                                         <!-- Enhanced Progress Bar with Thumbnail Preview -->
@@ -409,13 +403,10 @@
                                             <div class="flex items-start space-x-3">
                                                 <button @click="togglePlay()"
                                                     class="text-white hover:text-orange-500 transition-colors">
-                                                    <svg x-show="!isPlaying" width="20" height="20"
-                                                        viewBox="0 0 24 24" fill="currentColor">
+                                                    <svg x-show="!isPlaying" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
-                                                    <svg x-show="isPlaying" width="20" height="20"
-                                                        viewBox="0 0 24 24" fill="currentColor"
-                                                        class="text-orange-500">
+                                                    <svg x-show="isPlaying" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
                                                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                                     </svg>
                                                 </button>
@@ -453,29 +444,34 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </template>
 
-                    <!-- Empty State -->
+                    <!-- No Results State -->
                     <template x-if="!videos || videos.length === 0">
                         <div class="flex items-center justify-center h-[calc(100vh-165px)]">
                             <div class="text-center">
-                                <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                <h3 class="text-gray-600 text-xl mb-2">No Reels Available</h3>
-                                <p class="text-gray-400">Check back later for new content!</p>
-                                <button @click="refreshReels()"
-                                    class="mt-4 bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
-                                    Try Again
-                                </button>
+                                <div class="pulse-animation mb-6">
+                                    <svg class="w-24 h-24 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-gray-600 text-xl mb-2">No Reels Found</h3>
+                                <p class="text-gray-400 mb-4">Try adjusting your search filters or check back later!</p>
+                                <div class="space-y-3">
+                                    <button @click="$wire.resetFilters()"
+                                        class="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
+                                        Clear Filters
+                                    </button>
+                                    <button @click="$wire.refreshReels()"
+                                        class="block mx-auto text-orange-500 hover:text-orange-600 transition-colors underline">
+                                        Refresh Content
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </template>

@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-4 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class="max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -193,18 +193,14 @@
     </style>
 
     <div class="relative h-full  max-w-lg mx-auto">
-
-        <!-- Controls for different views -->
         <div x-show="!$wire.showMergedView">
-            <!-- Up Arrow Button - Toggle Merged View -->
-            <div class="absolute bottom-[100px] z-50 right-8 arrow-bounce">
+            <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
                 </button>
             </div>
 
-            <!-- Heart/Favorite Button -->
             <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
             liked = @js($favourite[$productData->id] ?? false);
             
@@ -237,10 +233,8 @@
 
         </div>
 
-        <!-- Merged View Controls -->
-        <div x-show="$wire.showMergedView">
+        <div x-show="$wire.showMergedView" >
             <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
-                <!-- Close Merged View Button -->
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
@@ -248,7 +242,6 @@
             </div>
 
             <div class="absolute top-0 right-0  z-[5000] rounded-full">
-                <!-- Heart/Favorite Button -->
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -281,23 +274,20 @@
             </div>
         </div>
 
-        <!-- Main Content Container -->
-        <div class="relative w-full mx-auto h-full  scrollbar-hide"
+        <div class="relative w-full mx-auto h-full mt-12 sm:mt-0  scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
-            <!-- Regular Video View -->
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
 
-                <template x-for="video in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
+                <template x-for="(video, index) in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
                     <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
-                        x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()">
+                        x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()"
+                        :id="`media-item-${index}`">
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-120px)] max-w-lg">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
 
-                                <!-- Volume Control -->
-                                <!-- Volume Control (only for videos) -->
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-[5000]">
                                         <div class="group flex items-center gap-2">
@@ -334,7 +324,6 @@
                                 </template>
 
 
-                                <!-- Video Element -->
                                 <template x-if="video.url && video.type === 'video'">
                                     <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
                                         @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()"
@@ -346,7 +335,6 @@
                                     </video>
                                 </template>
 
-                                <!-- Image Element -->
                                 <template x-if="video.url && video.type === 'image'">
                                     <img :src="video.url" :alt="video.title"
                                         class="w-full h-full object-cover">
@@ -361,7 +349,6 @@
                                     </div>
                                 </template>
 
-                                <!-- Loading State -->
                                 <div x-show="!videoLoaded && video.url && video.type === 'video'"
                                     class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                     <div class="text-center">
@@ -372,12 +359,10 @@
                                     </div>
                                 </div>
 
-                                <!-- Video Overlay -->
                                 <div
                                     class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
                                 </div>
 
-                                <!-- Play/Pause Button (only for videos) -->
                                 <button x-show="video.type === 'video'" @click.stop="togglePlay()"
                                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4"
                                     :style="{ opacity: isPlaying ? '0' : '1' }">
@@ -391,11 +376,9 @@
                                     </svg>
                                 </button>
 
-                                <!-- Media Info Overlay -->
                                 <div
                                     class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
 
-                                    <!-- Enhanced Progress Bar (only for videos) -->
                                     <div x-show="video.type === 'video'" class="relative mb-2">
                                         <div class="flex items-start space-x-3">
                                             <button @click="togglePlay()"
@@ -411,7 +394,6 @@
                                             </button>
 
                                             <div class="flex-1 relative mt-1">
-                                                <!-- Thumbnail Preview -->
                                                 <div class="thumbnail-preview" x-ref="thumbnailPreview"
                                                     x-show="showThumbnail">
                                                     <canvas x-ref="thumbnailCanvas" width="120"
@@ -420,7 +402,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Progress Container -->
                                                 <div class="progress-container" x-ref="progressContainer"
                                                     @mouseenter="handleProgressHover(true)"
                                                     @mouseleave="handleProgressHover(false)"
@@ -428,18 +409,15 @@
                                                     @mousedown="startProgressDrag($event)"
                                                     @click="setProgress($event)">
 
-                                                    <!-- Buffer Bar -->
                                                     <div class="progress-buffer"
                                                         :style="{ width: bufferProgress + '%' }"></div>
 
-                                                    <!-- Progress Fill -->
                                                     <div class="progress-fill" :style="{ width: progress + '%' }">
                                                         <div class="progress-handle" x-show="showProgressHandle">
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Time Display -->
                                                 <div class="flex justify-between text-xs text-gray-300 mt-1">
                                                     <span x-text="formatTime(currentTime)">00:00</span>
                                                     <span x-text="formatTime(duration)">00:00</span>
@@ -454,7 +432,6 @@
                 </template>
             </div>
 
-            <!-- Merged View -->
             <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
                 x-transition:enter-start="opacity-0 scale-95 translate-y-6"
                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -465,23 +442,31 @@
                 <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
-                        <div @click="selectMedia(index)"
-                            class="relative rounded-2xl overflow-hidden mb-2  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
-                            :class="{
-                                'bg-white': selectedMediaIndex ===
-                                    index
-                            }">
+                        <div @click="viewMediaItem(index)"
+                            class="relative rounded-2xl overflow-hidden mb-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+                            :class="{ 'bg-white': selectedMediaIndex === index }">
 
+                            <!-- Video Template -->
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-44">
                                     <video :src="media.url"
-                                        class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
-                                        loop autoplay controls></video>
+                                        class="w-[70%] mx-auto h-full object-cover rounded-2xl" muted loop></video>
+
+                                    <!-- Play Button Overlay -->
+                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div class="bg-black/40 rounded-full p-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white"
+                                                fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
 
+                            <!-- Image Template -->
                             <template x-if="media.type === 'image'">
-                                <div class="relative w-[70%] mx-auto  hover:shadow-lg h-44">
+                                <div class="relative w-[70%] mx-auto hover:shadow-lg h-44">
                                     <img :src="media.url" :alt="media.title"
                                         class="w-full h-full object-cover rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
@@ -495,6 +480,7 @@
                             </template>
                         </div>
                     </template>
+
                 </div>
 
                 <div class="bg-orange-light/20 p-4 shadow-sm rounded-2xl" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
@@ -502,20 +488,16 @@
                     @if ($productData)
                         <div class="max-w-3xl mx-auto">
 
-                            <!-- Title -->
                             <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
                                 {{ $productData->title }}
                             </h2>
 
-                            <!-- Badges -->
                             <div class="flex flex-wrap items-center gap-3 mb-3 animate-fade-in-up-delayed">
-                                <!-- Rooms -->
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
                                     {{ $productData->room }} {{ $productData->room > 1 ? 'Rooms' : 'Room' }}
                                 </span>
 
-                                <!-- Seller (or city if that's your data) -->
                                 @if ($productData->city)
                                     <span
                                         class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
@@ -523,7 +505,6 @@
                                     </span>
                                 @endif
 
-                                <!-- Type -->
                                 @if ($productData->type !== null)
                                     <span
                                         class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">
@@ -532,14 +513,12 @@
                                 @endif
                             </div>
 
-                            <!-- Price -->
                             <div class="text-2xl font-bold text-orange-600 mb-2 animate-fade-in-up-delayed">
                                 @if ($productData->price)
                                     ${{ number_format($productData->price, 2) }}
                                 @endif
                             </div>
 
-                            <!-- Description -->
                             <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
                                 <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
                                     {{ $productData->description }}
@@ -582,6 +561,24 @@
                     if (this.displayVideos.length > 0) {
                         this.activeVideoIdInView = this.displayVideos[0].id;
                     }
+
+                    // Watch for the scrollToIndex property from Livewire to change
+                    this.$watch('$wire.scrollToIndex', (value) => {
+                        if (value !== null) {
+                            // Use $nextTick to wait for the DOM to be updated
+                            this.$nextTick(() => {
+                                const element = document.getElementById(`media-item-${value}`);
+                                if (element) {
+                                    // Scroll instantly to the element
+                                    element.scrollIntoView({
+                                        block: 'start'
+                                    });
+                                    // Reset the property on the server to prevent re-scrolling
+                                    this.$wire.set('scrollToIndex', null);
+                                }
+                            });
+                        }
+                    });
                 },
 
                 getCurrentVideoFavourite() {
@@ -589,8 +586,10 @@
                     return currentVideo ? currentVideo.favourite : false;
                 },
 
-                selectMedia(index) {
-                    this.selectedMediaIndex = index;
+                // This function is called when a media item is clicked in the merged view
+                viewMediaItem(index) {
+                    this.selectedMediaIndex = index; // Optional: for instant feedback
+                    this.$wire.switchToRegularView(index);
                 }
             }
         }
