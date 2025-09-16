@@ -7,7 +7,8 @@
         </style>
     @endpush
 
-    <div class="w-full max-w-6xl bg-[#FFFFFF]">
+    <div class="w-full max-w-6xl bg-[#FFFFFF] 
+">
 
         <div class="bg-white shadow-lg rounded-md w-full p-6 sm:p-8">
             @if (session()->has('success'))
@@ -28,7 +29,7 @@
             <form wire:submit.prevent="updateProfile" class="space-y-6">
 
                 <div class="card">
-                    <h2 class="text-lg font-semibold mb-4">Personal Information</h2>
+                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Personal Information</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div x-data="{ photoName: null, photoPreview: null }" class="flex justify-center mb-6 group">
                             <div class="relative">
@@ -57,30 +58,30 @@
                         </div>
                         <div class="rounded-md grid grid-cols-1 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                <label class="block text-sm font-medium text-gray-900 ">First Name</label>
                                 <input type="text" wire:model.defer="first_name"
-                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 @error('first_name')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <label class="block text-sm font-medium text-gray-900 ">Last Name</label>
                                 <input type="text" wire:model.defer="last_name"
-                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                <label class="block text-sm font-medium text-gray-900 ">Email</label>
                                 <input type="email" wire:model.defer="email"
-                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 @error('email')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                                <label class="block text-sm font-medium text-gray-900 ">Phone Number</label>
                                 <input type="text" wire:model.defer="phone"
-                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 @error('phone')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
@@ -89,9 +90,9 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Gender</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Gender</label>
                             <select wire:model.defer="gender"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                                 <option value="">Select Gender</option>
                                 @foreach (App\Models\User::GENDERS as $key => $value)
                                     <option value="{{ $key }}">{{ $value }}</option>
@@ -103,45 +104,45 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Date of Birth</label>
                             <input type="date" wire:model.defer="date_of_birth"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('date_of_birth')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Street</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Street</label>
                             <input type="text" wire:model.defer="street"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('street')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Suburb</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Suburb</label>
                             <input type="text" wire:model.defer="suburb"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('suburb')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Post Code</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Post Code</label>
                             <input type="text" wire:model.defer="postcode"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('postcode')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">State</label>
+                            <label class="block text-sm font-medium text-gray-900 ">State</label>
                             <input type="text" wire:model.defer="state"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('state')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
@@ -151,20 +152,20 @@
 
                 <!-- Password Section -->
                 <div class="card">
-                    <h2 class="text-lg font-semibold mb-4">Change Password</h2>
+                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Change Password</h2>
                     <div class="rounded-md grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">New Password</label>
+                            <label class="block text-sm font-medium text-gray-900 ">New Password</label>
                             <input type="password" wire:model.defer="password"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                             @error('password')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <label class="block text-sm font-medium text-gray-900 ">Confirm Password</label>
                             <input type="password" wire:model.defer="password_confirmation"
-                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-[#F6F5F5] text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
                         </div>
                     </div>
                 </div>
