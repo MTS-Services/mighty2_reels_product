@@ -247,7 +247,7 @@
                 </button>
             </div>
 
-            <div class="absolute top-4 lg:right-4 right-2 z-[5000] rounded-full">
+            <div class="absolute top-0 right-0  z-[5000] rounded-full">
                 <!-- Heart/Favorite Button -->
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
@@ -259,7 +259,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+                    class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
