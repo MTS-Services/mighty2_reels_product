@@ -26,6 +26,99 @@
             scrollbar-width: none;
         }
 
+        /* Thumbnail Preview Styles */
+        .thumbnail-preview {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff6b35;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .thumbnail-preview canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-time {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-family: monospace;
+        }
+
+        /* Enhanced Progress Bar Styles */
+        .progress-container {
+            position: relative;
+            height: 6px;
+            background: rgba(74, 74, 74, 0.8);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: height 0.2s ease;
+        }
+
+        .progress-container:hover {
+            height: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ff6b35;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-handle {
+            position: absolute;
+            top: 50%;
+            right: -6px;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #ff6b35;
+            border-radius: 50%;
+            cursor: grab;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-container:hover .progress-handle {
+            opacity: 1;
+        }
+
+        .progress-handle:active {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .progress-buffer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
         @keyframes heart-pop {
             0% {
                 transform: scale(1);
@@ -197,7 +290,7 @@
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-120px)] pt-0.5 space-y-6 scroll-smooth">
 
                 <template x-for="video in displayVideos" :key="video.id + '-' + (video.reel_id || 'default')">
-                    <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root)"
+                    <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
                         x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()">
 
                         <div class="flex flex-col justify-center items-center relative">
@@ -241,7 +334,7 @@
                                 <!-- Video Element -->
                                 <template x-if="video.url && video.type === 'video'">
                                     <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                        @loadedmetadata="initVideo()" @timeupdate="updateProgress()"
+                                        @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
                                         @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
                                         @touchend.prevent="handleTouchEnd($event)" @dblclick="handleDoubleClick($event)"
                                         @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover" loop
@@ -298,27 +391,53 @@
                                 <!-- Media Info Overlay -->
                                 <div
                                     class="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                                    <!-- Progress Bar (only for videos) -->
-                                    <div x-show="video.type === 'video'" class="relative">
+                                    
+                                    <!-- Enhanced Progress Bar (only for videos) -->
+                                    <div x-show="video.type === 'video'" class="relative mb-2">
                                         <div class="flex items-center space-x-3">
                                             <button @click="togglePlay()"
                                                 class="text-white hover:text-orange-500 transition-colors">
-                                                <svg x-show="!isPlaying" width="24" height="24"
+                                                <svg x-show="!isPlaying" width="20" height="20"
                                                     viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M8 5v14l11-7z" />
                                                 </svg>
-                                                <svg x-show="isPlaying" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor" class="text-orange-500">
+                                                <svg x-show="isPlaying" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="currentColor"
+                                                    class="text-orange-500">
                                                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                                 </svg>
                                             </button>
 
                                             <div class="flex-1 relative">
-                                                <div class="progress-bar h-1.5 rounded-full cursor-pointer"
-                                                    @click="setProgress($event)" x-ref="progressBar"
-                                                    :style="{ '--progress': progress + '%' }"></div>
-                                                <div class="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"
-                                                    :style="{ left: progress + '%' }"></div>
+                                                <!-- Thumbnail Preview -->
+                                                <div class="thumbnail-preview" x-ref="thumbnailPreview" x-show="showThumbnail">
+                                                    <canvas x-ref="thumbnailCanvas" width="120" height="80"></canvas>
+                                                    <div class="thumbnail-time" x-text="formatTime(thumbnailTime)"></div>
+                                                </div>
+
+                                                <!-- Progress Container -->
+                                                <div class="progress-container" 
+                                                     x-ref="progressContainer"
+                                                     @mouseenter="handleProgressHover(true)"
+                                                     @mouseleave="handleProgressHover(false)"
+                                                     @mousemove="handleProgressMouseMove($event)"
+                                                     @mousedown="startProgressDrag($event)"
+                                                     @click="setProgress($event)">
+                                                    
+                                                    <!-- Buffer Bar -->
+                                                    <div class="progress-buffer" :style="{ width: bufferProgress + '%' }"></div>
+                                                    
+                                                    <!-- Progress Fill -->
+                                                    <div class="progress-fill" :style="{ width: progress + '%' }">
+                                                        <div class="progress-handle" x-show="showProgressHandle"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Time Display -->
+                                                <div class="flex justify-between text-xs text-gray-300 mt-1">
+                                                    <span x-text="formatTime(currentTime)">00:00</span>
+                                                    <span x-text="formatTime(duration)">00:00</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -352,19 +471,8 @@
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full hover:shadow-lg object-cover rounded-2xl" muted
                                         loop autoplay controls></video>
-
-                                    <!-- Play icon in the center -->
-                                    {{-- <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div class="bg-black/60 rounded-full p-4 shadow-lg">
-                                            <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                        </div>
-                                    </div> --}}
-
                                 </div>
                             </template>
-
 
                             <template x-if="media.type === 'image'">
                                 <div class="relative w-[70%] mx-auto  hover:shadow-lg h-44">
@@ -447,7 +555,6 @@
                     @endif
                 </div>
 
-
             </div>
 
         </div>
@@ -482,8 +589,9 @@
             }
         }
 
-        function videoController(videoId, root) {
+        function videoController(videoId, root, videoData) {
             return {
+                // Existing properties
                 isPlaying: false,
                 progress: 0,
                 duration: 0,
@@ -494,6 +602,16 @@
                 lastVolume: 1.0,
                 isDraggingVolume: false,
                 lastTap: 0,
+                videoData: videoData,
+
+                // New properties for enhanced progress bar and thumbnails
+                bufferProgress: 0,
+                showProgressHandle: false,
+                isDraggingProgress: false,
+                showThumbnail: false,
+                thumbnailTime: 0,
+                thumbnails: [],
+                thumbnailsGenerated: false,
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
@@ -511,6 +629,167 @@
                     } else {
                         this.lastVolume = this.volume;
                     }
+
+                    if (root.currentPlayingId === videoId) {
+                        video.play();
+                        this.isPlaying = true;
+                    }
+                },
+
+                // Enhanced thumbnail generation
+                generateThumbnails() {
+                    if (this.thumbnailsGenerated) return;
+                    
+                    const video = this.$refs.mainVideo;
+                    if (!video || !video.duration) return;
+
+                    this.thumbnailsGenerated = true;
+                    
+                    // Add buffer progress tracking
+                    video.addEventListener('progress', () => {
+                        if (video.buffered.length > 0) {
+                            const buffered = video.buffered.end(video.buffered.length - 1);
+                            this.bufferProgress = (buffered / video.duration) * 100;
+                        }
+                    });
+                },
+
+                // Enhanced progress bar methods
+                handleProgressHover(isHovering) {
+                    this.showProgressHandle = isHovering || this.isDraggingProgress;
+                },
+
+                handleProgressMouseMove(event) {
+                    if (!this.showProgressHandle && !this.isDraggingProgress) return;
+                    
+                    const container = this.$refs.progressContainer;
+                    const video = this.$refs.mainVideo;
+                    if (!container || !video) return;
+
+                    const rect = container.getBoundingClientRect();
+                    const pos = (event.clientX - rect.left) / rect.width;
+                    const time = pos * video.duration;
+                    
+                    this.thumbnailTime = Math.max(0, Math.min(video.duration, time));
+                    this.showThumbnailPreview(event.clientX - rect.left, time);
+                },
+
+                showThumbnailPreview(x, time) {
+                    const preview = this.$refs.thumbnailPreview;
+                    const canvas = this.$refs.thumbnailCanvas;
+                    const container = this.$refs.progressContainer;
+                    
+                    if (!preview || !canvas || !container) return;
+
+                    // Position the preview
+                    const containerRect = container.getBoundingClientRect();
+                    const previewWidth = 120;
+                    let leftPos = x - (previewWidth / 2);
+                    
+                    // Keep preview within bounds
+                    leftPos = Math.max(0, Math.min(containerRect.width - previewWidth, leftPos));
+                    
+                    preview.style.left = leftPos + 'px';
+                    preview.style.display = 'block';
+                    this.showThumbnail = true;
+
+                    // Update thumbnail image
+                    this.updateThumbnailCanvas(time);
+                },
+
+                updateThumbnailCanvas(time) {
+                    const video = this.$refs.mainVideo;
+                    const canvas = this.$refs.thumbnailCanvas;
+                    
+                    if (!video || !canvas) return;
+                    
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Use the current video element directly instead of creating a new one
+                    const currentTime = video.currentTime;
+                    const wasPlaying = !video.paused;
+                    
+                    // Temporarily seek to the desired time
+                    video.currentTime = time;
+                    
+                    const drawFrame = () => {
+                        try {
+                            // Clear canvas
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Draw the current video frame
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        } catch (error) {
+                            // If drawing fails, show a placeholder
+                            ctx.fillStyle = '#4a4a4a';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#ff6b35';
+                            ctx.font = '12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('Preview', canvas.width/2, canvas.height/2);
+                        }
+                        
+                        // Restore original time and play state
+                        video.currentTime = currentTime;
+                        if (wasPlaying) {
+                            video.play();
+                        }
+                    };
+                    
+                    // Wait for the seek to complete
+                    video.addEventListener('seeked', drawFrame, { once: true });
+                },
+
+                startProgressDrag(event) {
+                    this.isDraggingProgress = true;
+                    this.showProgressHandle = true;
+                    
+                    document.addEventListener('mousemove', this.handleProgressDrag.bind(this));
+                    document.addEventListener('mouseup', this.stopProgressDrag.bind(this));
+                    
+                    // Prevent text selection while dragging
+                    event.preventDefault();
+                    document.body.style.userSelect = 'none';
+                },
+
+                handleProgressDrag(event) {
+                    if (!this.isDraggingProgress) return;
+                    
+                    const container = this.$refs.progressContainer;
+                    const video = this.$refs.mainVideo;
+                    if (!container || !video) return;
+
+                    const rect = container.getBoundingClientRect();
+                    const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+                    const newTime = pos * video.duration;
+                    
+                    video.currentTime = newTime;
+                    this.currentTime = newTime;
+                    this.progress = pos * 100;
+                    
+                    // Update thumbnail preview during drag
+                    this.thumbnailTime = newTime;
+                    this.showThumbnailPreview(event.clientX - rect.left, newTime);
+                },
+
+                stopProgressDrag() {
+                    this.isDraggingProgress = false;
+                    this.showThumbnail = false;
+                    
+                    document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
+                    document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
+                    
+                    // Re-enable text selection
+                    document.body.style.userSelect = '';
+                },
+
+                // Utility function to format time
+                formatTime(seconds) {
+                    if (!seconds || isNaN(seconds)) return '00:00';
+                    
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
                 },
 
                 togglePlay() {
@@ -551,11 +830,13 @@
                     if (!video) return;
                     video.pause();
                     this.isPlaying = false;
+                    this.showThumbnail = false; // Hide thumbnail when video not visible
                 },
 
                 updateProgress() {
                     const video = this.$refs.mainVideo;
-                    if (!video || !video.duration) return;
+                    if (!video || !video.duration || this.isDraggingProgress) return;
+                    
                     this.currentTime = video.currentTime;
                     if (video.duration > 0) {
                         this.progress = (video.currentTime / video.duration) * 100;
@@ -565,12 +846,16 @@
                 },
 
                 setProgress(event) {
+                    if (this.isDraggingProgress) return; // Don't interfere with dragging
+                    
                     const video = this.$refs.mainVideo;
-                    const progressBar = this.$refs.progressBar;
+                    const progressBar = this.$refs.progressContainer;
                     if (!video || !progressBar) return;
+                    
                     const rect = progressBar.getBoundingClientRect();
                     const clientX = event.clientX || (event.touches && event.touches[0].clientX);
                     if (clientX === undefined) return;
+                    
                     const pos = (clientX - rect.left) / rect.width;
                     video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
                     this.updateProgress();
