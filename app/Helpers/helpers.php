@@ -57,7 +57,7 @@ if (!function_exists('user')) {
 if (!function_exists('is_admin')) {
     function is_admin()
     {
-        return Auth::user()->is_admin == User::IS_ADMIN;
+        return Auth::user()?->is_admin == User::IS_ADMIN ? true : false;
     }
 }
 

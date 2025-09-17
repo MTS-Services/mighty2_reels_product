@@ -12,10 +12,12 @@
                         <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
 
-                    <div class="items-center gap-9 flex-1 -mr-10 hidden lg:flex justify-between">
-                        <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
-                            <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
-                        </x-button>
+                    <div class="items-center gap-9 -mr-10 hidden lg:flex justify-between">
+                        @if ($pageSlug == 'home' || $pageSlug == 'favorites' || $pageSlug == 'product')
+                            <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
+                                <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
+                            </x-button>
+                        @endif
 
                         @if ($pageSlug == 'home')
                             <div class="flex flex-col md:flex-row gap-4">
@@ -91,46 +93,70 @@
                             </div>
                         @endif
                     </div>
+                    @if (Auth::check())
+                        <div class="hidden lg:flex items-center gap-4 relative py-2"
+                            x-on:click.away="openProfileDropdown = false">
 
-                    <div class="hidden lg:flex items-center gap-4 relative py-2"
-                        x-on:click.away="openProfileDropdown = false">
-
-                        <div class="flex items-center gap-4 cursor-pointer"
-                            x-on:click="openProfileDropdown = !openProfileDropdown">
-                            <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
-                                class="w-11 h-11 rounded-full object-cover">
-                            <div class="flex flex-col">
-                                <span class="text-lg font-medium text-black">{{ user()->full_name }}</span>
-                                <span class="text-xs text-black">{{ user()->email }}</span>
+                            <div class="flex items-center gap-4 cursor-pointer"
+                                x-on:click="openProfileDropdown = !openProfileDropdown">
+                                <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
+                                    class="w-11 h-11 rounded-full object-cover">
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-medium text-black">{{ user()->full_name }}</span>
+                                    <span class="text-xs text-black">{{ user()->email }}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div x-show="openProfileDropdown" x-cloak
-                            x-transition:enter="transition-all duration-300 ease-in-out"
-                            x-transition:enter-start="grid-rows-[0fr] opacity-0"
-                            x-transition:enter-end="grid-rows-[1fr] opacity-100"
-                            x-transition:leave="transition-all duration-300 ease-in-out"
-                            x-transition:leave-start="grid-rows-[1fr] opacity-100"
-                            x-transition:leave-end="grid-rows-[0fr] opacity-0"
-                            class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
-                            <div class="p-4 space-y-2 overflow-hidden">
-                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                    href="{{ route('profile') }}" wire:navigate>
-                                    <flux:icon name="user-circle" /> Profile
-                                </x-button>
-                                @if (is_admin())
+                            <div x-show="openProfileDropdown" x-cloak
+                                x-transition:enter="transition-all duration-300 ease-in-out"
+                                x-transition:enter-start="grid-rows-[0fr] opacity-0"
+                                x-transition:enter-end="grid-rows-[1fr] opacity-100"
+                                x-transition:leave="transition-all duration-300 ease-in-out"
+                                x-transition:leave-start="grid-rows-[1fr] opacity-100"
+                                x-transition:leave-end="grid-rows-[0fr] opacity-0"
+                                class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
+                                <div class="p-4 space-y-2 overflow-hidden">
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                        href="{{ route('admin.products') }}" wire:navigate>
-                                        <flux:icon name="box" /> Dashboard
+                                        href="{{ route('profile') }}" wire:navigate>
+                                        <flux:icon name="user-circle" /> Profile
                                     </x-button>
-                                @endif
-                                <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                    wire:click="logout">
-                                    <flux:icon name="power" /> Logout
-                                </x-button>
+                                    @if (is_admin())
+                                        <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                            href="{{ route('admin.products') }}" wire:navigate>
+                                            <flux:icon name="box" /> Dashboard
+                                        </x-button>
+                                    @endif
+                                    <x-button class="w-full !justify-start" variant="secondary" size="sm"
+                                        wire:click="logout">
+                                        <flux:icon name="power" /> Logout
+                                    </x-button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="px-4 flex ml-auto gap-2 ">
+                            @if (Route::is('login'))
+                                <x-button route="register">
+                                    <flux:icon name="user-plus" />
+                                    Register
+                                </x-button>
+                            @elseif (Route::is('register'))
+                                <x-button variant="secondary" route="login">
+                                    <flux:icon name="log-in" />
+                                    Login
+                                </x-button>
+                            @else
+                                <x-button variant="secondary" route="login">
+                                    <flux:icon name="log-in" />
+                                </x-button>
+                                <x-button route="register">
+                                    <flux:icon name="user-plus" />
+                                </x-button>
+                            @endif
+
+                        </div>
+
+                    @endif
 
                     <div class="flex items-center gap-4">
                         <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
@@ -177,7 +203,7 @@
                         @endif
 
                         <x-button href="{{ route('favorites') }}"
-                            class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                            class="text-black !px-2 !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                             size="lg" linkText>
                             <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
                         </x-button>
@@ -235,7 +261,7 @@
                             <!-- Mobile Rooms Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedRooms"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1 pr-8"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
                                     wire:loading.class="opacity-50" wire:target="selectedRooms">
                                     <option value="" selected>All Rooms</option>
                                     @for ($room = 1; $room <= $maxRooms; $room++)
@@ -255,7 +281,7 @@
                             <!-- Mobile Cities Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedCity"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1 pr-8"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
                                     wire:loading.class="opacity-50" wire:target="selectedCity">
                                     <option value="" selected>All Cities</option>
                                     @foreach ($cities as $id => $name)
@@ -273,7 +299,7 @@
                             <!-- Mobile Type Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedType"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-4 py-1 pr-8"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
                                     wire:loading.class="opacity-50" wire:target="selectedType">
                                     <option value="" selected>All Types</option>
                                     <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>

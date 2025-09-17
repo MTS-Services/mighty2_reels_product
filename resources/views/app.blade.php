@@ -62,15 +62,12 @@
     class="bg-white min-h-screen font-inter">
 
 
-    @auth
-        @if (Route::is('admin.*'))
-            @livewire('partials.admin-header', ['pageSlug' => $page_slug])
-        @else
-            @livewire('partials.user-header', ['pageSlug' => $page_slug])
-        @endif
+
+    @if (Auth::check() && Route::is('admin.*'))
+        @livewire('partials.admin-header', ['pageSlug' => $page_slug])
     @else
-        @livewire('partials.guest-header', ['pageSlug' => $page_slug])
-    @endauth
+        @livewire('partials.user-header', ['pageSlug' => $page_slug])
+    @endif
 
     <main>
         {{ $slot }}
