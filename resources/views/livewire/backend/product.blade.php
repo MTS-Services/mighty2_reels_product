@@ -215,7 +215,7 @@
                                         <p class="text-xs text-gray-400">PNG, JPG, GIF up to 2MB each</p>
                                     </label>
                                 </div>
-                                @error('images')
+                                @error('images.*')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
 
