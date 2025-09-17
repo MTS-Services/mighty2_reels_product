@@ -116,6 +116,7 @@
                                 x-transition:leave-end="grid-rows-[0fr] opacity-0"
                                 class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
                                 <div class="p-4 space-y-2 overflow-hidden">
+                                    {{-- @if (Auth::check()) --}}
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                         href="{{ route('profile') }}" wire:navigate>
                                         <flux:icon name="user-circle" /> Profile
@@ -130,12 +131,13 @@
                                         wire:click="logout">
                                         <flux:icon name="power" /> Logout
                                     </x-button>
+
                                 </div>
                             </div>
                         </div>
                     @else
                         <div
-                            class="px-4 flex {{ Route::is('login') || Route::is('register') ? 'ml-auto' : '' }} gap-2 ">
+                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') ? 'ml-auto' : '' }} gap-2 ">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
@@ -191,28 +193,52 @@
                     </div>
                     <flux:separator variant="subtle" class="my-2" />
                     <div class="px-4 flex flex-col items-start gap-4 flex-1">
-                        <x-button href="{{ route('profile') }}" wire:navigate
-                            class="text-black !py-1 w-full justify-start  {{ $pageSlug == 'profile' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
-                            size="lg" linkText>
-                            <flux:icon name="user-circle" /> Profile
-                        </x-button>
-                        @if (is_admin())
-                            <x-button class="text-black !py-1 w-full !justify-start " size="lg"
-                                href="{{ route('admin.products') }}" wire:navigate linkText>
-                                <flux:icon name="box" /> Dashboard
+                        @if (Auth::check())
+                            <x-button href="{{ route('profile') }}" wire:navigate
+                                class="text-black !py-1 w-full justify-start  {{ $pageSlug == 'profile' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                size="lg" linkText>
+                                <flux:icon name="user-circle" /> Profile
                             </x-button>
+                            @if (is_admin())
+                                <x-button class="text-black !py-1 w-full !justify-start " size="lg"
+                                    href="{{ route('admin.products') }}" wire:navigate linkText>
+                                    <flux:icon name="box" /> Dashboard
+                                </x-button>
+                            @endif
+
+                            <x-button href="{{ route('favorites') }}"
+                                class="text-black !px-2 !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                size="lg" linkText>
+                                <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
+                            </x-button>
+                            <flux:spacer />
+                            <flux:separator variant="subtle" class="my-2" />
+                            <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
+                                <flux:icon name="power" /> Logout
+                            </x-button>
+                        @else
+                            @if (Route::is('login'))
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="register" wire:navigate>
+                                    <flux:icon name="user-plus" /> Register
+                                </x-button>
+                            @elseif (Route::is('register'))
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="login" wire:navigate>
+                                    <flux:icon name="log-in" /> Login
+                                </x-button>
+                            @else
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="login" wire:navigate>
+                                    <flux:icon name="log-in" /> Login
+                                </x-button>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="register" wire:navigate>
+                                    <flux:icon name="user-plus" /> Register
+                                </x-button>
+                            @endif
                         @endif
 
-                        <x-button href="{{ route('favorites') }}"
-                            class="text-black !px-2 !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
-                            size="lg" linkText>
-                            <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
-                        </x-button>
-                        <flux:spacer />
-                        <flux:separator variant="subtle" class="my-2" />
-                        <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
-                            <flux:icon name="power" /> Logout
-                        </x-button>
                     </div>
                 </div>
             </div>
