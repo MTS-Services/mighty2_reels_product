@@ -86,6 +86,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $product->title }}</h1>
 
                     <!-- Product Description -->
+                    
                     <div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
                         <p class="text-gray-700 leading-relaxed mb-3">{{ $product->description }}
                         </p>

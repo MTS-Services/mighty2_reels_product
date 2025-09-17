@@ -49,7 +49,7 @@
 
                 <div class="p-4 flex flex-col flex-1">
                     <div class="flex justify-between items-start mb-2">
-                        <a href="{{ route('admin.product.details') }}">
+                        <a href="{{ route('admin.product.details',['productId' => $product->id]) }}">
                             <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
                         </a>
                         <span
