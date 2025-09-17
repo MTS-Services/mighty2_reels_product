@@ -15,7 +15,7 @@ use Livewire\Component;
 #[Layout('app', ['title' => 'Login', 'page_slug' => 'login'])]
 class Login extends Component
 {
-    #[Validate('required|string|email')]
+    #[Validate('required|string|email|exists:users,email')]
     public string $email = '';
 
     #[Validate('required|string')]
