@@ -29,7 +29,9 @@
         @forelse($products as $product)
             <div
                 class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm lg:h-[430px] xl:h-[380px] flex flex-col">
-                <div class="aspect-video bg-gray-100 p-4">
+                <div class="aspect-video bg-gray-100 p-4 relative">
+                    <span
+                        class="badge badge-soft {{ $product->status_color }} absolute top-5 left-5">{{ $product->status_label }}</span>
                     @if ($product->images->count() > 0)
                         <a href="{{ route('admin.product.details', $product->id) }}">
                             <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
@@ -274,7 +276,7 @@
                                     @if ($videos)
                                         <div class="relative">
                                             <video controls class="w-full rounded-md h-48!"
-                                                src="{{ $videos->temporaryUrl() }}">
+                                                src="{{ $videos->temporaryUrl() }}" autoplay muted>
                                                 Your browser does not support the video tag.
                                             </video>
                                             <button type="button" wire:click="removeVideo"
@@ -286,7 +288,7 @@
                                     @elseif ($editMode && $tempVideos)
                                         <div class="relative">
                                             <video controls class="w-full rounded-md h-48!"
-                                                src="{{ asset('storage/' . $tempVideos['file']) }}">
+                                                src="{{ asset('storage/' . $tempVideos['file']) }}" autoplay muted>
                                                 Your browser does not support the video tag.
                                             </video>
                                             <button type="button" wire:click="removeVideo"

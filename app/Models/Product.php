@@ -99,6 +99,15 @@ class Product extends BaseModel
         return $this->type == self::TYPE_RENT ? 'Rent' : 'Sale';
     }
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->appends = array_merge(parent::getAppends(), [
+            'status_label',
+            'status_color',
+        ]);
+    }
+
     /**
      * Get the status label.
      */
@@ -106,8 +115,12 @@ class Product extends BaseModel
     {
         return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
     }
+    public function getStatusColorAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'badge-success' : 'badge-error';
+    }
 
-     public function favouriteReels()
+    public function favouriteReels()
     {
         return $this->hasMany(FavouretReel::class, 'product_id');
     }
@@ -118,8 +131,8 @@ class Product extends BaseModel
     public function favoritedByUsers()
     {
         return $this->belongsToMany(User::class, 'favouret_reels', 'product_id', 'user_id')
-                    ->withTimestamps()
-                    ->withPivot(['created_by', 'updated_by', 'deleted_by']);
+            ->withTimestamps()
+            ->withPivot(['created_by', 'updated_by', 'deleted_by']);
     }
 
     /**
@@ -136,7 +149,7 @@ class Product extends BaseModel
     public function isFavoritedBy($userId)
     {
         return $this->favouriteReels()
-                    ->where('user_id', $userId)
-                    ->exists();
+            ->where('user_id', $userId)
+            ->exists();
     }
 }

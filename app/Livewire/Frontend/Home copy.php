@@ -84,19 +84,22 @@ class Home extends Component
         if ($this->searchTerm !== '') {
             $query->where(function ($q) {
                 $q->where('title', 'like', '%' . $this->searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
+                    ->orWhere('price', 'like', '%' . $this->searchTerm . '%')
+                    ->orWhere('room', 'like', '%' . $this->searchTerm . '%');
+            })->orWhereHas('city', function ($q) {
+                $q->where('name', 'like', '%' . $this->searchTerm . '%');
             });
         }
 
-        if ($this->selectedRooms !== '') {
+        if ($this->selectedRooms != '') {
             $query->where('room', $this->selectedRooms);
         }
 
-        if ($this->selectedCity !== '') {
+        if ($this->selectedCity != '') {
             $query->where('city_id', $this->selectedCity);
         }
 
-        if ($this->selectedType !== '') {
+        if ($this->selectedType != '') {
             $query->where('type', $this->selectedType);
         }
 
@@ -140,6 +143,7 @@ class Home extends Component
         }
 
         $this->isLoading = false;
+        $this->render();
     }
 
     public function resetFilters()

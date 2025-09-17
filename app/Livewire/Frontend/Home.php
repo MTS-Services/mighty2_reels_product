@@ -23,17 +23,17 @@ class Home extends Component
     public $isMuted = false;
     public $videos = [];
 
-    // Filter properties with URL binding
-    #[Url(as: 'search')]
+    // Filter properties with URL binding - these handle the actual data filtering
+    #[Url(as: 'search', except: '')]
     public $searchTerm = '';
 
-    #[Url(as: 'rooms')]
+    #[Url(as: 'rooms', except: '')]
     public $selectedRooms = '';
 
-    #[Url(as: 'city')]
+    #[Url(as: 'city', except: '')]
     public $selectedCity = '';
 
-    #[Url(as: 'type')]
+    #[Url(as: 'type', except: '')]
     public $selectedType = '';
 
     // Loading state
@@ -41,10 +41,19 @@ class Home extends Component
 
     protected $listeners = [
         'updateHomeFilters' => 'applyFilters',
+        'resetFilters' => 'resetFilters',
     ];
 
     public function mount()
     {
+        // Sync initial URL parameters with UserHeader component
+        $this->dispatch('syncFilters', [
+            'searchTerm' => $this->searchTerm,
+            'selectedRooms' => $this->selectedRooms,
+            'selectedCity' => $this->selectedCity,
+            'selectedType' => $this->selectedType,
+        ]);
+
         // Load videos initially
         $this->loadVideos();
     }
@@ -56,11 +65,20 @@ class Home extends Component
     {
         if (in_array($property, ['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType'])) {
             $this->loadVideos();
+
+            // Dispatch to header component to keep it in sync
+            $this->dispatch('syncFilters', [
+                'searchTerm' => $this->searchTerm,
+                'selectedRooms' => $this->selectedRooms,
+                'selectedCity' => $this->selectedCity,
+                'selectedType' => $this->selectedType,
+            ]);
         }
     }
 
     /**
      * Apply filters coming from UserHeader component (via event dispatch)
+     * This method won't be needed anymore since we're using URL navigation
      */
     public function applyFilters($filters)
     {
@@ -68,8 +86,6 @@ class Home extends Component
         $this->selectedRooms = $filters['selectedRooms'] ?? '';
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
-
-        $this->loadVideos();
     }
 
     public function loadVideos()
@@ -81,22 +97,32 @@ class Home extends Component
             ->active()
             ->has('reels'); // Only products with reels
 
-        if ($this->searchTerm !== '') {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $this->searchTerm . '%');
+        // Search functionality - improved logic
+        if (!empty(trim($this->searchTerm))) {
+            $searchTerm = trim($this->searchTerm);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('price', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('room', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('city', function ($cityQuery) use ($searchTerm) {
+                        $cityQuery->where('name', 'like', '%' . $searchTerm . '%');
+                    });
             });
         }
 
-        if ($this->selectedRooms !== '') {
+        // Room filter
+        if (!empty($this->selectedRooms)) {
             $query->where('room', $this->selectedRooms);
         }
 
-        if ($this->selectedCity !== '') {
+        // City filter
+        if (!empty($this->selectedCity)) {
             $query->where('city_id', $this->selectedCity);
         }
 
-        if ($this->selectedType !== '') {
+        // Type filter
+        if (!empty($this->selectedType)) {
             $query->where('type', $this->selectedType);
         }
 
@@ -137,6 +163,9 @@ class Home extends Component
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
             $this->currentReelId = $this->videos[0]['reel_id'];
+        } else {
+            $this->currentVideoId = null;
+            $this->currentReelId = null;
         }
 
         $this->isLoading = false;
@@ -145,7 +174,17 @@ class Home extends Component
     public function resetFilters()
     {
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
-        $this->loadVideos();
+
+        // Clear URL parameters by redirecting to clean URL
+        $this->redirect(route('home'), navigate: true);
+
+        // Dispatch to header component to keep it in sync
+        $this->dispatch('syncFilters', [
+            'searchTerm' => '',
+            'selectedRooms' => '',
+            'selectedCity' => '',
+            'selectedType' => '',
+        ]);
     }
 
     public function updateCurrentVideo($videoId)
@@ -194,6 +233,7 @@ class Home extends Component
                 session()->flash('message', 'Added to favorites');
             }
 
+            // Update the videos array
             foreach ($this->videos as &$video) {
                 if ($video['id'] == $targetId) {
                     $video['favourite'] = $this->favourite[$targetId];
