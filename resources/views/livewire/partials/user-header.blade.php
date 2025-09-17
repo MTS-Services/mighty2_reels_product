@@ -6,7 +6,7 @@
     }">
         <header class="bg-orange-light/20 shadow sticky top-0 right-0 z-50 backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-3 px-4 md:px-6 lg:px-8">
-                <nav class="flex items-center justify-between gap-16">
+                <nav class="flex items-center justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                         <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
@@ -134,7 +134,8 @@
                             </div>
                         </div>
                     @else
-                        <div class="px-4 flex ml-auto gap-2 ">
+                        <div
+                            class="px-4 flex {{ Route::is('login') || Route::is('register') ? 'ml-auto' : '' }} gap-2 ">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
