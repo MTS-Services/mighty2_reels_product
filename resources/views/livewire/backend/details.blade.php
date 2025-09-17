@@ -14,67 +14,45 @@
         <!-- Main Content -->
         <div class="max-w-6xl mx-auto px-4 py-8">
             <div class="grid md:grid-cols-2 gap-12">
-                <!-- Product Image Section -->
+
                 <div>
-                    <!-- Main Product Image -->
-                    {{-- <div class=" from-orange-50 to-red-50 rounded-2xl p-8 mb-6">
-                        <img src="{{ storage_url($product->images->first()->file)}}" alt="{{$product->title}}">
-                    </div> --}}
+                    <div class="bg-gradient-to-br rounded-2xl  mb-4 flex items-center justify-center shadow-sm">
+                        @if ($activeType === 'image')
+                            <img src="{{ storage_url($activeMedia) }}" alt="{{ $product->title }}"
+                                class="w-full h-80 object-contain rounded">
+                        @elseif ($activeType === 'video')
+                            <video class="w-full h-80 object-contain rounded" controls muted autoplay>
+                                <source src="{{ storage_url($activeMedia) }}" type="video/mp4">
+                            </video>
+                        @endif
+                    </div>
 
-                    <!-- Thumbnail Navigation -->
-
-                   <div class="bg-gradient-to-br rounded-2xl  mb-4 flex items-center justify-center">
-    @if ($activeType === 'image')
-        <img src="{{ storage_url($activeMedia) }}" alt="{{ $product->title }}" class="w-full h-80 object-contain rounded">
-    @elseif ($activeType === 'video')
-        <video class="w-full h-80 object-contain rounded" controls>
-            <source src="{{ storage_url($activeMedia) }}" type="video/mp4">
-        </video>
-    @endif
-</div>
-
-<div class="relative flex items-center">
-    <!-- Left Arrow -->
-    <button onclick="document.getElementById('thumbSlider').scrollBy({ left: -100, behavior: 'smooth' })"
-            class="absolute left-0 z-10  rounded-full p-2  ">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
-    </button>
-
-    <!-- Thumbnails Slider -->
-    <div id="thumbSlider" class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8">
-        <!-- Images Thumbnails -->
-        @foreach ($product->images as $image)
-            <div wire:click="changeMedia('{{ $image->file }}', 'image')"
-                 class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                    <div class="relative flex items-center">
+                        <!-- Thumbnails Slider -->
+                        <div id="thumbSlider"
+                            class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8 shadow-sm">
+                            <!-- Images Thumbnails -->
+                            @foreach ($product->images as $image)
+                                <div wire:click="changeMedia('{{ $image->file }}', 'image')"
+                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
                  {{ $activeMedia === $image->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-                <img src="{{ storage_url($image->file) }}" class="w-full h-full object-cover rounded">
-            </div>
-        @endforeach
+                                    <img src="{{ storage_url($image->file) }}"
+                                        class="w-full h-full object-cover rounded">
+                                </div>
+                            @endforeach
 
-        <!-- Videos Thumbnails -->
-        @foreach ($videos as $video)
-            <div wire:click="changeMedia('{{ $video->file }}', 'video')"
-                 class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                            <!-- Videos Thumbnails -->
+                            @foreach ($videos as $video)
+                                <div wire:click="changeMedia('{{ $video->file }}', 'video')"
+                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
                  {{ $activeMedia === $video->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-                <video class="w-full h-full object-cover rounded">
-                    <source src="{{ storage_url($video->file) }}" type="video/mp4">
-                </video>
-            </div>
-        @endforeach
-    </div>
-
-    <!-- Right Arrow -->
-    <button onclick="document.getElementById('thumbSlider').scrollBy({ left: 100, behavior: 'smooth' })"
-            class="absolute right-0 z-10  rounded-full p-2 ">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
-    </button>
-</div>
+                                    <video class="w-full h-full object-cover rounded" autoplay muted>
+                                        <source src="{{ storage_url($video->file) }}" type="video/mp4">
+                                    </video>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
 
 
 
@@ -86,11 +64,30 @@
                     <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $product->title }}</h1>
 
                     <!-- Product Description -->
-                    
-                    <div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
-                        <p class="text-gray-700 leading-relaxed mb-3">{{ $product->description }}
+
+
+                    <div class="bg-white rounded-xl p-6 shadow-sm border mb-6" x-data="{
+                        showDescription: false,
+                        fullDescription: `{{ $product->description }}`,
+                        get truncatedDescription() {
+                            return this.fullDescription.length > 650 ? this.fullDescription.substring(0, 650) + '...' : this.fullDescription;
+                        },
+                        get shouldShowButton() {
+                            return this.fullDescription.length > 650;
+                        }
+                    }">
+                        <p class="text-gray-700 leading-relaxed mb-3"
+                            x-text="showDescription ? fullDescription : truncatedDescription">
                         </p>
-                        <button class="text-orange-500 font-medium hover:text-orange-600">Read more...</button>
+
+                        <!-- Only show button if description is longer than 200 characters -->
+                        <template x-if="shouldShowButton">
+                            <button
+                                class="text-orange-500 font-medium hover:text-orange-600 transition-colors duration-200"
+                                @click="showDescription = !showDescription"
+                                x-text="showDescription ? 'Show Less' : 'Show More'">
+                            </button>
+                        </template>
                     </div>
 
                 </div>

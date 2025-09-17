@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Backend;
 
-use App\Models\Product; 
+use App\Models\Product;
 use App\Models\ProductReel; // video model
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -19,8 +19,9 @@ class Details extends Component
     {
         $this->product = Product::with('images')->findOrFail($productId);
 
+
         // Load videos from ProductReel
-        $this->videos = ProductReel::where('product_id', $productId)->get();
+        $this->videos = $this->product->reels;
 
         if ($this->product->images->isNotEmpty()) {
             $this->activeMedia = $this->product->images->first()->file;

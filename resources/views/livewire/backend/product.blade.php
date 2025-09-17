@@ -31,7 +31,7 @@
                 class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm lg:h-[430px] xl:h-[380px] flex flex-col">
                 <div class="aspect-video bg-gray-100 p-4">
                     @if ($product->images->count() > 0)
-                        <a href="{{ route('admin.details',['productId' => $product->id]) }}">
+                        <a href="{{ route('admin.product.details', $product->id) }}">
                             <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
                                 class="w-full md:h-60 lg:h-48 object-cover rounded">
                         </a>
@@ -49,7 +49,7 @@
 
                 <div class="p-4 flex flex-col flex-1">
                     <div class="flex justify-between items-start mb-2">
-                        <a href="{{ route('admin.product.details',['productId' => $product->id]) }}">
+                        <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}">
                             <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
                         </a>
                         <span
