@@ -46,8 +46,6 @@ class Product extends Component
         'city_id' => 'sometimes|required|exists:cities,id',
         'type' => 'sometimes|required|in:0,1',
         'status' => 'sometimes|required|in:0,1',
-        'images.*' => 'sometimes|required|image|mimes:jpg,jpeg,png|max:10240', // 10MB
-        'videos' => 'sometimes|required|mimes:mp4,avi,mov,m4v|max:51200', // 50MB
     ];
 
     protected $messages = [
@@ -57,9 +55,7 @@ class Product extends Component
         'room.required' => 'Number of rooms is required.',
         'city_id.required' => 'City selection is required.',
         'images.*.image' => 'All uploaded files must be valid images.',
-        'images.*.max' => 'Images must not exceed 10MB.',
         'videos.mimes' => 'The video must be in MP4, AVI, or MOV format.',
-        'videos.max' => 'The video must not exceed 50MB.',
     ];
 
     public function openModal()
@@ -94,6 +90,8 @@ class Product extends Component
 
     public function saveProduct()
     {
+        $this->rules['images.*'] = ($this->editMode ? 'nullable|' : 'required|') . 'image|mimes:jpg,jpeg,png,gif';
+        $this->rules['videos'] = ($this->editMode ? 'nullable|' : 'required|') . 'mimes:mp4,avi,mov,m4v';
         $this->validate();
 
         try {
