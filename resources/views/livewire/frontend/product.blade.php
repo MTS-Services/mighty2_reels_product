@@ -31,17 +31,20 @@
             position: absolute;
             bottom: 100%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 80px;
-            background: rgba(0, 0, 0, 0.9);
+            transform: translateX(-50%) translateY(-8px);
+            width: 160px;
+            height: 90px;
+            background: rgba(0, 0, 0, 0.95);
             border: 2px solid #ff6b35;
             border-radius: 8px;
             overflow: hidden;
             display: none;
             pointer-events: none;
             z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.15s ease, transform 0.15s ease;
         }
+
 
         .thumbnail-preview canvas {
             width: 100%;
@@ -51,29 +54,31 @@
 
         .thumbnail-time {
             position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            font-size: 10px;
-            padding: 2px 4px;
-            border-radius: 2px;
-            font-family: monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         /* Enhanced Progress Bar Styles */
         .progress-container {
             position: relative;
-            height: 6px;
-            background: rgba(74, 74, 74, 0.8);
-            border-radius: 3px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
             cursor: pointer;
-            transition: height 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .progress-container:hover {
-            height: 8px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.4);
         }
 
         .progress-fill {
@@ -233,7 +238,7 @@
 
         </div>
 
-        <div x-show="$wire.showMergedView" >
+        <div x-show="$wire.showMergedView">
             <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
@@ -617,6 +622,8 @@
                 thumbnailTime: 0,
                 thumbnails: [],
                 thumbnailsGenerated: false,
+                wasPlayingBeforeDrag: false,
+                wasPlayingBeforeProgressDrag: false,
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
@@ -649,6 +656,10 @@
                     if (!video || !video.duration) return;
 
                     this.thumbnailsGenerated = true;
+                    this.thumbnails = [];
+
+                    // Pre-generate thumbnails at key intervals for smooth preview
+                    const thumbnailCount = 50; // Number of thumbnails to generate
 
                     // Add buffer progress tracking
                     video.addEventListener('progress', () => {
@@ -657,11 +668,93 @@
                             this.bufferProgress = (buffered / video.duration) * 100;
                         }
                     });
+
+                    // Generate thumbnails after video is fully loaded
+                    video.addEventListener('loadeddata', () => {
+                        this.preGenerateThumbnails(thumbnailCount);
+                    });
+                },
+                preGenerateThumbnails(count) {
+                    const video = this.$refs.mainVideo;
+                    if (!video || !video.duration) return;
+
+                    const interval = video.duration / count;
+                    let index = 0;
+
+                    const generateNext = () => {
+                        if (index >= count) return;
+
+                        const time = index * interval;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 160;
+                        canvas.height = 90;
+                        const ctx = canvas.getContext('2d');
+
+                        // Create a temporary video element for thumbnail generation
+                        const tempVideo = document.createElement('video');
+                        tempVideo.src = video.src;
+                        tempVideo.currentTime = time;
+                        tempVideo.muted = true;
+                        tempVideo.style.display = 'none';
+                        document.body.appendChild(tempVideo);
+
+                        tempVideo.addEventListener('seeked', () => {
+                            try {
+                                ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+                                this.thumbnails[index] = {
+                                    time: time,
+                                    canvas: canvas,
+                                    dataUrl: canvas.toDataURL()
+                                };
+                            } catch (error) {
+                                // Fallback thumbnail
+                                ctx.fillStyle = '#4a4a4a';
+                                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                ctx.fillStyle = '#ff6b35';
+                                ctx.font = '12px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(this.formatTime(time), canvas.width / 2, canvas.height / 2);
+
+                                this.thumbnails[index] = {
+                                    time: time,
+                                    canvas: canvas,
+                                    dataUrl: canvas.toDataURL()
+                                };
+                            }
+
+                            document.body.removeChild(tempVideo);
+                            index++;
+
+                            // Generate next thumbnail with small delay for smooth performance
+                            setTimeout(generateNext, 50);
+                        }, {
+                            once: true
+                        });
+
+                        tempVideo.load();
+                    };
+
+                    generateNext();
                 },
 
                 // Enhanced progress bar methods
                 handleProgressHover(isHovering) {
                     this.showProgressHandle = isHovering || this.isDraggingProgress;
+
+                    if (!isHovering && !this.isDraggingProgress) {
+                        // Smooth hide animation for thumbnail
+                        const preview = this.$refs.thumbnailPreview;
+                        if (preview) {
+                            preview.style.opacity = '0';
+                            preview.style.transform = 'translateX(0) translateY(-4px)';
+                            setTimeout(() => {
+                                if (!this.showThumbnail) {
+                                    preview.style.display = 'none';
+                                }
+                                this.showThumbnail = false;
+                            }, 150);
+                        }
+                    }
                 },
 
                 handleProgressMouseMove(event) {
@@ -673,9 +766,9 @@
 
                     const rect = container.getBoundingClientRect();
                     const pos = (event.clientX - rect.left) / rect.width;
-                    const time = pos * video.duration;
+                    const time = Math.max(0, Math.min(video.duration, pos * video.duration));
 
-                    this.thumbnailTime = Math.max(0, Math.min(video.duration, time));
+                    this.thumbnailTime = time;
                     this.showThumbnailPreview(event.clientX - rect.left, time);
                 },
 
@@ -688,74 +781,104 @@
 
                     // Position the preview
                     const containerRect = container.getBoundingClientRect();
-                    const previewWidth = 120;
+                    const previewWidth = 160;
                     let leftPos = x - (previewWidth / 2);
 
                     // Keep preview within bounds
-                    leftPos = Math.max(0, Math.min(containerRect.width - previewWidth, leftPos));
+                    leftPos = Math.max(10, Math.min(containerRect.width - previewWidth - 10, leftPos));
 
                     preview.style.left = leftPos + 'px';
                     preview.style.display = 'block';
+                    preview.style.opacity = '1';
+                    preview.style.transform = 'translateX(0) translateY(-8px)';
                     this.showThumbnail = true;
 
-                    // Update thumbnail image
+                    // Update thumbnail without affecting video playback
                     this.updateThumbnailCanvas(time);
                 },
 
                 updateThumbnailCanvas(time) {
-                    const video = this.$refs.mainVideo;
                     const canvas = this.$refs.thumbnailCanvas;
-
-                    if (!video || !canvas) return;
+                    if (!canvas) return;
 
                     const ctx = canvas.getContext('2d');
 
-                    // Use the current video element directly instead of creating a new one
-                    const currentTime = video.currentTime;
-                    const wasPlaying = !video.paused;
+                    // Find the closest pre-generated thumbnail
+                    if (this.thumbnails && this.thumbnails.length > 0) {
+                        let closestThumbnail = this.thumbnails[0];
+                        let minDiff = Math.abs(time - closestThumbnail.time);
 
-                    // Temporarily seek to the desired time
-                    video.currentTime = time;
+                        for (let thumbnail of this.thumbnails) {
+                            if (!thumbnail) continue;
+                            const diff = Math.abs(time - thumbnail.time);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                closestThumbnail = thumbnail;
+                            }
+                        }
 
-                    const drawFrame = () => {
-                        try {
-                            // Clear canvas
+                        if (closestThumbnail && closestThumbnail.canvas) {
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                            // Draw the current video frame
-                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        } catch (error) {
-                            // If drawing fails, show a placeholder
-                            ctx.fillStyle = '#4a4a4a';
-                            ctx.fillRect(0, 0, canvas.width, canvas.height);
-                            ctx.fillStyle = '#ff6b35';
-                            ctx.font = '12px Arial';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('Preview', canvas.width / 2, canvas.height / 2);
+                            ctx.drawImage(closestThumbnail.canvas, 0, 0);
+                            return;
                         }
+                    }
 
-                        // Restore original time and play state
-                        video.currentTime = currentTime;
-                        if (wasPlaying) {
-                            video.play();
-                        }
-                    };
+                    // Fallback: generate thumbnail on the fly (without affecting main video)
+                    this.generateInstantThumbnail(time, ctx);
+                },
+                generateInstantThumbnail(time, ctx) {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
 
-                    // Wait for the seek to complete
-                    video.addEventListener('seeked', drawFrame, {
-                        once: true
-                    });
+                    // Create temporary canvas for thumbnail
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 160;
+                    tempCanvas.height = 90;
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    // Use video's current frame as base and apply time-based effects
+                    try {
+                        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+
+                        // Add time overlay
+                        tempCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                        // Copy to main canvas
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        ctx.drawImage(tempCanvas, 0, 0);
+                    } catch (error) {
+                        // Fallback placeholder
+                        ctx.fillStyle = '#4a4a4a';
+                        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        ctx.fillStyle = '#ff6b35';
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Preview', ctx.canvas.width / 2, ctx.canvas.height / 2 - 10);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '12px Arial';
+                        ctx.fillText(this.formatTime(time), ctx.canvas.width / 2, ctx.canvas.height / 2 + 10);
+                    }
                 },
 
                 startProgressDrag(event) {
                     this.isDraggingProgress = true;
                     this.showProgressHandle = true;
 
+                    // Store current play state
+                    const video = this.$refs.mainVideo;
+                    this.wasPlayingBeforeProgressDrag = video && !video.paused;
+
+                    // Keep thumbnail visible during drag
+                    this.showThumbnail = true;
+
                     document.addEventListener('mousemove', this.handleProgressDrag.bind(this));
                     document.addEventListener('mouseup', this.stopProgressDrag.bind(this));
 
-                    // Prevent text selection while dragging
+                    // Prevent text selection while dragging and stop propagation
                     event.preventDefault();
+                    event.stopPropagation();
                     document.body.style.userSelect = 'none';
                 },
 
@@ -770,25 +893,58 @@
                     const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
                     const newTime = pos * video.duration;
 
-                    video.currentTime = newTime;
+                    // Update progress visually without seeking
                     this.currentTime = newTime;
                     this.progress = pos * 100;
+                    this.thumbnailTime = newTime;
 
                     // Update thumbnail preview during drag
-                    this.thumbnailTime = newTime;
                     this.showThumbnailPreview(event.clientX - rect.left, newTime);
+
+                    event.preventDefault();
+                    event.stopPropagation();
                 },
 
-                stopProgressDrag() {
+                stopProgressDrag(event) {
                     this.isDraggingProgress = false;
-                    this.showThumbnail = false;
+
+                    // Actually seek the video only when drag stops
+                    const video = this.$refs.mainVideo;
+                    if (video) {
+                        video.currentTime = this.currentTime;
+
+                        // Restore play state if it was playing before drag
+                        if (this.wasPlayingBeforeProgressDrag && video.paused) {
+                            video.play().catch(() => {});
+                            this.isPlaying = true;
+                        }
+                    }
+
+                    // Hide thumbnail after short delay
+                    setTimeout(() => {
+                        const preview = this.$refs.thumbnailPreview;
+                        if (preview && !this.showProgressHandle) {
+                            preview.style.opacity = '0';
+                            setTimeout(() => {
+                                if (!this.showThumbnail) {
+                                    preview.style.display = 'none';
+                                }
+                                this.showThumbnail = false;
+                            }, 150);
+                        }
+                    }, 300);
 
                     document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
                     document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
 
                     // Re-enable text selection
                     document.body.style.userSelect = '';
-                },
+
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }
 
                 // Utility function to format time
                 formatTime(seconds) {
@@ -859,6 +1015,9 @@
                     const progressBar = this.$refs.progressContainer;
                     if (!video || !progressBar) return;
 
+                    // Store play state before seeking
+                    const wasPlaying = !video.paused;
+
                     const rect = progressBar.getBoundingClientRect();
                     const clientX = event.clientX || (event.touches && event.touches[0].clientX);
                     if (clientX === undefined) return;
@@ -866,6 +1025,14 @@
                     const pos = (clientX - rect.left) / rect.width;
                     video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
                     this.updateProgress();
+
+                    // Restore play state after seeking
+                    if (wasPlaying && video.paused) {
+                        video.play().catch(() => {});
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
                 },
 
                 toggleMute() {
@@ -931,36 +1098,28 @@
 
                 startTopVolumeDrag(event) {
                     this.isDraggingVolume = true;
+
+                    // Store current play state to restore it later
+                    const video = this.$refs.mainVideo;
+                    this.wasPlayingBeforeDrag = video && !video.paused;
+
                     document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
                     document.addEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
+
+                    // Prevent default behavior and stop event propagation
                     event.preventDefault();
+                    event.stopPropagation();
+
+                    // Prevent focus changes that could pause the video
+                    document.body.style.userSelect = 'none';
                 },
 
                 handleTopVolumeDrag(event) {
                     if (!this.isDraggingVolume) return;
-                    const slider = this.$refs.topVolumeSlider;
-                    if (!slider) return;
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = event.clientX;
-                    const pos = (clientX - rect.left) / rect.width;
-                    this.volume = Math.max(0, Math.min(1, pos));
-                    this.$refs.mainVideo.volume = this.volume;
-                    this.$refs.mainVideo.muted = false;
-                    this.isMuted = false;
-                    this.lastVolume = this.volume;
-                    this.updateVolumeDisplay();
-                },
 
-                stopTopVolumeDrag() {
-                    this.isDraggingVolume = false;
-                    document.removeEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
-                    document.removeEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
-                },
-
-                setTopVolume(event) {
                     const slider = this.$refs.topVolumeSlider;
                     const video = this.$refs.mainVideo;
-                    if (!slider || !video || this.isDraggingVolume) return;
+                    if (!slider || !video) return;
 
                     const rect = slider.getBoundingClientRect();
                     const clientX = event.clientX;
@@ -974,7 +1133,66 @@
                     if (this.volume > 0) {
                         this.lastVolume = this.volume;
                     }
-                }
+
+                    // Ensure video continues playing if it was playing before drag
+                    if (this.wasPlayingBeforeDrag && video.paused) {
+                        video.play().catch(() => {});
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                stopTopVolumeDrag(event) {
+                    this.isDraggingVolume = false;
+
+                    document.removeEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
+                    document.removeEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
+
+                    // Re-enable text selection
+                    document.body.style.userSelect = '';
+
+                    // Restore play state if needed
+                    const video = this.$refs.mainVideo;
+                    if (this.wasPlayingBeforeDrag && video && video.paused) {
+                        video.play().catch(() => {});
+                    }
+
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                },
+
+                setTopVolume(event) {
+                    const slider = this.$refs.topVolumeSlider;
+                    const video = this.$refs.mainVideo;
+                    if (!slider || !video || this.isDraggingVolume) return;
+
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = event.clientX;
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+                    // Store play state before volume change
+                    const wasPlaying = !video.paused;
+
+                    this.volume = pos;
+                    video.volume = this.volume;
+                    video.muted = this.volume === 0;
+                    this.isMuted = this.volume === 0;
+
+                    if (this.volume > 0) {
+                        this.lastVolume = this.volume;
+                    }
+
+                    // Restore play state if it was playing
+                    if (wasPlaying && video.paused) {
+                        video.play().catch(() => {});
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
             };
         }
     </script>
