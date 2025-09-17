@@ -284,7 +284,8 @@
             <div x-show="!$wire.showMergedView"
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
 
-                <template x-for="(video, index) in allMediaItems" :key="video.id + '-' + (video.reel_id || 'default')">
+                <template x-for="(video, index) in (allMediaItems || [])"
+                    :key="`media-${video.id}-${video.type}-${video.reel_id || video.image_id || index}-${index}`">
                     <div class="video-item snap-start pb-0.5" x-data="videoController(video.id, $root, video)"
                         x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()"
                         :id="`media-item-${index}`">
@@ -445,8 +446,8 @@
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
                 class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
                 <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
-                    <template x-for="(media, index) in allMediaItems"
-                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
+                    <template x-for="(media, index) in (allMediaItems || [])"
+                        :key="`merged-${media.id}-${media.type}-${media.reel_id || media.image_id || index}-${index}`">
                         <div @click="viewMediaItem(index)"
                             class="relative rounded-2xl overflow-hidden mb-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
                             :class="{ 'bg-white': selectedMediaIndex === index }">
@@ -560,11 +561,21 @@
                 selectedMediaIndex: 0,
 
                 init() {
-                    this.displayVideos = @js($videos);
-                    this.allMediaItems = @js($allMedia);
 
-                    if (this.displayVideos.length > 0) {
-                        this.activeVideoIdInView = this.displayVideos[0].id;
+                    try {
+                        this.displayVideos = @js($videos) || [];
+                        this.allMediaItems = @js($allMedia) || [];
+
+                        if (!Array.isArray(this.displayVideos)) this.displayVideos = [];
+                        if (!Array.isArray(this.allMediaItems)) this.allMediaItems = [];
+
+                        if (this.displayVideos.length > 0) {
+                            this.activeVideoIdInView = this.displayVideos[0].id;
+                        }
+                    } catch (error) {
+                        console.error('Error initializing:', error);
+                        this.displayVideos = [];
+                        this.allMediaItems = [];
                     }
 
                     // Watch for the scrollToIndex property from Livewire to change
@@ -944,7 +955,7 @@
                         event.preventDefault();
                         event.stopPropagation();
                     }
-                }
+                },
 
                 // Utility function to format time
                 formatTime(seconds) {
