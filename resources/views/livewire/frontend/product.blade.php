@@ -336,7 +336,7 @@
                                         @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
                                         @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
                                         @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay muted>
+                                        class="w-full h-full object-cover" loop playsinline autoplay>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>

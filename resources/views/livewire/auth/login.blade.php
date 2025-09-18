@@ -32,6 +32,9 @@
                         <p class="mt-2 text-xs text-gray-500">
                             Please enter your registered email.
                         </p>
+                        @error('email')
+                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="flex justify-between items-center mb-2">
 
@@ -42,9 +45,7 @@
                             class="text-sm text-gray-500 hover:underline">Forgot password?</a>
                     </div>
 
-                    @error('password')
-                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+
                     <div class="mt-1" x-data="{ show: false }">
                         <div class="relative">
                             <input id="password" wire:model="password" :type="show ? 'text' : 'password'" required
@@ -72,6 +73,9 @@
                                 </svg>
                             </span>
                         </div>
+                        @error('password')
+                            <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="flex items-center mb-6">
@@ -88,7 +92,7 @@
 
 
                 </form>
-                <x-button variant="secondary" href="{{route('auth.social.redirect', 'google')}}" class="w-full mt-3">
+                <x-button variant="secondary" href="{{ route('auth.social.redirect', 'google') }}" class="w-full mt-3">
                     <img src="{{ asset('assets/images/google.svg') }}" alt="google" class="w-5 h-5">
                     <span>Continue With Google</span>
                 </x-button>

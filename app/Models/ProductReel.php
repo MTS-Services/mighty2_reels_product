@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProductReel extends BaseModel
 {
     //
- const STATUS_INACTIVE = 0;
+    const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
 
     protected $fillable = [
@@ -25,6 +25,16 @@ class ProductReel extends BaseModel
         'status' => 'integer',
         'sort_order' => 'integer',
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->appends = array_merge(parent::getAppends(), [
+            'url',
+            'status_label',
+            'status_color',
+        ]);
+    }
 
     /**
      * Get the product that owns the reel.
@@ -49,6 +59,15 @@ class ProductReel extends BaseModel
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
+    public function getStatusLabelAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
+    }
+    public function getStatusColorAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'badge-success' : 'badge-error';
+    }
+
 
     /**
      * Get the full URL of the reel.

@@ -102,11 +102,11 @@
                         <flux:icon name="map" /> Area
                     </x-button>
                     <x-button href="{{ route('admin.product.reels') }}" wire:navigate
-                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                        class="text-black !py-1 w-full justify-start {{ $pageSlug == 'product-reel' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="film" /> Reels
                     </x-button>
-                    <x-button
+                    <x-button href="{{ route('admin.products') }}" wire:navigate
                         class="text-black !py-1 w-full justify-start {{ $pageSlug == 'product' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                         size="lg" linkText>
                         <flux:icon name="box" /> Product
