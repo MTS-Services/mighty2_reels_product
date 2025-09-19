@@ -235,7 +235,7 @@
                                                 @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
                                                 @touchend.prevent="handleTouchEnd($event)"
                                                 @dblclick="handleDoubleClick($event)"
-                                                @volumechange="updateVolumeDisplay()" class="w-full h-full object-cover"
+                                                @volumechange="updateVolumeDisplay()" class="w-full h-full object-contain"
                                                 loop playsinline autoplay>
                                                 <source :src="video.file" type="video/mp4">
                                             </video>

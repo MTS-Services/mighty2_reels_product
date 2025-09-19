@@ -32,7 +32,7 @@
                     <span
                         class="badge badge-soft {{ $reel->status_color }} absolute top-1 left-1">{{ $reel->status_label }}</span>
                     @if ($reel->file)
-                        <video controls class="w-full h-56 object-cover rounded-t-lg">
+                        <video controls class="w-full h-56 object-contain rounded-t-lg">
                             <source src="{{ $reel->url }}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
@@ -166,7 +166,7 @@
                                 @if ($file)
                                     {{-- If a new file is selected, use its temporary URL --}}
                                     <div class="relative">
-                                        <video controls class="w-full rounded-md"
+                                        <video controls class="w-full rounded-md object-contain"
                                             src="{{ $file->temporaryUrl() }}"></video>
                                         <x-button variant="secondary" class="!absolute -top-2 -right-2"
                                             wire:click="removeVideo">
@@ -176,7 +176,7 @@
                                 @elseif ($editMode && $tempFile)
                                     {{-- If in edit mode and tempFile exists (meaning an existing video), use its storage path --}}
                                     <div class="relative">
-                                        <video controls class="w-full rounded-md">
+                                        <video controls class="w-full rounded-md object-contain">
                                             {{-- Corrected path using asset() --}}
                                             <source src="{{ asset('storage/' . $tempFile) }}" type="video/mp4">
                                             Your browser does not support the video tag.

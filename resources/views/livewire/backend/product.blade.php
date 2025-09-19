@@ -280,7 +280,7 @@
 
                                     @if ($videos)
                                         <div class="relative">
-                                            <video controls class="w-full rounded-md h-48!"
+                                            <video controls class="w-full rounded-md h-48! object-contain"
                                                 src="{{ $videos->temporaryUrl() }}" autoplay muted>
                                                 Your browser does not support the video tag.
                                             </video>
@@ -292,7 +292,7 @@
                                         </div>
                                     @elseif ($editMode && $tempVideos)
                                         <div class="relative">
-                                            <video controls class="w-full rounded-md h-48!"
+                                            <video controls class="w-full rounded-md h-48! object-contain"
                                                 src="{{ asset('storage/' . $tempVideos['file']) }}" autoplay muted>
                                                 Your browser does not support the video tag.
                                             </video>

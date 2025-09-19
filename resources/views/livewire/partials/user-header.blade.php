@@ -246,14 +246,14 @@
 
         @if ($pageSlug == 'home')
             {{-- Search & Filters Area --}}
-            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area"
+            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area"
                 x-data="{
                     filterOpen: @entangle('filterOpen').live,
                 }">
 
                 <div class="flex items-center gap-4">
                     {{-- The main flex container for the search bar, filter options, and funnel icon. --}}
-                    <div class="flex-1 flex items-center gap-4">
+                    <div class="flex-1 flex items-center gap-1">
 
                         {{-- Search form --}}
                         <div class="flex-1 relative" x-show="!filterOpen || window.innerWidth >= 1024"
@@ -288,7 +288,7 @@
                             <!-- Mobile Rooms Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedRooms"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-1  "
                                     wire:loading.class="opacity-50" wire:target="selectedRooms">
                                     <option value="" selected>All Rooms</option>
                                     @for ($room = 1; $room <= $maxRooms; $room++)
@@ -308,7 +308,7 @@
                             <!-- Mobile Cities Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedCity"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2  "
                                     wire:loading.class="opacity-50" wire:target="selectedCity">
                                     <option value="" selected>All Cities</option>
                                     @foreach ($cities as $id => $name)
@@ -326,7 +326,7 @@
                             <!-- Mobile Type Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedType"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 "
                                     wire:loading.class="opacity-50" wire:target="selectedType">
                                     <option value="" selected>All Types</option>
                                     <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
@@ -343,7 +343,7 @@
                             <!-- Mobile Reset Button -->
                             <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
                                 wire:target="resetAllFilters"
-                                class="p-2 text-gray-700 focus:outline-none transition-transform duration-300 ease-in-out hover:text-orange-500">
+                                class=" text-gray-700 focus:outline-none transition-transform duration-300 ease-in-out hover:text-orange-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
                                     wire:loading.class="animate-spin" wire:target="resetAllFilters">

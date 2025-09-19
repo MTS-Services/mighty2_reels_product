@@ -313,7 +313,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="absolute top-4 right-4 md:right-8 z-[5000] rounded-full">
+                            class="object-contain absolute top-4 right-4 md:right-8 z-[5000] rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
@@ -394,7 +394,7 @@
                                             @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
                                             @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
                                             @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                            class="w-full h-full object-cover" loop playsinline autoplay>
+                                            class="w-full h-full object-contain " loop playsinline autoplay>
                                             <source :src="video.file" type="video/mp4">
                                         </video>
                                     </template>

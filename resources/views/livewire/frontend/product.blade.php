@@ -336,7 +336,7 @@
                                         @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
                                         @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
                                         @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay>
+                                        class="w-full h-full object-contain" loop playsinline autoplay>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
@@ -456,7 +456,7 @@
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-44">
                                     <video :src="media.url"
-                                        class="w-[70%] mx-auto h-full object-cover rounded-2xl" muted loop></video>
+                                        class="w-[70%] mx-auto h-full object-contain rounded-2xl" muted loop></video>
 
                                     <!-- Play Button Overlay -->
                                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
