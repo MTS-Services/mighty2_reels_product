@@ -114,8 +114,8 @@
                                 x-transition:leave="transition-all duration-300 ease-in-out"
                                 x-transition:leave-start="grid-rows-[1fr] opacity-100"
                                 x-transition:leave-end="grid-rows-[0fr] opacity-0"
-                                class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
-                                <div class="p-4 space-y-2 overflow-hidden">
+                                class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden z-50">
+                                <div class="p-4 space-y-2 overflow-hidden relative z-50">
                                     {{-- @if (Auth::check()) --}}
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                         href="{{ route('profile') }}" wire:navigate>

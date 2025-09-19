@@ -232,7 +232,7 @@
                                         @foreach ($images as $index => $image)
                                             <div class="relative">
                                                 <img src="{{ $image->temporaryUrl() }}"
-                                                    class="w-full h-20 object-cover rounded">
+                                                    class="w-full h-20 object-contain rounded">
                                                 <button type="button"
                                                     wire:click="removeNewImage({{ $index }})"
                                                     class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
@@ -244,7 +244,7 @@
                                             @foreach ($tempImages as $index => $image)
                                                 <div class="relative">
                                                     <img src="{{ asset('storage/' . $image['file']) }}"
-                                                        class="w-full h-20 object-cover rounded">
+                                                        class="w-full h-20 object-contain rounded">
                                                     <button type="button"
                                                         wire:click="removeNewImage({{ $index }})"
                                                         class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">

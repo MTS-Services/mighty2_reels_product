@@ -211,7 +211,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+                class="absolute top-4 lg:right-8 right-2 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -234,14 +234,14 @@
         </div>
 
         <div x-show="$wire.showMergedView" >
-            <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
+            <div class="absolute bottom-4! right-4 z-5 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
 
-            <div class="absolute top-0 right-0  z-[5000] rounded-full">
+            <div class="absolute top-0 right-0  z-5 rounded-full">
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -252,7 +252,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
+                    class="absolute top-0 lg:right-6 right-2 z-5 rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -289,7 +289,7 @@
                                 class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
 
                                 <template x-if="video.type === 'video'">
-                                    <div class="absolute top-4 left-4 z-[5000]">
+                                    <div class="absolute top-4 left-4 z-5">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">

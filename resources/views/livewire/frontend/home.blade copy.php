@@ -308,7 +308,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="absolute top-4 right-4 md:right-8 z-[5000] rounded-full">
+                            class="absolute top-4 right-4 md:right-8 z-5 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {

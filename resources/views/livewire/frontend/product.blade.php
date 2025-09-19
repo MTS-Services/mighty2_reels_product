@@ -216,7 +216,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+                class="absolute top-4 lg:right-8 right-2 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -239,14 +239,14 @@
         </div>
 
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
+            <div class="absolute bottom-4! right-4 z-5 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
 
-            <div class="absolute top-0 right-0  z-[5000] rounded-full">
+            <div class="absolute top-0 right-0  z-5 rounded-full">
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -257,7 +257,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
+                    class="absolute top-0 lg:right-6 right-2 z-5 rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -279,7 +279,7 @@
             </div>
         </div>
 
-        <div class="relative w-full mx-auto h-full mt-12 sm:mt-0 scrollbar-hide"
+        <div class="relative w-full mx-auto h-full mt-1 sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
@@ -295,7 +295,7 @@
                                 class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
 
                                 <template x-if="video.type === 'video'">
-                                    <div class="absolute top-4 left-4 z-[5000]">
+                                    <div class="absolute top-4 left-4 z-5">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -343,7 +343,7 @@
 
                                 <template x-if="video.url && video.type === 'image'">
                                     <img :src="video.url" :alt="video.title"
-                                        class="w-full h-full object-cover">
+                                        class="w-full h-full object-contain">
                                 </template>
 
                                 <template x-if="!video.url">
@@ -458,7 +458,7 @@
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-44">
                                     <video :src="media.url"
-                                        class="w-[70%] mx-auto h-full object-cover rounded-2xl" muted loop></video>
+                                        class="w-[70%] mx-auto h-full object-contain rounded-2xl" muted loop></video>
 
                                     <!-- Play Button Overlay -->
                                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -476,7 +476,7 @@
                             <template x-if="media.type === 'image'">
                                 <div class="relative w-[70%] mx-auto hover:shadow-lg h-44">
                                     <img :src="media.url" :alt="media.title"
-                                        class="w-full h-full object-cover rounded-2xl">
+                                        class="w-full h-full object-contain rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
                                             class="text-white">

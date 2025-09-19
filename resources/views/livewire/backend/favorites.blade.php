@@ -162,7 +162,7 @@
                 <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
 
                     <!-- Remove from Favorites Button -->
-                    <div class="absolute top-4 right-8 z-[5000] rounded-full">
+                    <div class="absolute top-4 right-8 z-5 rounded-full">
                         <button @click="$wire.removeFavorite()"
                             class="bg-red-500 text-white transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl hover:bg-red-600 transform hover:scale-105">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +195,7 @@
                                         class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-180px)] max-w-lg rounded-xl">
 
                                         <!-- Volume Control -->
-                                        <div class="absolute top-4 left-4 z-[5000]">
+                                        <div class="absolute top-4 left-4 z-5">
                                             <div class="group flex items-center gap-2">
                                                 <button @click.stop="toggleMute()"
                                                     class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
