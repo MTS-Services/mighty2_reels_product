@@ -26,74 +26,79 @@
     @endif
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-        @forelse($products as $product)
-            <div
-                class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm lg:h-[430px] xl:h-[380px] flex flex-col">
-                <div class="aspect-video bg-gray-100 p-4 relative">
+    @forelse($products as $product)
+        <div class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm flex flex-col">
+
+            <!-- Image Wrapper -->
+            <div class="bg-gray-100 flex items-center justify-center relative w-full h-60  p-2">
+                <span
+                    class="badge badge-soft {{ $product->status_color }} absolute top-3 left-3 z-10">
+                    {{ $product->status_label }}
+                </span>
+                @if ($product->images->count() > 0)
+                    <a href="{{ route('admin.product.details', $product->id) }}" class="w-full h-full flex items-center justify-center">
+                        <img src="{{ storage_url($product->images->first()->file) }}" 
+                             alt="{{ $product->title }}"
+                             class="max-h-full max-w-full object-contain rounded" />
+                    </a>
+                @else
+                    <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Product Content -->
+            <div class="p-4 flex flex-col flex-1">
+                <div class="flex justify-between items-start mb-2">
+                    <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}">
+                        <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
+                    </a>
                     <span
-                        class="badge badge-soft {{ $product->status_color }} absolute top-5 left-5">{{ $product->status_label }}</span>
-                    @if ($product->images->count() > 0)
-                        <a href="{{ route('admin.product.details', $product->id) }}">
-                            <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
-                                class="w-full md:h-60 lg:h-48 object-cover rounded">
-                        </a>
-                    @else
-                        <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                        </div>
-                    @endif
+                        class="px-2 py-1 text-xs rounded-full {{ $product->type == 1 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
+                        {{ $product->type == 1 ? 'Rent' : 'Sale' }}
+                    </span>
                 </div>
 
-                <div class="p-4 flex flex-col flex-1">
-                    <div class="flex justify-between items-start mb-2">
-                        <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}">
-                            <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
-                        </a>
-                        <span
-                            class="px-2 py-1 text-xs rounded-full {{ $product->type == 1 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
-                            {{ $product->type == 1 ? 'Rent' : 'Sale' }}
-                        </span>
-                    </div>
+                <p class="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {{ Str::limit($product->description, 80) }}
+                </p>
 
-                    <p class="text-sm text-gray-600 mb-2 line-clamp-2">
-                        {{ Str::limit($product->description, 80) }}
-                    </p>
-
-                    <div class="mt-auto flex items-center justify-between gap-3">
-                        <x-button wire:click="editProduct({{ $product->id }})" variant="secondary">
-                            <flux:icon name="pencil" class="w-4 h-4" />
-                            Edit
-                        </x-button>
-                        <x-button wire:click="deleteProduct({{ $product->id }})"
-                            wire:confirm="Are you sure you want to delete this product?" variant="secondary">
-                            <flux:icon name="trash" class="w-4 h-4" />
-                            Delete
-                        </x-button>
-                    </div>
+                <div class="mt-auto flex items-center justify-between gap-3">
+                    <x-button wire:click="editProduct({{ $product->id }})" variant="secondary">
+                        <flux:icon name="pencil" class="w-4 h-4" />
+                        Edit
+                    </x-button>
+                    <x-button wire:click="deleteProduct({{ $product->id }})"
+                        wire:confirm="Are you sure you want to delete this product?" variant="secondary">
+                        <flux:icon name="trash" class="w-4 h-4" />
+                        Delete
+                    </x-button>
                 </div>
             </div>
+        </div>
+    @empty
+        <div class="col-span-full text-center py-12">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+            <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
+            <x-button wire:click="openModal">
+                <flux:icon name="plus-circle" class="h-5 w-5" />
+                Add new product
+            </x-button>
+        </div>
+    @endforelse
+</div>
 
-        @empty
-            <div class="col-span-full text-center py-12">
-                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-                <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
-                <x-button wire:click="openModal">
-                    <flux:icon name="plus-circle" class="h-5 w-5" />
-                    Add new product
-                </x-button>
-            </div>
-        @endforelse
-    </div>
+
 
     @if ($products->hasPages())
         <div class="flex justify-between items-center">
