@@ -34,13 +34,13 @@
                         <div x-data="{ photoName: null, photoPreview: null }" class="flex justify-center mb-6 group">
                             <div class="relative">
                                 <img x-show="!photoPreview"
-                                    class="w-72 h-72 rounded-full object-cover border-2 border-gray-200"
+                                    class="w-72 h-72 rounded-full object-contain border-2 border-gray-200"
                                     src="{{ storage_url(auth()->user()->photo) ?? 'https://i.pravatar.cc/150?img=3' }}"
                                     alt="Profile">
 
                                 <template x-if="photoPreview">
                                     <img :src="photoPreview"
-                                        class="w-72 h-72 rounded-full object-cover border-2 border-gray-200">
+                                        class="w-72 h-72 rounded-full object-contain border-2 border-gray-200">
                                 </template>
 
                                 <input type="file" class="hidden" x-ref="photo" wire:model="photo"

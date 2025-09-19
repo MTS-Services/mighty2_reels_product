@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class=" max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -197,7 +197,7 @@
         /* Merged view styles */
     </style>
 
-    <div class="relative h-full  max-w-lg mx-auto">
+    <div class=" relative h-full  max-w-lg mx-auto">
         <div x-show="!$wire.showMergedView">
             <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
@@ -246,7 +246,7 @@
                 </button>
             </div>
 
-            <div class="absolute top-0 right-0  z-5 rounded-full">
+            <div class="absolute top-0 right-0   rounded-full">
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -292,7 +292,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-5">

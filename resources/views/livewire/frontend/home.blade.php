@@ -351,7 +351,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl max-h-[1100px]">
 
                                     <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-[4000]">
