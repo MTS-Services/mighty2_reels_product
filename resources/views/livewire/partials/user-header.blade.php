@@ -181,7 +181,7 @@
             <div class="relative w-full h-full ">
                 <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
                     x-on:click="sidebarOpen = false"></button>
-                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[500]">
+                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[300]">
                     <div class="flex items-center justify-between px-4 py-3">
                         <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
                             <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
