@@ -313,7 +313,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="absolute top-4 right-4 md:right-8 z-[5000] rounded-full">
+                            class="object-contain absolute top-4 right-4 md:right-8 z-5 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
@@ -351,7 +351,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl max-h-[1100px]">
 
                                     <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-[4000]">
@@ -394,7 +394,7 @@
                                             @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
                                             @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
                                             @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                            class="w-full h-full object-cover" loop playsinline autoplay>
+                                            class="w-full h-full object-contain " loop playsinline autoplay>
                                             <source :src="video.file" type="video/mp4">
                                         </video>
                                     </template>

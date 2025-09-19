@@ -1,10 +1,10 @@
-<div>
+<div class="sticky top-0 right-0 z-50 w-full">
     <div x-data="{
         openProfileDropdown: @entangle('openProfileDropdown').live,
         sidebarOpen: @entangle('sidebarOpen').live,
         filterOpen: @entangle('filterOpen').live
-    }">
-        <header class="bg-orange-light/20 shadow sticky top-0 right-0 z-50 backdrop-blur-lg">
+    }" class="w-full">
+        <header class="bg-orange-light/20 shadow backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-3 px-4 md:px-6 lg:px-8">
                 <nav class="flex items-center justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
@@ -94,7 +94,7 @@
                         @endif
                     </div>
                     @if (Auth::check())
-                        <div class="hidden lg:flex items-center gap-4 relative py-2"
+                        <div class="hidden lg:flex items-center gap-4 relative py-2 {{ $pageSlug == 'Favorites' || $pageSlug == 'profile' ? 'ml-auto' : '' }}"
                             x-on:click.away="openProfileDropdown = false">
 
                             <div class="flex items-center gap-4 cursor-pointer"
@@ -114,8 +114,8 @@
                                 x-transition:leave="transition-all duration-300 ease-in-out"
                                 x-transition:leave-start="grid-rows-[1fr] opacity-100"
                                 x-transition:leave-end="grid-rows-[0fr] opacity-0"
-                                class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden">
-                                <div class="p-4 space-y-2 overflow-hidden">
+                                class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden z-50">
+                                <div class="p-4 space-y-2 overflow-hidden relative z-50">
                                     {{-- @if (Auth::check()) --}}
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                         href="{{ route('profile') }}" wire:navigate>
@@ -137,7 +137,7 @@
                         </div>
                     @else
                         <div
-                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') ? 'ml-auto' : '' }} gap-2 ">
+                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2 ">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
@@ -181,7 +181,7 @@
             <div class="relative w-full h-full ">
                 <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
                     x-on:click="sidebarOpen = false"></button>
-                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[500]">
+                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[300]">
                     <div class="flex items-center justify-between px-4 py-3">
                         <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
                             <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
@@ -246,14 +246,14 @@
 
         @if ($pageSlug == 'home')
             {{-- Search & Filters Area --}}
-            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-7 space-y-2 search-area"
+            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area"
                 x-data="{
                     filterOpen: @entangle('filterOpen').live,
                 }">
 
                 <div class="flex items-center gap-4">
                     {{-- The main flex container for the search bar, filter options, and funnel icon. --}}
-                    <div class="flex-1 flex items-center gap-4">
+                    <div class="flex-1 flex items-center gap-1">
 
                         {{-- Search form --}}
                         <div class="flex-1 relative" x-show="!filterOpen || window.innerWidth >= 1024"
@@ -288,7 +288,7 @@
                             <!-- Mobile Rooms Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedRooms"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-1  "
                                     wire:loading.class="opacity-50" wire:target="selectedRooms">
                                     <option value="" selected>All Rooms</option>
                                     @for ($room = 1; $room <= $maxRooms; $room++)
@@ -308,7 +308,7 @@
                             <!-- Mobile Cities Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedCity"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2  "
                                     wire:loading.class="opacity-50" wire:target="selectedCity">
                                     <option value="" selected>All Cities</option>
                                     @foreach ($cities as $id => $name)
@@ -326,7 +326,7 @@
                             <!-- Mobile Type Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedType"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 py-1 pr-6"
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 "
                                     wire:loading.class="opacity-50" wire:target="selectedType">
                                     <option value="" selected>All Types</option>
                                     <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
@@ -343,7 +343,7 @@
                             <!-- Mobile Reset Button -->
                             <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
                                 wire:target="resetAllFilters"
-                                class="p-2 text-gray-700 focus:outline-none transition-transform duration-300 ease-in-out hover:text-orange-500">
+                                class=" text-gray-700 focus:outline-none transition-transform duration-300 ease-in-out hover:text-orange-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
                                     wire:loading.class="animate-spin" wire:target="resetAllFilters">

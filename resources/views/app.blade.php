@@ -76,7 +76,7 @@
     @livewire('partials.footer')
 
     <div id="navigation-loader" x-transition.opacity
-        class="fixed inset-0 z-50 flex items-center justify-center bg-accent-foreground/50 backdrop-blur-md">
+        class="fixed inset-0 z-[1000000] flex items-center justify-center bg-accent-foreground/50 backdrop-blur-md">
         <div class="flex space-x-2">
             <div class="w-4 h-4 rounded-full bg-orange-normal animate-[bounce-dot_1.2s_infinite]"
                 style="animation-delay: -0.8s;"></div>

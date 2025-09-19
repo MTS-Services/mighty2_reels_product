@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class=" max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -197,7 +197,7 @@
         /* Merged view styles */
     </style>
 
-    <div class="relative h-full  max-w-lg mx-auto">
+    <div class=" relative h-full  max-w-lg mx-auto">
         <div x-show="!$wire.showMergedView">
             <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
@@ -216,7 +216,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute top-4 lg:right-8 right-2 z-[5000] rounded-full">
+                class="absolute top-4 lg:right-8 right-2 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -239,14 +239,14 @@
         </div>
 
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-4! right-4 z-[5000] arrow-bounce">
+            <div class="absolute bottom-8! right-4 z-5 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
                 </button>
             </div>
 
-            <div class="absolute top-0 right-0  z-[5000] rounded-full">
+            <div class="absolute top-0 right-0   rounded-full">
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -257,7 +257,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-0 lg:right-6 right-2 z-[5000] rounded-full">
+                    class="absolute top-0 lg:right-6 right-2 z-5 rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -279,7 +279,7 @@
             </div>
         </div>
 
-        <div class="relative w-full mx-auto h-full mt-12 sm:mt-0  scrollbar-hide"
+        <div class="relative w-full mx-auto h-full mt-1 sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
                 class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
@@ -292,10 +292,10 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
-                                    <div class="absolute top-4 left-4 z-[5000]">
+                                    <div class="absolute top-4 left-4 z-5">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -336,14 +336,14 @@
                                         @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
                                         @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
                                         @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-cover" loop playsinline autoplay>
+                                        class="w-full h-full object-contain" loop playsinline autoplay>
                                         <source :src="video.url" type="video/mp4">
                                     </video>
                                 </template>
 
                                 <template x-if="video.url && video.type === 'image'">
                                     <img :src="video.url" :alt="video.title"
-                                        class="w-full h-full object-cover">
+                                        class="w-full h-full object-contain">
                                 </template>
 
                                 <template x-if="!video.url">
@@ -365,9 +365,10 @@
                                     </div>
                                 </div>
 
-                                <div
-                                    class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
-                                </div>
+                                {{-- This is the div that was removed --}}
+                                {{-- <div
+                            class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
+                        </div> --}}
 
                                 <button x-show="video.type === 'video'" @click.stop="togglePlay()"
                                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4"
@@ -443,9 +444,10 @@
                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
-                <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
+                x-transition:leave-end="opacity-0 scale-95 translate-y-6" class="flex flex-col max-w-lg h-full">
+
+                <!-- Media list -->
+                <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide space-y-3 gap-4">
                     <template x-for="(media, index) in (allMediaItems || [])"
                         :key="`merged-${media.id}-${media.type}-${media.reel_id || media.image_id || index}-${index}`">
                         <div @click="viewMediaItem(index)"
@@ -456,7 +458,7 @@
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-44">
                                     <video :src="media.url"
-                                        class="w-[70%] mx-auto h-full object-cover rounded-2xl" muted loop></video>
+                                        class="w-[70%] mx-auto h-full object-contain rounded-2xl" muted loop></video>
 
                                     <!-- Play Button Overlay -->
                                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -474,7 +476,7 @@
                             <template x-if="media.type === 'image'">
                                 <div class="relative w-[70%] mx-auto hover:shadow-lg h-44">
                                     <img :src="media.url" :alt="media.title"
-                                        class="w-full h-full object-cover rounded-2xl">
+                                        class="w-full h-full object-contain rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
                                             class="text-white">
@@ -486,15 +488,15 @@
                             </template>
                         </div>
                     </template>
-
                 </div>
 
-                <div class="bg-orange-light/20 p-4 shadow-sm rounded-2xl" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
+                <!-- Product details -->
+                <div class="bg-white p-4 rounded" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
 
                     @if ($productData)
-                        <div class="max-w-3xl mx-auto">
+                        <div class="max-w-3xl mx-auto bg-white">
 
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up">
                                 {{ $productData->title }}
                             </h2>
 
@@ -525,8 +527,10 @@
                                 @endif
                             </div>
 
-                            <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
-                                <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
+                            <div
+                                class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed overflow-x-hidden max-w-full break-words">
+                                <p x-bind:class="expanded ? '' : 'line-clamp-1'"
+                                    class="transition-all duration-300 break-words">
                                     {{ $productData->description }}
                                 </p>
 
@@ -537,7 +541,6 @@
                                     </button>
                                 @endif
                             </div>
-
                         </div>
                     @else
                         <div class="text-center text-gray-500 italic">
@@ -545,7 +548,6 @@
                         </div>
                     @endif
                 </div>
-
             </div>
 
         </div>

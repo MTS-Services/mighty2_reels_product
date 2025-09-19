@@ -37,7 +37,7 @@
                                     class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
                  {{ $activeMedia === $image->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
                                     <img src="{{ storage_url($image->file) }}"
-                                        class="w-full h-full object-cover rounded">
+                                        class="w-full h-full object-contain rounded">
                                 </div>
                             @endforeach
 
@@ -46,7 +46,7 @@
                                 <div wire:click="changeMedia('{{ $video->file }}', 'video')"
                                     class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
                  {{ $activeMedia === $video->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-                                    <video class="w-full h-full object-cover rounded" autoplay muted>
+                                    <video class="w-full h-full object-contain rounded" autoplay muted>
                                         <source src="{{ storage_url($video->file) }}" type="video/mp4">
                                     </video>
                                 </div>
