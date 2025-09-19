@@ -115,7 +115,7 @@
         }
 
         .empty-state {
-              background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%));
+            background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%));
         }
     </style>
 
@@ -192,7 +192,7 @@
                                 <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                     <div
-                                        class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-180px)] max-w-lg rounded-xl">
+                                        class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-180px)] max-w-lg rounded-2xl">
 
                                         <!-- Volume Control -->
                                         <div class="absolute top-4 left-4 z-5">
@@ -235,8 +235,8 @@
                                                 @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
                                                 @touchend.prevent="handleTouchEnd($event)"
                                                 @dblclick="handleDoubleClick($event)"
-                                                @volumechange="updateVolumeDisplay()" class="w-full h-full object-contain"
-                                                loop playsinline autoplay>
+                                                @volumechange="updateVolumeDisplay()"
+                                                class="w-full h-full object-contain" loop playsinline autoplay>
                                                 <source :src="video.file" type="video/mp4">
                                             </video>
                                         </template>

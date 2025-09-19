@@ -239,7 +239,7 @@
         </div>
 
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-4! right-4 z-5 arrow-bounce">
+            <div class="absolute bottom-8! right-4 z-5 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
@@ -292,7 +292,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-5">

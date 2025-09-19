@@ -1,5 +1,5 @@
-<div>
-    <header class="bg-orange-light/20 shadow sticky top-0 right-0 z-50 backdrop-blur-lg" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }">
+<div class="sticky top-0 right-0 z-50 w-full">
+    <header class="bg-orange-light/20 shadow backdrop-blur-lg" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }">
         <div class="container max-w-[1200px] mx-auto py-3 px-4 md:px-6 lg:px-8">
             <nav class="flex items-center justify-between">
                 <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">

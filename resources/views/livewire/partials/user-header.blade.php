@@ -1,10 +1,10 @@
-<div>
+<div class="sticky top-0 right-0 z-50 w-full">
     <div x-data="{
         openProfileDropdown: @entangle('openProfileDropdown').live,
         sidebarOpen: @entangle('sidebarOpen').live,
         filterOpen: @entangle('filterOpen').live
-    }">
-        <header class="bg-orange-light/20 shadow sticky top-0 right-0 z-50 backdrop-blur-lg">
+    }" class="w-full">
+        <header class="bg-orange-light/20 shadow backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-3 px-4 md:px-6 lg:px-8">
                 <nav class="flex items-center justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
@@ -94,7 +94,7 @@
                         @endif
                     </div>
                     @if (Auth::check())
-                        <div class="hidden lg:flex items-center gap-4 relative py-2"
+                        <div class="hidden lg:flex items-center gap-4 relative py-2 {{ $pageSlug == 'Favorites' || $pageSlug == 'profile' ? 'ml-auto' : '' }}"
                             x-on:click.away="openProfileDropdown = false">
 
                             <div class="flex items-center gap-4 cursor-pointer"
@@ -137,7 +137,7 @@
                         </div>
                     @else
                         <div
-                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') ? 'ml-auto' : '' }} gap-2 ">
+                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2 ">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
