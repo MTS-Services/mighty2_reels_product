@@ -13,6 +13,12 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        // host: '192.168.100.30',
+        // port: 3334,
+        // strictPort: true,
+        // hmr: {
+        //     host: '192.168.100.30',
+        // },
         cors: true,
     },
 });
