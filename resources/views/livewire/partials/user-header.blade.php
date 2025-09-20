@@ -1,4 +1,4 @@
-<div class="sticky top-0 right-0 z-50 w-full">
+<div class="sticky top-0 left-0 z-50">
     <div x-data="{
         openProfileDropdown: @entangle('openProfileDropdown').live,
         sidebarOpen: @entangle('sidebarOpen').live,
@@ -24,7 +24,7 @@
                                 <!-- Rooms Filter -->
                                 <div class="relative">
                                     <select wire:model.live="selectedRooms"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10"
+                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
                                         wire:loading.class="opacity-50" wire:target="selectedRooms">
                                         <option value="" selected>All Rooms</option>
                                         @for ($room = 1; $room <= $maxRooms; $room++)
@@ -44,7 +44,7 @@
                                 <!-- Cities Filter -->
                                 <div class="relative">
                                     <select wire:model.live="selectedCity"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10"
+                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
                                         wire:loading.class="opacity-50" wire:target="selectedCity">
                                         <option value="" selected>All Cities</option>
                                         @foreach ($cities as $id => $name)
@@ -62,7 +62,7 @@
                                 <!-- Type Filter -->
                                 <div class="relative">
                                     <select wire:model.live="selectedType"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10"
+                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
                                         wire:loading.class="opacity-50" wire:target="selectedType">
                                         <option value="" selected>All Types</option>
                                         <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
@@ -265,7 +265,7 @@
                             x-transition:leave-end="opacity-0 scale-95">
                             <input type="search" wire:model.live.debounce.500ms="searchTerm"
                                 placeholder="Search for products..."
-                                class="w-full px-4 py-2 pr-10 rounded-full outline outline-orange-normal text-orange-400 focus:ring-2 focus:ring-orange-normal"
+                                class="w-full px-4 py-2 pr-10 rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
                                 wire:loading.class="opacity-50" wire:target="searchTerm" />
                             <div wire:loading wire:target="searchTerm"
                                 class="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -288,7 +288,7 @@
                             <!-- Mobile Rooms Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedRooms"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-1  "
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-1 bg-none"
                                     wire:loading.class="opacity-50" wire:target="selectedRooms">
                                     <option value="" selected>All Rooms</option>
                                     @for ($room = 1; $room <= $maxRooms; $room++)
@@ -308,7 +308,7 @@
                             <!-- Mobile Cities Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedCity"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2  "
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 bg-none"
                                     wire:loading.class="opacity-50" wire:target="selectedCity">
                                     <option value="" selected>All Cities</option>
                                     @foreach ($cities as $id => $name)
@@ -326,7 +326,7 @@
                             <!-- Mobile Type Filter -->
                             <div class="relative flex-1">
                                 <select wire:model.live="selectedType"
-                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 "
+                                    class="select w-full focus:outline-none border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full px-2 bg-none"
                                     wire:loading.class="opacity-50" wire:target="selectedType">
                                     <option value="" selected>All Types</option>
                                     <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
