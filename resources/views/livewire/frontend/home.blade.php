@@ -351,7 +351,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl max-h-[1100px]">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl max-h-[1100px]">
 
                                     <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-40">
@@ -389,14 +389,29 @@
 
                                     <!-- Video Element -->
                                     <template x-if="video.file">
-                                        <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                            @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()"
-                                            @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                            @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
-                                            @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                            class="w-full h-full object-contain " loop playsinline autoplay>
-                                            <source :src="video.file" type="video/mp4">
-                                        </video>
+                                        <div :data-video-id="video.id" :data-reel-id="video.reel_id"
+                                            class="w-full h-full flex items-center justify-center">
+
+                                            <!-- Background/Overlay Video (blurred) -->
+                                            <video x-ref="backgroundVideo" @loadeddata="initBackgroundVideo()"
+                                                class="absolute w-full h-full object-cover filter blur-sm transform scale-150 z-1"
+                                                loop playsinline muted>
+                                                <source :src="video.file" type="video/mp4">
+                                            </video>
+
+                                            <!-- Main/Original Video (clear) -->
+                                            <video x-ref="mainVideo" @loadedmetadata="initVideo()"
+                                                @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
+                                                @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
+                                                @dblclick="handleDoubleClick($event)"
+                                                @volumechange="updateVolumeDisplay()"
+                                                class="w-full h-full object-contain relative z-2" loop playsinline
+                                                autoplay>
+                                                <source :src="video.file" type="video/mp4">
+                                            </video>
+
+
+                                        </div>
                                     </template>
 
                                     <template x-if="!video.file">
@@ -429,7 +444,7 @@
 
                                     <!-- Play/Pause Button -->
                                     <button @click="togglePlay()" x-show="video.file"
-                                        class="play-button absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
+                                        class="play-button absolute z-2 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                         :style="{ opacity: isPlaying ? '0' : '1' }">
                                         <svg x-show="!isPlaying" width="24" height="24" viewBox="0 0 24 24"
                                             fill="currentColor" class="text-gray-800">
@@ -594,13 +609,15 @@
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
                     if (!video) return;
 
                     this.progress = 0;
                     this.duration = video.duration;
                     this.videoLoaded = true;
                     this.videoError = false;
-                    this.isPlaying = video.autoplay;
+                    this.isPlaying = !video.paused;
                     this.volume = video.volume;
                     this.isMuted = video.muted;
 
@@ -610,9 +627,18 @@
                         this.lastVolume = this.volume;
                     }
 
-                    if (root.currentPlayingId === this.videoId) {
-                        video.play();
-                        this.isPlaying = true;
+                    // Sync background video with main video
+                    if (bgVideo) {
+                        this.syncBackgroundVideo();
+                    }
+
+                    // Auto-play first video on page load if it's the current video
+                    if (root.currentVideoId === this.videoId || (!root.currentVideoId && root.videos && root.videos[0] &&
+                            root.videos[0].id === this.videoId)) {
+                        setTimeout(() => {
+                            this.playBothVideos();
+                            root.currentVideoId = this.videoId;
+                        }, 100);
                     }
 
                     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
@@ -621,6 +647,342 @@
                         threshold: 0.7
                     });
                     this.observer.observe(video);
+                },
+
+                initBackgroundVideo() {
+                    const bgVideo = this.$refs.backgroundVideo;
+                    const mainVideo = this.$refs.mainVideo;
+
+                    if (!bgVideo || !mainVideo) return;
+
+                    // Keep background video muted always
+                    bgVideo.muted = true;
+                    bgVideo.volume = 0;
+
+                    // Sync with main video if it's loaded
+                    if (mainVideo.readyState >= 1) {
+                        this.syncBackgroundVideo();
+                    }
+                },
+
+                syncBackgroundVideo() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video || !bgVideo) return;
+
+                    // Sync current time
+                    bgVideo.currentTime = video.currentTime;
+
+                    // Sync play/pause state
+                    if (!video.paused && bgVideo.paused) {
+                        bgVideo.play().catch(() => {});
+                    } else if (video.paused && !bgVideo.paused) {
+                        bgVideo.pause();
+                    }
+                },
+
+                playBothVideos() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video) return;
+
+                    // Ensure volume is set correctly before playing
+                    if (!this.isMuted) {
+                        video.volume = this.volume;
+                        video.muted = false;
+                    } else {
+                        video.muted = true;
+                    }
+
+                    video.play().then(() => {
+                        this.isPlaying = true;
+                        root.currentPlayingId = this.videoId;
+
+                        // Play background video in sync
+                        if (bgVideo) {
+                            bgVideo.currentTime = video.currentTime;
+                            bgVideo.muted = true; // Always keep background muted
+                            bgVideo.play().catch(() => {});
+                        }
+                    }).catch(error => {
+                        console.error("Autoplay failed:", error);
+                        this.isPlaying = false;
+                    });
+                },
+
+                pauseBothVideos() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (video) video.pause();
+                    if (bgVideo) bgVideo.pause();
+                    this.isPlaying = false;
+                },
+
+                autoplayOnScroll() {
+                    const video = this.$refs.mainVideo;
+                    if (!video || this.isPlaying) return;
+
+                    // Update the current video ID in the root component
+                    root.currentVideoId = this.videoId;
+
+                    // Pause all other videos
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v !== video && !v.classList.contains('filter')) {
+                            v.pause();
+                        }
+                    });
+
+                    this.playBothVideos();
+                },
+
+                pauseVideo() {
+                    this.pauseBothVideos();
+                },
+                togglePlay() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+
+                    if (video.paused) {
+                        this.playBothVideos();
+                        root.currentVideoId = this.videoId;
+                    } else {
+                        this.pauseBothVideos();
+                    }
+                },
+
+                updateProgress() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video || !video.duration || this.isDraggingProgress) return;
+
+                    this.currentTime = video.currentTime;
+                    if (video.duration > 0) {
+                        this.progress = (video.currentTime / video.duration) * 100;
+                    } else {
+                        this.progress = 0;
+                    }
+
+                    // Keep background video in sync
+                    if (bgVideo && Math.abs(bgVideo.currentTime - video.currentTime) > 0.3) {
+                        bgVideo.currentTime = video.currentTime;
+                    }
+                },
+
+                setProgress(event) {
+                    if (this.isDraggingProgress) return;
+
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+                    const progressBar = this.$refs.progressContainer;
+
+                    if (!video || !progressBar) return;
+
+                    const wasPlaying = !video.paused;
+
+                    const rect = progressBar.getBoundingClientRect();
+                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+                    if (clientX === undefined) return;
+
+                    const pos = (clientX - rect.left) / rect.width;
+                    const newTime = Math.max(0, Math.min(video.duration, pos * video.duration));
+
+                    // Set time for both videos
+                    video.currentTime = newTime;
+                    if (bgVideo) {
+                        bgVideo.currentTime = newTime;
+                    }
+
+                    this.updateProgress();
+
+                    // Restore play state for both videos
+                    if (wasPlaying && video.paused) {
+                        this.playBothVideos();
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                handleDoubleClick(event) {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video) return;
+
+                    const rect = video.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    let newTime;
+
+                    if (x < rect.width / 2) {
+                        // Left side - go backward 10 seconds
+                        newTime = Math.max(0, video.currentTime - 10);
+                    } else {
+                        // Right side - go forward 10 seconds
+                        newTime = Math.min(video.duration, video.currentTime + 10);
+                    }
+
+                    console.log('currentTime:', video.currentTime);
+                    // Set new time for both videos
+                    video.currentTime = newTime;
+                    console.log('New Time:', newTime, 'currentTime:', video.currentTime);
+                    if (bgVideo) {
+                        bgVideo.currentTime = newTime;
+                    }
+
+                    this.updateProgress();
+
+                    // Prevent the event from bubbling up
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                stopProgressDrag(event) {
+                    this.isDraggingProgress = false;
+
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (video) {
+                        // Since we're already seeking during drag, no need to seek again
+                        // Just restore play state if it was playing before drag
+                        if (this.wasPlayingBeforeProgressDrag && video.paused) {
+                            this.playBothVideos();
+                        }
+                    }
+
+                    // Hide thumbnail after short delay
+                    setTimeout(() => {
+                        const preview = this.$refs.thumbnailPreview;
+                        if (preview && !this.showProgressHandle) {
+                            preview.style.opacity = '0';
+                            setTimeout(() => {
+                                if (!this.showThumbnail) {
+                                    preview.style.display = 'none';
+                                }
+                                this.showThumbnail = false;
+                            }, 150);
+                        }
+                    }, 300);
+
+                    document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
+                    document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
+
+                    // Re-enable text selection
+                    document.body.style.userSelect = '';
+
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                },
+
+                selectVideo(videoId) {
+                    root.selectedVideoId = videoId;
+                    root.currentVideoId = videoId;
+
+                    // Pause all other videos
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v.dataset.videoId !== videoId && !v.classList.contains('filter')) {
+                            v.pause();
+                        }
+                    });
+
+                    const video = this.$refs.mainVideo;
+                    if (video && video.dataset.videoId === videoId) {
+                        this.playBothVideos();
+                    }
+                },
+
+                toggleMute() {
+                    const video = this.$refs.mainVideo;
+                    if (!video) return;
+
+                    if (this.isMuted) {
+                        // Unmute
+                        this.isMuted = false;
+                        video.muted = false;
+                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                        video.volume = this.volume;
+                    } else {
+                        // Mute
+                        this.lastVolume = this.volume;
+                        this.isMuted = true;
+                        video.muted = true;
+                        this.volume = 0;
+                    }
+
+                    this.updateVolumeDisplay();
+                },
+
+                setTopVolume(event) {
+                    const slider = this.$refs.topVolumeSlider;
+                    const video = this.$refs.mainVideo;
+                    if (!slider || !video || this.isDraggingVolume) return;
+
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = event.clientX;
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+                    // Store play state before volume change
+                    const wasPlaying = !video.paused;
+
+                    this.volume = pos;
+                    video.volume = this.volume;
+
+                    if (this.volume === 0) {
+                        video.muted = true;
+                        this.isMuted = true;
+                    } else {
+                        video.muted = false;
+                        this.isMuted = false;
+                        this.lastVolume = this.volume;
+                    }
+
+                    // Restore play state if it was playing
+                    if (wasPlaying && video.paused) {
+                        video.play().catch(() => {});
+                        this.isPlaying = true;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                handleTopVolumeDrag(event) {
+                    if (!this.isDraggingVolume) return;
+
+                    const slider = this.$refs.topVolumeSlider;
+                    const video = this.$refs.mainVideo;
+                    if (!slider || !video) return;
+
+                    const rect = slider.getBoundingClientRect();
+                    const clientX = event.clientX;
+                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+                    this.volume = pos;
+                    video.volume = this.volume;
+
+                    if (this.volume === 0) {
+                        video.muted = true;
+                        this.isMuted = true;
+                    } else {
+                        video.muted = false;
+                        this.isMuted = false;
+                        this.lastVolume = this.volume;
+                    }
+
+                    // Ensure video continues playing if it was playing before drag
+                    if (this.wasPlayingBeforeDrag && video.paused) {
+                        video.play().catch(() => {});
+                        this.isPlaying = true;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
                 },
 
                 // Enhanced thumbnail generation
@@ -881,46 +1243,6 @@
                     event.stopPropagation();
                 },
 
-                stopProgressDrag(event) {
-                    this.isDraggingProgress = false;
-
-                    // Actually seek the video only when drag stops
-                    const video = this.$refs.mainVideo;
-                    if (video) {
-                        video.currentTime = this.currentTime;
-
-                        // Restore play state if it was playing before drag
-                        if (this.wasPlayingBeforeProgressDrag && video.paused) {
-                            video.play().catch(() => {});
-                            this.isPlaying = true;
-                        }
-                    }
-
-                    // Hide thumbnail after short delay
-                    setTimeout(() => {
-                        const preview = this.$refs.thumbnailPreview;
-                        if (preview && !this.showProgressHandle) {
-                            preview.style.opacity = '0';
-                            setTimeout(() => {
-                                if (!this.showThumbnail) {
-                                    preview.style.display = 'none';
-                                }
-                                this.showThumbnail = false;
-                            }, 150);
-                        }
-                    }, 300);
-
-                    document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
-                    document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
-
-                    // Re-enable text selection
-                    document.body.style.userSelect = '';
-
-                    if (event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                },
 
                 // Utility function to format time
                 formatTime(seconds) {
@@ -943,104 +1265,6 @@
                     });
                 },
 
-                autoplayOnScroll() {
-                    const video = this.$refs.mainVideo;
-                    if (!video || this.isPlaying) return;
-
-                    // Update the current video ID in the root component
-                    root.currentVideoId = this.videoId;
-
-                    document.querySelectorAll('video').forEach(v => {
-                        if (v !== video) v.pause();
-                    });
-
-                    video.play().then(() => {
-                        this.isPlaying = true;
-                        root.currentPlayingId = this.videoId;
-                    }).catch(error => {
-                        console.error("Autoplay failed:", error);
-                        this.isPlaying = false;
-                    });
-                },
-
-                pauseVideo() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    video.pause();
-                    this.isPlaying = false;
-                },
-
-                togglePlay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    if (video.paused) {
-                        video.play();
-                        this.isPlaying = true;
-                        root.currentPlayingId = this.videoId;
-                        root.currentVideoId = this.videoId;
-                    } else {
-                        video.pause();
-                        this.isPlaying = false;
-                    }
-                },
-
-                updateProgress() {
-                    const video = this.$refs.mainVideo;
-                    if (!video || !video.duration || this.isDraggingProgress) return;
-
-                    this.currentTime = video.currentTime;
-                    if (video.duration > 0) {
-                        this.progress = (video.currentTime / video.duration) * 100;
-                    } else {
-                        this.progress = 0;
-                    }
-                },
-
-                setProgress(event) {
-                    if (this.isDraggingProgress) return; // Don't interfere with dragging
-
-                    const video = this.$refs.mainVideo;
-                    const progressBar = this.$refs.progressContainer;
-                    if (!video || !progressBar) return;
-
-                    // Store play state before seeking
-                    const wasPlaying = !video.paused;
-
-                    const rect = progressBar.getBoundingClientRect();
-                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-                    if (clientX === undefined) return;
-
-                    const pos = (clientX - rect.left) / rect.width;
-                    video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-                    this.updateProgress();
-
-                    // Restore play state after seeking
-                    if (wasPlaying && video.paused) {
-                        video.play().catch(() => {});
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-                toggleMute() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    if (this.isMuted) {
-                        this.isMuted = false;
-                        video.muted = false;
-                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
-                        video.volume = this.volume;
-                    } else {
-                        this.lastVolume = this.volume;
-                        this.isMuted = true;
-                        video.muted = true;
-                        video.volume = 0;
-                        this.volume = 0;
-                    }
-                    this.updateVolumeDisplay();
-                },
-
                 updateVolumeDisplay() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
@@ -1049,19 +1273,6 @@
                     if (this.isMuted) {
                         this.volume = 0;
                     }
-                },
-
-                handleDoubleClick(event) {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    const rect = video.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    if (x < rect.width / 2) {
-                        video.currentTime = Math.max(0, video.currentTime - 10);
-                    } else {
-                        video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                    }
-                    this.updateProgress();
                 },
 
                 handleTouchEnd(event) {
@@ -1075,21 +1286,6 @@
                     this.lastTap = currentTime;
                 },
 
-                selectVideo(videoId) {
-                    root.selectedVideoId = videoId;
-                    root.currentVideoId = videoId;
-                    document.querySelectorAll('video').forEach(v => {
-                        if (v.dataset.videoId !== videoId) {
-                            v.pause();
-                        }
-                    });
-                    const video = this.$refs.mainVideo;
-                    if (video && video.dataset.videoId === videoId) {
-                        video.play();
-                        this.isPlaying = true;
-                        root.currentPlayingId = videoId;
-                    }
-                },
 
                 // Volume control methods
                 startTopVolumeDrag(event) {
@@ -1110,34 +1306,7 @@
                     document.body.style.userSelect = 'none';
                 },
 
-                handleTopVolumeDrag(event) {
-                    if (!this.isDraggingVolume) return;
 
-                    const slider = this.$refs.topVolumeSlider;
-                    const video = this.$refs.mainVideo;
-                    if (!slider || !video) return;
-
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = event.clientX;
-                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
-                    this.volume = pos;
-                    video.volume = this.volume;
-                    video.muted = this.volume === 0;
-                    this.isMuted = this.volume === 0;
-
-                    if (this.volume > 0) {
-                        this.lastVolume = this.volume;
-                    }
-
-                    // Ensure video continues playing if it was playing before drag
-                    if (this.wasPlayingBeforeDrag && video.paused) {
-                        video.play().catch(() => {});
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
 
                 stopTopVolumeDrag(event) {
                     this.isDraggingVolume = false;
@@ -1160,35 +1329,6 @@
                     }
                 },
 
-                setTopVolume(event) {
-                    const slider = this.$refs.topVolumeSlider;
-                    const video = this.$refs.mainVideo;
-                    if (!slider || !video || this.isDraggingVolume) return;
-
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = event.clientX;
-                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
-                    // Store play state before volume change
-                    const wasPlaying = !video.paused;
-
-                    this.volume = pos;
-                    video.volume = this.volume;
-                    video.muted = this.volume === 0;
-                    this.isMuted = this.volume === 0;
-
-                    if (this.volume > 0) {
-                        this.lastVolume = this.volume;
-                    }
-
-                    // Restore play state if it was playing
-                    if (wasPlaying && video.paused) {
-                        video.play().catch(() => {});
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
             };
         }
 
