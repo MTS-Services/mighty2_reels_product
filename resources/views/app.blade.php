@@ -164,7 +164,7 @@
                     const loader = document.createElement('div');
                     loader.id = 'page-loader';
                     loader.className =
-                        'fixed inset-0 bg-white/80 backdrop-blur-sm z-[70] flex items-center justify-center transition-opacity duration-300';
+                        'fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300';
                     loader.innerHTML = `
             <div class="bg-white rounded-xl p-8 shadow-2xl flex flex-col items-center gap-4 border border-orange-100">
                 <div class="relative">
@@ -282,7 +282,7 @@
             function showFilterToast(message, type = 'info') {
                 const toast = document.createElement('div');
                 toast.className =
-                    `fixed top-4 right-4 z-[80] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+                    `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
 
                 const bgColors = {
                     info: 'bg-blue-500 text-white',

@@ -172,7 +172,7 @@
         </header>
 
         {{-- Sidebar --}}
-        <aside class="fixed inset-0 z-[50000]!" x-show="sidebarOpen" x-cloak
+        <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
             x-transition:enter="transition ease-in-out duration-300"
             x-transition:enter-start="transform translate-x-full" x-transition:enter-end="transform translate-x-0"
             x-transition:leave="transition ease-in-out duration-300"
@@ -181,7 +181,7 @@
             <div class="relative w-full h-full ">
                 <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
                     x-on:click="sidebarOpen = false"></button>
-                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col z-[300]">
+                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
                     <div class="flex items-center justify-between px-4 py-3">
                         <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
                             <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
@@ -374,7 +374,7 @@
 
     <!-- Loading Overlay for Page Navigation -->
     <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"
-        class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60] flex items-center justify-center">
+        class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 flex items-center justify-center">
         <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-3">
             <div class="animate-spin rounded-full h-6 w-6 border-2 border-orange-normal border-t-transparent"></div>
             <span class="text-gray-700">Loading...</span>

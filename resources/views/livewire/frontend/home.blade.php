@@ -331,7 +331,7 @@
                         </div>
 
                         <!-- Arrow Button - Navigate to Product Page -->
-                        <div class="absolute bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
+                        <div class="absolute bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
                             <button @click="$wire.goToProduct()"
                                 class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                                 <flux:icon name="arrow-right" class="w-5 h-5" />
@@ -354,7 +354,7 @@
                                     class="video-container w-full relative overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 h-[calc(100vh-165px)] max-w-lg rounded-xl max-h-[1100px]">
 
                                     <!-- Volume Control -->
-                                    <div class="absolute top-6 left-4 z-[4000]">
+                                    <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -1202,7 +1202,7 @@
 
                 // Create notification element
                 const notification = document.createElement('div');
-                notification.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+                notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
                     type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
                 }`;
                 notification.textContent = message;

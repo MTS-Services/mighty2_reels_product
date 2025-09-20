@@ -45,7 +45,7 @@
             </div>
         </div>
     @endif
-    <aside class="fixed inset-0 z-50" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }" x-show="sidebarOpen" x-cloak
+    <aside class="fixed inset-0 z-[60]" x-data="{ sidebarOpen: @entangle('sidebarOpen').live }" x-show="sidebarOpen" x-cloak
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
         x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
         x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"

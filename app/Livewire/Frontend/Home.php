@@ -91,7 +91,6 @@ class Home extends Component
     public function loadVideos()
     {
         $this->isLoading = true;
-
         // Build query with filters
         $query = Product::with(['reels', 'images', 'city'])
             ->active()

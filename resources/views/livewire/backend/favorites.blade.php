@@ -174,7 +174,7 @@
                     </div>
 
                     <!-- Product Details Button -->
-                    <div class="absolute bottom-[100px] z-50 right-8">
+                    <div class="absolute bottom-[100px] z-40 right-8">
                         <a :href="`/product/${currentVideoId || (videos[0] && videos[0].id)}`"
                             class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                             <flux:icon name="arrow-right" class="w-5 h-5" />

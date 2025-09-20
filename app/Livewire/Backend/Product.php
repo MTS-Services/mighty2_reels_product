@@ -90,7 +90,7 @@ class Product extends Component
 
     public function saveProduct()
     {
-        $this->rules['images.*'] = ($this->editMode ? 'nullable|' : 'required|') . 'image|mimes:jpg,jpeg,png,gif';
+        $this->rules['images.*'] = ($this->editMode ? 'nullable|' : 'required|') . 'image|mimes:jpg,jpeg,png,gif,webp,svg';
         $this->rules['videos'] = ($this->editMode ? 'nullable|' : 'required|') . 'mimes:mp4,avi,mov,m4v';
         $this->validate();
 

@@ -199,7 +199,7 @@
 
     <div class=" relative h-full  max-w-lg mx-auto">
         <div x-show="!$wire.showMergedView">
-            <div class="absolute bottom-[50px] md:bottom-[70px] z-50 right-4 md:right-8 arrow-bounce">
+            <div class="absolute bottom-[50px] md:bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-up" class="w-5 h-5" />
@@ -239,7 +239,7 @@
         </div>
 
         <div x-show="$wire.showMergedView">
-            <div class="absolute bottom-8! right-4 z-5 arrow-bounce">
+            <div class="absolute bottom-8! right-4 z-40 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
                     class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
                     <flux:icon name="arrow-down" class="w-5 h-5" />
