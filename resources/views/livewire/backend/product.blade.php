@@ -203,12 +203,15 @@
                                 @enderror
                             </div>
 
-                            <!-- File Upload Section -->
-                            <div class="md:col-span-4">
+                            <!-- File Upload Section with Drag & Drop -->
+                            <div class="md:col-span-4" x-data="fileUpload()">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files (Images &
                                     Videos)</label>
-                                <div
-                                    class="border-2 border-dashed border-gray-300 text-black rounded-lg p-6 text-center">
+
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
+                                    :class="{ 'border-orange-500 bg-orange-50': isDragging }"
+                                    @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
+                                    @drop.prevent="handleDrop($event)">
                                     <input wire:model="files" type="file" multiple accept="image/*,video/*"
                                         class="hidden" id="file-upload">
                                     <label for="file-upload" class="cursor-pointer">
@@ -313,3 +316,18 @@
         </div>
     @endif
 </div>
+<script>
+function fileUpload() {
+    return {
+        isDragging: false,
+        handleDrop(event) {
+            this.isDragging = false;
+            const droppedFiles = event.dataTransfer.files;
+            // Convert FileList to Array for Livewire
+            for (let i = 0; i < droppedFiles.length; i++) {
+                @this.upload('files', droppedFiles[i]);
+            }
+        }
+    }
+}
+</script>
