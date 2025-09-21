@@ -55,6 +55,11 @@ class Product extends BaseModel
         return $this->hasMany(ProductImage::class)->where('status', self::STATUS_ACTIVE);
     }
 
+    public function files(): HasMany
+    {
+        return $this->hasMany(ProductFile::class, 'product_id')->where('status', self::STATUS_ACTIVE);
+    }
+
     /**
      * Get the reels for the product.
      */
