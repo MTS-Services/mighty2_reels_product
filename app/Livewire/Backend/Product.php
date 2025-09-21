@@ -20,6 +20,7 @@ class Product extends Component
 
     // Modal & state
     public $showModal = false;
+    public $showGalleryModal = false; // New property for gallery modal
     public $editMode = false;
     public $productId;
 
@@ -39,6 +40,10 @@ class Product extends Component
     public $existingVideos = []; // For edit mode - existing videos from database
     public $imagesToDelete = []; // Track images marked for deletion
     public $videosToDelete = []; // Track videos marked for deletion
+
+    // Gallery data
+    public $allImages = []; // All images for gallery display
+    public $allVideos = []; // All videos for gallery display
 
     protected $rules = [
         'title' => 'required|string|max:255',
@@ -76,6 +81,58 @@ class Product extends Component
         $this->resetForm();
         $this->resetValidation();
     }
+
+    public function openGalleryModal($productId)
+    {
+        $this->loadAllMediaFiles($productId);
+        $this->showGalleryModal = true;
+    }
+
+    public function closeGalleryModal()
+    {
+        $this->showGalleryModal = false;
+        $this->allImages = [];
+        $this->allVideos = [];
+    }
+
+    public $allMedia = []; // Combined media array
+    private function loadAllMediaFiles($productId)
+    {
+        // Get images
+        $images = ProductFile::where('product_id', $productId)
+            ->where('file_type', ProductFile::TYPE_IMAGE)
+            ->where('status', ProductFile::STATUS_ACTIVE)
+            ->get()
+            ->map(fn($file) => [
+                'id' => $file->id,
+                'file' => $file->file,
+                'type' => 'image',
+                'sort_order' => $file->sort_order,
+                'created_at' => $file->created_at,
+            ])
+            ->toArray();
+
+        // Get videos
+        $videos = ProductFile::where('product_id', $productId)
+            ->where('file_type', ProductFile::TYPE_REEL)
+            ->where('status', ProductFile::STATUS_ACTIVE)
+            ->get()
+            ->map(fn($file) => [
+                'id' => $file->id,
+                'file' => $file->file,
+                'type' => 'video',
+                'sort_order' => $file->sort_order,
+                'created_at' => $file->created_at,
+            ])
+            ->toArray();
+
+        // Merge images & videos and sort by sort_order ascending
+        $this->allMedia = collect(array_merge($images, $videos))
+            ->sortBy('sort_order')
+            ->values()
+            ->toArray();
+    }
+
 
     public function resetForm()
     {
@@ -122,10 +179,9 @@ class Product extends Component
 
             $this->closeModal();
             session()->flash('success', $this->editMode ? 'Product updated successfully!' : 'Product created successfully!');
-            
+
             // Reset page to refresh the product list
             $this->resetPage();
-            
         } catch (\Exception $e) {
             Log::error('Error saving product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while saving the product.');
@@ -166,7 +222,7 @@ class Product extends Component
     private function deleteMarkedFiles()
     {
         $filesToDelete = array_merge($this->imagesToDelete, $this->videosToDelete);
-        
+
         if (empty($filesToDelete)) {
             return;
         }
@@ -179,10 +235,10 @@ class Product extends Component
                     if (Storage::disk('public')->exists($productFile->file)) {
                         Storage::disk('public')->delete($productFile->file);
                     }
-                    
+
                     // Delete database record
                     $productFile->delete();
-                    
+
                     Log::info("Successfully deleted file: {$productFile->file}");
                 }
             } catch (\Exception $e) {
@@ -190,7 +246,7 @@ class Product extends Component
                 // Continue with other files even if one fails
             }
         }
-        
+
         // Clear the deletion arrays
         $this->imagesToDelete = [];
         $this->videosToDelete = [];
@@ -202,14 +258,20 @@ class Product extends Component
             // Generate unique filename
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . uniqid() . '.' . $extension;
-            
+
             // Determine storage path based on file type
-            $storagePath = $fileType === ProductFile::TYPE_IMAGE 
-                ? 'products/images' 
+            $storagePath = $fileType === ProductFile::TYPE_IMAGE
+                ? 'products/images'
                 : 'products/videos';
-                
+
             // Store the file
             $path = $file->storeAs($storagePath, $filename, 'public');
+
+            // Calculate sort order for this product
+            $lastSortOrder = ProductFile::where('product_id', $productId)
+                ->max('sort_order');
+
+            $sortOrder = is_null($lastSortOrder) ? 0 : $lastSortOrder + 1;
 
             // Create database record
             ProductFile::create([
@@ -217,17 +279,18 @@ class Product extends Component
                 'file' => $path,
                 'file_type' => $fileType,
                 'status' => ProductFile::STATUS_ACTIVE,
+                'sort_order' => $sortOrder,
                 'created_at' => now(),
                 'created_by' => user()->id,
             ]);
-            
+
             Log::info("Successfully uploaded file: {$path}");
-            
         } catch (\Exception $e) {
             Log::error("Error processing file upload: " . $e->getMessage());
             session()->flash('error', 'Error uploading file: ' . $file->getClientOriginalName());
         }
     }
+
 
     public function editProduct($productId)
     {
@@ -295,7 +358,7 @@ class Product extends Component
 
             session()->flash('success', 'Product deleted successfully!');
             $this->resetPage(); // Reset pagination to refresh the list
-            
+
         } catch (\Exception $e) {
             Log::error('Error deleting product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while deleting the product.');
@@ -324,12 +387,12 @@ class Product extends Component
         if (!in_array($imageId, $this->imagesToDelete)) {
             $this->imagesToDelete[] = $imageId;
         }
-        
+
         // Remove from existing images display
         $this->existingImages = array_filter($this->existingImages, function ($image) use ($imageId) {
             return $image['id'] != $imageId;
         });
-        
+
         $this->existingImages = array_values($this->existingImages); // Re-index array
     }
 
@@ -339,12 +402,12 @@ class Product extends Component
         if (!in_array($videoId, $this->videosToDelete)) {
             $this->videosToDelete[] = $videoId;
         }
-        
+
         // Remove from existing videos display
         $this->existingVideos = array_filter($this->existingVideos, function ($video) use ($videoId) {
             return $video['id'] != $videoId;
         });
-        
+
         $this->existingVideos = array_values($this->existingVideos); // Re-index array
     }
 
@@ -352,7 +415,7 @@ class Product extends Component
     {
         // Validate images when they are updated
         $this->validateOnly('images.*');
-        
+
         // Optional: Validate total image count
         $totalImages = count($this->images) + count($this->existingImages);
         if ($totalImages > 10) { // Adjust limit as needed
@@ -365,7 +428,7 @@ class Product extends Component
     {
         // Validate videos when they are updated
         $this->validateOnly('videos.*');
-        
+
         // Optional: Validate total video count
         $totalVideos = count($this->videos) + count($this->existingVideos);
         if ($totalVideos > 5) { // Adjust limit as needed
