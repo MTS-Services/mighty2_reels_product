@@ -33,7 +33,7 @@
                         class="badge badge-soft {{ $reel->status_color }} absolute top-1 left-1">{{ $reel->status_label }}</span>
                     @if ($reel->file)
                         <video controls class="w-full h-56 object-contain rounded-t-lg">
-                            <source src="{{ $reel->url }}" type="video/mp4">
+                            <source src="{{ Storage::url($reel->file) }}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     @else
@@ -101,6 +101,7 @@
         </div>
     @endif
 
+    <!-- Main Modal for Add/Edit Reel -->
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
@@ -162,9 +163,7 @@
                                     </label>
                                 @endif
 
-                                {{-- This is the crucial part to adjust --}}
                                 @if ($file)
-                                    {{-- If a new file is selected, use its temporary URL --}}
                                     <div class="relative">
                                         <video controls class="w-full rounded-md object-contain"
                                             src="{{ $file->temporaryUrl() }}"></video>
@@ -174,10 +173,8 @@
                                         </x-button>
                                     </div>
                                 @elseif ($editMode && $tempFile)
-                                    {{-- If in edit mode and tempFile exists (meaning an existing video), use its storage path --}}
                                     <div class="relative">
                                         <video controls class="w-full rounded-md object-contain">
-                                            {{-- Corrected path using asset() --}}
                                             <source src="{{ asset('storage/' . $tempFile) }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
@@ -203,6 +200,51 @@
                             </x-button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Primary Reel Confirmation Modal -->
+    @if ($showPrimaryModal)
+        <div class="fixed inset-0 bg-black/50 bg-opacity-75 flex items-center justify-center z-60">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-4">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                Replace Primary Reel?
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-sm text-gray-600">
+                            This product already has a primary reel. Do you want to replace the existing primary reel
+                            with this new one?
+                        </p>
+                        <p class="text-xs text-gray-500 mt-2">
+                            The current primary reel will remain but won't be marked as primary anymore.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <x-button variant="secondary" wire:click="cancelReplacePrimary">
+                            No, Cancel
+                        </x-button>
+                        <x-button wire:click="confirmReplacePrimary"
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white">
+                            Yes, Replace
+                        </x-button>
+                    </div>
                 </div>
             </div>
         </div>

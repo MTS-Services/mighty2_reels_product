@@ -16,6 +16,7 @@ class ProductReel extends Component
     use WithPagination, WithFileUploads;
 
     public $showModal = false;
+    public $showPrimaryModal = false; // New property for primary confirmation modal
     public $editMode = false;
     public $reelId;
     public $productId;
@@ -23,6 +24,7 @@ class ProductReel extends Component
     public $tempFile; // For existing file paths
     public $status = ProductFile::STATUS_ACTIVE;
     public $products;
+    public $replacePrimary = false; // New property to track user's choice
 
     // Rules for validation, with the file rule being conditional
     protected $rules = [
@@ -39,14 +41,20 @@ class ProductReel extends Component
     public function openModal()
     {
         // Reset all properties when opening the modal for a new reel
-        $this->reset(['editMode', 'reelId', 'productId', 'file', 'tempFile', 'status']);
+        $this->reset(['editMode', 'reelId', 'productId', 'file', 'tempFile', 'status', 'showPrimaryModal', 'replacePrimary']);
         $this->showModal = true;
     }
 
     public function closeModal()
     {
         // Reset all properties when closing the modal
-        $this->reset(['showModal', 'editMode', 'reelId', 'productId', 'file', 'tempFile', 'status']);
+        $this->reset(['showModal', 'editMode', 'reelId', 'productId', 'file', 'tempFile', 'status', 'showPrimaryModal', 'replacePrimary']);
+    }
+
+    public function closePrimaryModal()
+    {
+        $this->showPrimaryModal = false;
+        $this->replacePrimary = false;
     }
 
     public function saveReel()
@@ -58,6 +66,46 @@ class ProductReel extends Component
             'status' => 'required|integer',
         ]);
 
+        // Check if there's already a primary reel for this product
+        $existingPrimary = ProductFile::where('product_id', $this->productId)
+            ->where('file_type', ProductFile::TYPE_REEL)
+            ->where('is_primary', true)
+            ->first();
+
+        if ($existingPrimary) {
+            // Show confirmation modal
+            $this->showPrimaryModal = true;
+            return;
+        }
+
+        // No existing primary, proceed with creation
+        $this->createReel(true); // Set as primary since no existing primary
+    }
+
+    public function confirmReplacePrimary()
+    {
+        $this->replacePrimary = true;
+        $this->showPrimaryModal = false;
+        $this->createReel(true); // Create as primary and update existing
+    }
+
+    public function cancelReplacePrimary()
+    {
+        $this->showPrimaryModal = false;
+        $this->replacePrimary = false;
+        // Don't create the reel, just close the modal
+    }
+
+    private function createReel($isPrimary = false)
+    {
+        // If replacing primary, update existing primary to false
+        if ($this->replacePrimary) {
+            ProductFile::where('product_id', $this->productId)
+                ->where('file_type', ProductFile::TYPE_REEL)
+                ->where('is_primary', true)
+                ->update(['is_primary' => false]);
+        }
+
         // Store the new file and get its path
         $path = $this->file->store('reels', 'public');
 
@@ -65,6 +113,8 @@ class ProductReel extends Component
             'product_id' => $this->productId,
             'file' => $path,
             'status' => $this->status,
+            'file_type' => ProductFile::TYPE_REEL,
+            'is_primary' => $isPrimary,
         ]);
 
         session()->flash('success', 'Reel added successfully!');
@@ -90,7 +140,6 @@ class ProductReel extends Component
             'productId' => 'required|exists:products,id',
             'status' => 'required|integer',
             'file' => 'sometimes|required|mimes:mp4,avi,mov,m4v|max:51200',
-
         ];
 
         // Only validate the file if a new one is being uploaded

@@ -67,7 +67,18 @@ class ProductFile extends BaseModel
     {
         return $query->where('file_type', self::TYPE_REEL);
     }
+      public function getStatusLabelAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
+    }
 
+    /**
+     * Get the status color class.
+     */
+    public function getStatusColorAttribute()
+    {
+        return $this->status == self::STATUS_ACTIVE ? 'badge-success' : 'badge-error';
+    }
     /**
      * Accessors & Mutators
      */
@@ -142,7 +153,9 @@ class ProductFile extends BaseModel
             'file_url',
             'is_image', 
             'is_video',
-            'file_type_name'
+            'file_type_name',
+            'status_label',
+            'status_color',
         ]);
     }
 }
