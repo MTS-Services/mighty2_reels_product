@@ -44,7 +44,9 @@ class Product extends Component
     private function loadProductData($productId)
     {
         // Load product with unified files relationship
-        $product = ModelsProduct::with(['files', 'city'])->active()->find($productId);
+        $product = ModelsProduct::with(['files', 'city' => function ($q) {
+            $q->orderBy('sort_order', 'asc');
+        }])->active()->find($productId);
 
         if (!$product) {
             abort(404, 'Product not found');
