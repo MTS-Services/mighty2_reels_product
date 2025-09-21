@@ -53,8 +53,6 @@ class Product extends Component
         'city_id' => 'required|exists:cities,id',
         'type' => 'required|in:0,1',
         'status' => 'required|in:0,1',
-        'images.*' => 'nullable|image|max:10240', // Max 10MB for images
-        'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200', // Max 50MB for videos
     ];
 
     protected $messages = [

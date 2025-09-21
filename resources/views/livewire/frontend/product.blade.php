@@ -439,17 +439,16 @@
                 </template>
             </div>
 
-            <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
+               <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
                 x-transition:enter-start="opacity-0 scale-95 translate-y-6"
                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 translate-y-6" class="flex flex-col max-w-lg h-full">
-
-                <!-- Media list -->
-                <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide space-y-3 gap-4">
-                    <template x-for="(media, index) in (allMediaItems || [])"
-                        :key="`merged-${media.id}-${media.type}-${media.reel_id || media.image_id || index}-${index}`">
+                x-transition:leave-end="opacity-0 scale-95 translate-y-6"
+                class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
+                <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
+                    <template x-for="(media, index) in allMediaItems"
+                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
                         <div @click="viewMediaItem(index)"
                             class="relative rounded-2xl overflow-hidden mb-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
                             :class="{ 'bg-white': selectedMediaIndex === index }">
@@ -488,15 +487,15 @@
                             </template>
                         </div>
                     </template>
+
                 </div>
 
-                <!-- Product details -->
-                <div class="bg-white p-4 rounded" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
+                <div class=" p-4 shadow-sm rounded-2xl  overflow-y-auto" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
 
                     @if ($productData)
-                        <div class="max-w-3xl mx-auto bg-white">
+                        <div class="max-w-3xl mx-auto">
 
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight animate-fade-in-up  ">
                                 {{ $productData->title }}
                             </h2>
 
@@ -527,10 +526,8 @@
                                 @endif
                             </div>
 
-                            <div
-                                class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed overflow-x-hidden max-w-full break-words">
-                                <p x-bind:class="expanded ? '' : 'line-clamp-1'"
-                                    class="transition-all duration-300 break-words">
+                            <div class="space-y-2 text-gray-700 leading-relaxed animate-fade-in-up-delayed">
+                                <p x-bind:class="expanded ? '' : 'line-clamp-1'" class="transition-all duration-300">
                                     {{ $productData->description }}
                                 </p>
 
@@ -541,6 +538,7 @@
                                     </button>
                                 @endif
                             </div>
+
                         </div>
                     @else
                         <div class="text-center text-gray-500 italic">
@@ -548,8 +546,8 @@
                         </div>
                     @endif
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 
