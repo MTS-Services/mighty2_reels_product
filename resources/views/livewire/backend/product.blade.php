@@ -146,10 +146,10 @@
                             <div class="group relative">
                                 <!-- Serial Number Badge -->
                                 <span
-                                    class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full z-10">
+                                    class="absolute top-2 right-2 bg-black/30 dark:bg-white/30 backdrop-blur-sm text-white dark:text-black font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
                                     {{ $media['sort_order'] }}
                                 </span>
-
+                                
                                 @if ($media['type'] === 'image')
                                     <img src="{{ asset('storage/' . $media['file']) }}" alt="Image"
                                         class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
