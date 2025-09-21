@@ -1,5 +1,4 @@
 <section>
-
     <div class="bg-gray-50 min-h-[calc(100vh-100px)]">
         <!-- Header -->
         <div>
@@ -16,7 +15,7 @@
             <div class="grid md:grid-cols-2 gap-12">
 
                 <div>
-                    <div class="bg-gradient-to-br rounded-2xl  mb-4 flex items-center justify-center shadow-sm">
+                    <div class="bg-gradient-to-br rounded-2xl mb-4 flex items-center justify-center shadow-sm">
                         @if ($activeType === 'image')
                             <img src="{{ storage_url($activeMedia) }}" alt="{{ $product->title }}"
                                 class="w-full h-80 object-contain rounded">
@@ -31,21 +30,38 @@
                         <!-- Thumbnails Slider -->
                         <div id="thumbSlider"
                             class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8 shadow-sm">
-                            <!-- Images Thumbnails -->
-                            @foreach ($product->images as $image)
+                            
+                            <!-- Images Thumbnails - Ordered by isprimary first -->
+                            @foreach ($product->images->sortByDesc('isprimary') as $image)
                                 <div wire:click="changeMedia('{{ $image->file }}', 'image')"
-                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
                  {{ $activeMedia === $image->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+                                    
+                                    <!-- Primary badge for primary images -->
+                                    @if($image->isprimary)
+                                        <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
+                                            P
+                                        </span>
+                                    @endif
+                                    
                                     <img src="{{ storage_url($image->file) }}"
                                         class="w-full h-full object-contain rounded">
                                 </div>
                             @endforeach
 
-                            <!-- Videos Thumbnails -->
-                            @foreach ($videos as $video)
+                            <!-- Videos Thumbnails - Ordered by isprimary first -->
+                            @foreach ($videos->sortByDesc('isprimary') as $video)
                                 <div wire:click="changeMedia('{{ $video->file }}', 'video')"
-                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors
+                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
                  {{ $activeMedia === $video->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+                                    
+                                    <!-- Primary badge for primary videos -->
+                                    @if($video->isprimary)
+                                        <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
+                                            P
+                                        </span>
+                                    @endif
+                                    
                                     <video class="w-full h-full object-contain rounded" autoplay muted>
                                         <source src="{{ storage_url($video->file) }}" type="video/mp4">
                                     </video>
@@ -53,10 +69,6 @@
                             @endforeach
                         </div>
                     </div>
-
-
-
-
                 </div>
 
                 <!-- Product Details Section -->
@@ -64,8 +76,6 @@
                     <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $product->title }}</h1>
 
                     <!-- Product Description -->
-
-
                     <div class="bg-white rounded-xl p-6 shadow-sm border mb-6" x-data="{
                         showDescription: false,
                         fullDescription: `{{ $product->description }}`,
@@ -80,7 +90,7 @@
                             x-text="showDescription ? fullDescription : truncatedDescription">
                         </p>
 
-                        <!-- Only show button if description is longer than 200 characters -->
+                        <!-- Only show button if description is longer than 650 characters -->
                         <template x-if="shouldShowButton">
                             <button
                                 class="text-orange-500 font-medium hover:text-orange-600 transition-colors duration-200"
@@ -89,17 +99,9 @@
                             </button>
                         </template>
                     </div>
-
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        {{-- <footer class="bg-[#EFEFEF] p-2 mt-30">
-            <div class="max-w-6xl mx-auto px-4 py-2">
-                <p class="text-center text-orange-500 font-medium">© 2025 Reelshop. All rights reserved.</p>
-            </div>
-        </footer> --}}
 
         <script>
             // Quantity selector functionality
@@ -142,6 +144,4 @@
             });
         </script>
     </div>
-
-    </html>
 </section>
