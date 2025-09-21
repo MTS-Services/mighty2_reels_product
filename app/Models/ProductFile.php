@@ -13,6 +13,7 @@ class ProductFile extends BaseModel
         'product_id',
         'file',
         'file_type',
+        'is_primary',
         'status',
         'created_by',
         'updated_by',

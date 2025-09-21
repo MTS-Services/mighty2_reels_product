@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('product_id');
             $table->string('file');
+            $table->boolean('is_primary')->default(0);
+
             $table->tinyInteger('file_type')->default(ProductFile::TYPE_IMAGE)->comment(ProductFile::TYPE_IMAGE . ' = Image, ' . ProductFile::TYPE_REEL . ' = Reel');
             $table->tinyInteger('status')->default(ProductFile::STATUS_ACTIVE)->comment(ProductFile::STATUS_ACTIVE . ' = Active, ' . ProductFile::STATUS_INACTIVE . ' = Inactive');
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete()->cascadeOnUpdate();

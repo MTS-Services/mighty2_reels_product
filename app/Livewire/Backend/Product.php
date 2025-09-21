@@ -3,8 +3,7 @@
 namespace App\Livewire\Backend;
 
 use App\Models\Product as ProductModel;
-use App\Models\ProductImage;
-use App\Models\ProductReel;
+use App\Models\ProductFile;
 use App\Models\City;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -45,6 +44,7 @@ class Product extends Component
         'room' => 'sometimes|required|integer|min:1',
         'city_id' => 'sometimes|required|exists:cities,id',
         'type' => 'sometimes|required|in:0,1',
+        'file_type' => 'sometimes|required|in:1,2',
         'status' => 'sometimes|required|in:0,1',
     ];
 
@@ -129,7 +129,7 @@ class Product extends Component
         foreach ($this->tempImages as $key => $image) {
             if (!in_array($image['id'], array_column($this->tempImages, 'id'))) {
                 Storage::disk('public')->delete($image['file']);
-                ProductImage::find($image['id'])->delete();
+                ProductFile::find($image['id'])->delete();
             }
         }
 
@@ -139,9 +139,10 @@ class Product extends Component
                 $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('products/images', $filename, 'public');
 
-                ProductImage::create([
+                ProductFile::create([
                     'product_id' => $productId,
                     'file' => $path,
+                    'file_type' => ProductFile::TYPE_IMAGE,
                     'status' => 1,
                     'created_at' => now(),
                     'created_by' => user()->id,
@@ -158,7 +159,7 @@ class Product extends Component
         // Delete existing video
         if ($this->editMode && $this->tempVideos) {
             Storage::disk('public')->delete($this->tempVideos['file']);
-            ProductReel::find($this->tempVideos['id'])->delete();
+            ProductFile::find($this->tempVideos['id'])->delete();
         }
 
         // Upload new video
@@ -166,9 +167,10 @@ class Product extends Component
             $filename = time() . '_' . uniqid() . '.' . $this->videos->getClientOriginalExtension();
             $path = $this->videos->storeAs('products/videos', $filename, 'public');
 
-            ProductReel::create([
+            ProductFile::create([
                 'product_id' => $productId,
                 'file' => $path,
+                'file_type' => ProductFile::TYPE_REEL,
                 'status' => 1,
                 'created_at' => now(),
                 'created_by' => user()->id,
@@ -231,7 +233,7 @@ class Product extends Component
         if (isset($this->tempImages[$index])) {
             $image = $this->tempImages[$index];
             Storage::disk('public')->delete($image['file']);
-            ProductImage::find($image['id'])->delete();
+            ProductFile::find($image['id'])->delete();
             unset($this->tempImages[$index]);
             $this->tempImages = array_values($this->tempImages);
         }
@@ -243,7 +245,7 @@ class Product extends Component
 
         if ($this->editMode && $this->tempVideos) {
             Storage::disk('public')->delete($this->tempVideos['file']);
-            ProductReel::find($this->tempVideos['id'])->delete();
+            ProductFile::find($this->tempVideos['id'])->delete();
             $this->tempVideos = null;
         }
     }
