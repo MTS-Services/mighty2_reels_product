@@ -1,6 +1,6 @@
 <section>
 
-    <div class="bg-gray-50 min-h-screen">
+    <div class="bg-gray-50 min-h-[calc(100vh-100px)]">
         <!-- Header -->
         <div>
             <div class="max-w-6xl mx-auto px-4 py-4">
@@ -95,11 +95,11 @@
         </div>
 
         <!-- Footer -->
-        <footer class="bg-[#EFEFEF] p-2 mt-30">
+        {{-- <footer class="bg-[#EFEFEF] p-2 mt-30">
             <div class="max-w-6xl mx-auto px-4 py-2">
                 <p class="text-center text-orange-500 font-medium">© 2025 Reelshop. All rights reserved.</p>
             </div>
-        </footer>
+        </footer> --}}
 
         <script>
             // Quantity selector functionality

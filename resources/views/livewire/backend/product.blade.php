@@ -148,14 +148,6 @@
                         @forelse ($allMedia as $media)
                             <div class="group relative cursor-move transition-transform hover:scale-105" 
                                  data-media-id="{{ $media['id'] }}">
-                                <!-- Drag Handle -->
-                                {{-- <div class="absolute top-2 left-12 bg-black/50 backdrop-blur-sm text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                              d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                                    </svg>
-                                </div>
-                                 --}}
                                 <!-- Serial Number Badge -->
                                 <span class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
                                     {{ $media['sort_order'] }}
