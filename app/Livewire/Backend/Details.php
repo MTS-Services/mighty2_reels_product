@@ -17,7 +17,7 @@ class Details extends Component
 
     public function mount($productId)
     {
-        $this->product = Product::with('images')->findOrFail($productId);
+        $this->product = Product::with('files')->findOrFail($productId);
 
 
         // Load videos from ProductReel

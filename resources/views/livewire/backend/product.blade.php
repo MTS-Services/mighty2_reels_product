@@ -1,7 +1,6 @@
 <div class="max-w-7xl mx-auto p-6">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
-        <h1
-            class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
+        <h1 class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
             Manage your products and reels
         </h1>
 
@@ -41,8 +40,7 @@
                         </a>
                     @else
                         <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                 </path>
@@ -57,8 +55,7 @@
                         <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}">
                             <h3 class="font-semibold text-gray-900">{{ $product->title }}</h3>
                         </a>
-                        <span
-                            class="px-2 py-1 text-xs rounded-full {{ $product->type == 1 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
+                        <span class="px-2 py-1 text-xs rounded-full {{ $product->type == 1 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
                             {{ $product->type == 1 ? 'Rent' : 'Sale' }}
                         </span>
                     </div>
@@ -82,8 +79,7 @@
             </div>
         @empty
             <div class="col-span-full text-center py-12">
-                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
@@ -100,8 +96,7 @@
     @if ($products->hasPages())
         <div class="flex justify-between items-center">
             <span class="text-sm text-orange-500">
-                Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }}
-                results
+                Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }} results
             </span>
             <div class="flex gap-2">
                 {{ $products->links() }}
@@ -110,8 +105,7 @@
     @endif
 
     @if ($showModal)
-        <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
-            wire:click.self="closeModal">
+        <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50" wire:click.self="closeModal">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto m-4">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
@@ -203,59 +197,70 @@
                                 @enderror
                             </div>
 
-                            <!-- File Upload Section with Drag & Drop -->
-                            <div class="md:col-span-4" x-data="fileUpload()">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files (Images &
-                                    Videos)</label>
+                            <!-- Image Upload Section -->
+                            <div class="md:col-span-2" x-data="imageUpload()">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
 
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
-                                    :class="{ 'border-orange-500 bg-orange-50': isDragging }"
-                                    @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
-                                    @drop.prevent="handleDrop($event)">
-                                    <input wire:model="files" type="file" multiple accept="image/*,video/*"
-                                        class="hidden" id="file-upload">
-                                    <label for="file-upload" class="cursor-pointer">
-                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
+                                    :class="{ 'border-green-500 bg-green-50': isDragging }"
+                                    @dragover.prevent="isDragging = true" 
+                                    @dragleave.prevent="isDragging = false"
+                                    @drop.prevent="handleDrop($event, 'images')">
+                                    <input wire:model="images" type="file" multiple accept="image/*"
+                                        class="hidden" id="image-upload">
+                                    <label for="image-upload" class="cursor-pointer">
+                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                             </path>
                                         </svg>
-                                        <p class="text-sm text-gray-500">Click to upload files or drag and drop</p>
-                                        <p class="text-xs text-gray-400">Images: PNG, JPG, GIF, WebP, SVG (max 10MB
-                                            each)</p>
-                                        <p class="text-xs text-gray-400">Videos: MP4, AVI, MOV (max 50MB each)</p>
+                                        <p class="text-sm text-gray-500">Click to upload images or drag and drop</p>
+                                        <p class="text-xs text-gray-400">PNG, JPG, GIF, WebP, SVG (max 10MB each)</p>
                                     </label>
                                 </div>
-                                @error('files.*')
+                                @error('images.*')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
 
-                            <!-- Display New Files -->
-                            @if (!empty($files))
-                                <div class="md:col-span-4">
-                                    <h4 class="text-sm font-medium text-gray-700 mb-3">New Files to Upload</h4>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        @foreach ($files as $index => $file)
-                                            <div class="relative">
-                                                @if (str_starts_with($file->getMimeType(), 'image/'))
-                                                    <img src="{{ $file->temporaryUrl() }}"
-                                                        class="w-full h-30 object-cover rounded border">
-                                                    <span
-                                                        class="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">IMG</span>
-                                                @elseif (str_starts_with($file->getMimeType(), 'video/'))
-                                                    <video class="w-full h-30 object-cover rounded border" controls>
-                                                        <source src="{{ $file->temporaryUrl() }}"
-                                                            type="{{ $file->getMimeType() }}">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                    <span
-                                                        class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">VID</span>
-                                                @endif
+                            <!-- Video Upload Section -->
+                            <div class="md:col-span-2" x-data="videoUpload()">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Videos/Reels</label>
 
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
+                                    :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+                                    @dragover.prevent="isDragging = true" 
+                                    @dragleave.prevent="isDragging = false"
+                                    @drop.prevent="handleDrop($event, 'videos')">
+                                    <input wire:model="videos" type="file" multiple accept="video/*"
+                                        class="hidden" id="video-upload">
+                                    <label for="video-upload" class="cursor-pointer">
+                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Click to upload videos or drag and drop</p>
+                                        <p class="text-xs text-gray-400">MP4, AVI, MOV (max 50MB each)</p>
+                                    </label>
+                                </div>
+                                @error('videos.*')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Display New Images -->
+                            @if (!empty($images))
+                                <div class="md:col-span-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">New Images to Upload</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        @foreach ($images as $index => $image)
+                                            <div class="relative">
+                                                <img src="{{ $image->temporaryUrl() }}"
+                                                    class="w-full h-24 object-cover rounded border">
+                                                <span class="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">IMG</span>
                                                 <button type="button"
-                                                    wire:click="removeNewFile({{ $index }})"
+                                                    wire:click="removeNewImage({{ $index }})"
                                                     class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                                     ×
                                                 </button>
@@ -265,32 +270,64 @@
                                 </div>
                             @endif
 
-
-                            <!-- Display Existing Files in Edit Mode -->
-                            @if ($editMode && !empty($existingFiles))
-                                <div class="md:col-span-4">
-                                    <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Files</h4>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        @foreach ($existingFiles as $file)
+                            <!-- Display New Videos -->
+                            @if (!empty($videos))
+                                <div class="md:col-span-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">New Videos to Upload</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        @foreach ($videos as $index => $video)
                                             <div class="relative">
-                                                @if ($file['file_type'] == 1)
-                                                    {{-- Image --}}
-                                                    <img src="{{ asset('storage/' . $file['file']) }}"
-                                                        class="w-full h-30 object-cover rounded border">
-                                                    <span
-                                                        class="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">IMG</span>
-                                                @elseif ($file['file_type'] == 2)
-                                                    {{-- Video --}}
-                                                    <video class="w-full h-30 object-cover rounded border" controls>
-                                                        <source src="{{ asset('storage/' . $file['file']) }}"
-                                                            type="video/mp4">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                    <span
-                                                        class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">VID</span>
-                                                @endif
+                                                <video class="w-full h-24 object-cover rounded border" controls>
+                                                    <source src="{{ $video->temporaryUrl() }}" type="{{ $video->getMimeType() }}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                                <span class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">VID</span>
                                                 <button type="button"
-                                                    wire:click="removeExistingFile({{ $file['id'] }})"
+                                                    wire:click="removeNewVideo({{ $index }})"
+                                                    class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                                    ×
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Display Existing Images in Edit Mode -->
+                            @if ($editMode && !empty($existingImages))
+                                <div class="md:col-span-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Images</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        @foreach ($existingImages as $image)
+                                            <div class="relative">
+                                                <img src="{{ asset('storage/' . $image['file']) }}"
+                                                    class="w-full h-24 object-cover rounded border">
+                                                <span class="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">IMG</span>
+                                                <button type="button"
+                                                    wire:click="removeExistingImage({{ $image['id'] }})"
+                                                    class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                                    ×
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Display Existing Videos in Edit Mode -->
+                            @if ($editMode && !empty($existingVideos))
+                                <div class="md:col-span-2">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Videos</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        @foreach ($existingVideos as $video)
+                                            <div class="relative">
+                                                <video class="w-full h-24 object-cover rounded border" controls>
+                                                    <source src="{{ asset('storage/' . $video['file']) }}" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                                <span class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">VID</span>
+                                                <button type="button"
+                                                    wire:click="removeExistingVideo({{ $video['id'] }})"
                                                     class="absolute cursor-pointer -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                                     ×
                                                 </button>
@@ -316,17 +353,50 @@
         </div>
     @endif
 </div>
+
 <script>
-function fileUpload() {
+function imageUpload() {
     return {
         isDragging: false,
-        handleDrop(event) {
+        handleDrop(event, type) {
             this.isDragging = false;
             const droppedFiles = event.dataTransfer.files;
-            // Convert FileList to Array for Livewire
-            for (let i = 0; i < droppedFiles.length; i++) {
-                @this.upload('files', droppedFiles[i]);
-            }
+            
+            // Filter files based on type
+            const validFiles = Array.from(droppedFiles).filter(file => {
+                if (type === 'images') {
+                    return file.type.startsWith('image/');
+                }
+                return false;
+            });
+
+            // Upload valid files
+            validFiles.forEach(file => {
+                @this.upload('images', file);
+            });
+        }
+    }
+}
+
+function videoUpload() {
+    return {
+        isDragging: false,
+        handleDrop(event, type) {
+            this.isDragging = false;
+            const droppedFiles = event.dataTransfer.files;
+            
+            // Filter files based on type
+            const validFiles = Array.from(droppedFiles).filter(file => {
+                if (type === 'videos') {
+                    return file.type.startsWith('video/');
+                }
+                return false;
+            });
+
+            // Upload valid files
+            validFiles.forEach(file => {
+                @this.upload('videos', file);
+            });
         }
     }
 }

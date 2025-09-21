@@ -32,10 +32,13 @@ class Product extends Component
     public $type = 1;
     public $status = 1;
 
-    // File uploads
-    public $files = []; // Combined array for all files
-    public $existingFiles = []; // For edit mode - existing files from database
-    public $filesToDelete = []; // Track files marked for deletion
+    // Separate file uploads
+    public $images = []; // For image files only
+    public $videos = []; // For video files only
+    public $existingImages = []; // For edit mode - existing images from database
+    public $existingVideos = []; // For edit mode - existing videos from database
+    public $imagesToDelete = []; // Track images marked for deletion
+    public $videosToDelete = []; // Track videos marked for deletion
 
     protected $rules = [
         'title' => 'required|string|max:255',
@@ -45,7 +48,8 @@ class Product extends Component
         'city_id' => 'required|exists:cities,id',
         'type' => 'required|in:0,1',
         'status' => 'required|in:0,1',
-        'files.*' => 'nullable|file|max:51200', // Max 50MB
+        'images.*' => 'nullable|image|max:10240', // Max 10MB for images
+        'videos.*' => 'nullable|mimes:mp4,avi,mov|max:51200', // Max 50MB for videos
     ];
 
     protected $messages = [
@@ -54,8 +58,10 @@ class Product extends Component
         'price.numeric' => 'Price must be a valid number.',
         'room.required' => 'Number of rooms is required.',
         'city_id.required' => 'City selection is required.',
-        'files.*.file' => 'Each upload must be a valid file.',
-        'files.*.max' => 'Each file must not exceed 50MB.',
+        'images.*.image' => 'Each image must be a valid image file.',
+        'images.*.max' => 'Each image must not exceed 10MB.',
+        'videos.*.mimes' => 'Videos must be in MP4, AVI, or MOV format.',
+        'videos.*.max' => 'Each video must not exceed 50MB.',
     ];
 
     public function openModal()
@@ -82,9 +88,12 @@ class Product extends Component
         $this->city_id = '';
         $this->type = 1;
         $this->status = 1;
-        $this->files = [];
-        $this->existingFiles = [];
-        $this->filesToDelete = [];
+        $this->images = [];
+        $this->videos = [];
+        $this->existingImages = [];
+        $this->existingVideos = [];
+        $this->imagesToDelete = [];
+        $this->videosToDelete = [];
     }
 
     public function saveProduct()
@@ -131,11 +140,20 @@ class Product extends Component
                 $this->deleteMarkedFiles();
             }
 
-            // Process new file uploads
-            if (!empty($this->files)) {
-                foreach ($this->files as $file) {
-                    if ($file instanceof UploadedFile) {
-                        $this->processAndSaveFile($file, $productId);
+            // Process image uploads
+            if (!empty($this->images)) {
+                foreach ($this->images as $image) {
+                    if ($image instanceof UploadedFile) {
+                        $this->processAndSaveFile($image, $productId, ProductFile::TYPE_IMAGE);
+                    }
+                }
+            }
+
+            // Process video uploads
+            if (!empty($this->videos)) {
+                foreach ($this->videos as $video) {
+                    if ($video instanceof UploadedFile) {
+                        $this->processAndSaveFile($video, $productId, ProductFile::TYPE_REEL);
                     }
                 }
             }
@@ -147,11 +165,13 @@ class Product extends Component
 
     private function deleteMarkedFiles()
     {
-        if (empty($this->filesToDelete)) {
+        $filesToDelete = array_merge($this->imagesToDelete, $this->videosToDelete);
+        
+        if (empty($filesToDelete)) {
             return;
         }
 
-        foreach ($this->filesToDelete as $fileId) {
+        foreach ($filesToDelete as $fileId) {
             try {
                 $productFile = ProductFile::find($fileId);
                 if ($productFile) {
@@ -171,27 +191,14 @@ class Product extends Component
             }
         }
         
-        // Clear the deletion array
-        $this->filesToDelete = [];
+        // Clear the deletion arrays
+        $this->imagesToDelete = [];
+        $this->videosToDelete = [];
     }
 
-    private function processAndSaveFile(UploadedFile $file, $productId)
+    private function processAndSaveFile(UploadedFile $file, $productId, $fileType)
     {
         try {
-            $mimeType = $file->getMimeType();
-            $fileType = $this->determineFileType($mimeType);
-            
-            if (!$fileType) {
-                Log::warning('Unsupported file type uploaded: ' . $mimeType);
-                session()->flash('error', 'Unsupported file type: ' . $file->getClientOriginalName());
-                return;
-            }
-
-            // Validate file type specific constraints
-            if (!$this->validateFileType($file, $fileType)) {
-                return;
-            }
-
             // Generate unique filename
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . uniqid() . '.' . $extension;
@@ -222,41 +229,6 @@ class Product extends Component
         }
     }
 
-    private function determineFileType($mimeType)
-    {
-        $imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        $videoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/quicktime', 'video/x-msvideo'];
-
-        if (in_array($mimeType, $imageTypes)) {
-            return ProductFile::TYPE_IMAGE;
-        }
-
-        if (in_array($mimeType, $videoTypes)) {
-            return ProductFile::TYPE_REEL;
-        }
-
-        return null; // Unsupported file type
-    }
-
-    private function validateFileType(UploadedFile $file, $fileType)
-    {
-        if ($fileType === ProductFile::TYPE_IMAGE) {
-            // Validate image file (max 10MB for images)
-            if ($file->getSize() > 10 * 1024 * 1024) {
-                session()->flash('error', 'Image files must not exceed 10MB: ' . $file->getClientOriginalName());
-                return false;
-            }
-        } elseif ($fileType === ProductFile::TYPE_REEL) {
-            // Validate video file (max 50MB for videos)
-            if ($file->getSize() > 50 * 1024 * 1024) {
-                session()->flash('error', 'Video files must not exceed 50MB: ' . $file->getClientOriginalName());
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public function editProduct($productId)
     {
         try {
@@ -273,22 +245,30 @@ class Product extends Component
             $this->type = $product->type;
             $this->status = $product->status;
 
-            // Combine all existing files (images and videos) with proper structure
-            $this->existingFiles = collect($product->images)
-                ->merge($product->reels)
-                ->map(function ($file) {
-                    return [
-                        'id' => $file->id,
-                        'file' => $file->file,
-                        'file_type' => $file->file_type,
-                        'status' => $file->status,
-                    ];
-                })
-                ->toArray();
+            // Separate existing files by type
+            $this->existingImages = $product->images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file' => $file->file,
+                    'file_type' => $file->file_type,
+                    'status' => $file->status,
+                ];
+            })->toArray();
+
+            $this->existingVideos = $product->reels->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file' => $file->file,
+                    'file_type' => $file->file_type,
+                    'status' => $file->status,
+                ];
+            })->toArray();
 
             // Reset file-related arrays
-            $this->files = [];
-            $this->filesToDelete = [];
+            $this->images = [];
+            $this->videos = [];
+            $this->imagesToDelete = [];
+            $this->videosToDelete = [];
 
             $this->showModal = true;
         } catch (\Exception $e) {
@@ -322,50 +302,76 @@ class Product extends Component
         }
     }
 
-    public function removeNewFile($index)
+    public function removeNewImage($index)
     {
-        if (isset($this->files[$index])) {
-            unset($this->files[$index]);
-            $this->files = array_values($this->files); // Re-index array
+        if (isset($this->images[$index])) {
+            unset($this->images[$index]);
+            $this->images = array_values($this->images); // Re-index array
         }
     }
 
-    public function removeExistingFile($fileId)
+    public function removeNewVideo($index)
     {
-        // Mark file for deletion
-        if (!in_array($fileId, $this->filesToDelete)) {
-            $this->filesToDelete[] = $fileId;
+        if (isset($this->videos[$index])) {
+            unset($this->videos[$index]);
+            $this->videos = array_values($this->videos); // Re-index array
+        }
+    }
+
+    public function removeExistingImage($imageId)
+    {
+        // Mark image for deletion
+        if (!in_array($imageId, $this->imagesToDelete)) {
+            $this->imagesToDelete[] = $imageId;
         }
         
-        // Remove from existing files display
-        $this->existingFiles = array_filter($this->existingFiles, function ($file) use ($fileId) {
-            return $file['id'] != $fileId;
+        // Remove from existing images display
+        $this->existingImages = array_filter($this->existingImages, function ($image) use ($imageId) {
+            return $image['id'] != $imageId;
         });
         
-        $this->existingFiles = array_values($this->existingFiles); // Re-index array
+        $this->existingImages = array_values($this->existingImages); // Re-index array
     }
 
-    public function updatedFiles()
+    public function removeExistingVideo($videoId)
     {
-        // Validate files when they are updated
-        $this->validateOnly('files.*');
+        // Mark video for deletion
+        if (!in_array($videoId, $this->videosToDelete)) {
+            $this->videosToDelete[] = $videoId;
+        }
         
-        // Optional: Validate total file count
-        $totalFiles = count($this->files) + count($this->existingFiles);
-        if ($totalFiles > 20) { // Adjust limit as needed
-            session()->flash('error', 'Maximum 20 files allowed per product.');
-            $this->files = [];
+        // Remove from existing videos display
+        $this->existingVideos = array_filter($this->existingVideos, function ($video) use ($videoId) {
+            return $video['id'] != $videoId;
+        });
+        
+        $this->existingVideos = array_values($this->existingVideos); // Re-index array
+    }
+
+    public function updatedImages()
+    {
+        // Validate images when they are updated
+        $this->validateOnly('images.*');
+        
+        // Optional: Validate total image count
+        $totalImages = count($this->images) + count($this->existingImages);
+        if ($totalImages > 10) { // Adjust limit as needed
+            session()->flash('error', 'Maximum 10 images allowed per product.');
+            $this->images = [];
         }
     }
 
-    public function getImageFiles()
+    public function updatedVideos()
     {
-        return collect($this->existingFiles)->where('file_type', ProductFile::TYPE_IMAGE)->values();
-    }
-
-    public function getVideoFiles()
-    {
-        return collect($this->existingFiles)->where('file_type', ProductFile::TYPE_REEL)->values();
+        // Validate videos when they are updated
+        $this->validateOnly('videos.*');
+        
+        // Optional: Validate total video count
+        $totalVideos = count($this->videos) + count($this->existingVideos);
+        if ($totalVideos > 5) { // Adjust limit as needed
+            session()->flash('error', 'Maximum 5 videos allowed per product.');
+            $this->videos = [];
+        }
     }
 
     public function render()
