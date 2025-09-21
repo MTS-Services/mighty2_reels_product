@@ -4,7 +4,7 @@ namespace App\Livewire\Backend;
 
 use Livewire\Attributes\Layout;
 use App\Models\Product;
-use App\Models\ProductReel as ProductReelModel;
+use App\Models\ProductFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -21,7 +21,7 @@ class ProductReel extends Component
     public $productId;
     public $file; // For newly uploaded files
     public $tempFile; // For existing file paths
-    public $status = ProductReelModel::STATUS_ACTIVE;
+    public $status = ProductFile::STATUS_ACTIVE;
     public $products;
 
     // Rules for validation, with the file rule being conditional
@@ -61,7 +61,7 @@ class ProductReel extends Component
         // Store the new file and get its path
         $path = $this->file->store('reels', 'public');
 
-        ProductReelModel::create([
+        ProductFile::create([
             'product_id' => $this->productId,
             'file' => $path,
             'status' => $this->status,
@@ -73,7 +73,7 @@ class ProductReel extends Component
 
     public function editReel($id)
     {
-        $reel = ProductReelModel::findOrFail($id);
+        $reel = ProductFile::findOrFail($id);
 
         $this->editMode = true;
         $this->showModal = true;
@@ -100,7 +100,7 @@ class ProductReel extends Component
 
         $this->validate($rules);
 
-        $reel = ProductReelModel::findOrFail($this->reelId);
+        $reel = ProductFile::findOrFail($this->reelId);
 
         if ($this->file) {
             // If a new file is uploaded, delete the old one if it exists
@@ -126,7 +126,7 @@ class ProductReel extends Component
 
     public function deleteReel($id)
     {
-        $reel = ProductReelModel::findOrFail($id);
+        $reel = ProductFile::findOrFail($id);
 
         // Delete the file from storage if it exists
         if ($reel->file) {
@@ -149,8 +149,11 @@ class ProductReel extends Component
 
     public function render()
     {
-        // Fetch reels with their associated products, paginated
-        $reels = ProductReelModel::with('product')->paginate(10);
+        // Fetch only primary reels with their associated products, paginated
+        $reels = ProductFile::with('product')
+            ->where('file_type', ProductFile::TYPE_REEL)
+            ->where('is_primary', true)
+            ->paginate(10);
 
         return view('livewire.backend.product-reel', [
             'reels' => $reels,
