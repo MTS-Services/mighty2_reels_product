@@ -70,11 +70,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2z" />
                                 </svg>
-                                {{-- <span class="hidden sm:inline">Media</span> --}}
                             </a>
                         </span>
-
-
                     </div>
 
                     <p class="text-sm text-gray-600 mb-2 line-clamp-2">
@@ -82,7 +79,6 @@
                     </p>
 
                     <div class="mt-auto flex items-center justify-between gap-3">
-
                         <x-button wire:click="editProduct({{ $product->id }})" variant="secondary">
                             <flux:icon name="pencil" class="w-4 h-4" />
                             Edit
@@ -124,37 +120,61 @@
         </div>
     @endif
 
-    <!-- Gallery Modal -->
+    <!-- Gallery Modal with Sortable Functionality -->
     @if ($showGalleryModal)
         <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            wire:click.self="closeGalleryModal">
+            wire:click.self="closeGalleryModal" x-data="sortableGallery()">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[90vh] m-4 flex flex-col">
                 <!-- Header -->
                 <div class="p-6 border-b">
                     <div class="flex justify-between items-center">
                         <h2 class="text-2xl font-semibold text-gray-900">{{ $productTitle ?? 'Product Media' }}</h2>
-                        <x-button variant="secondary" wire:click="closeGalleryModal">
-                            <flux:icon name="x-mark" class="h-6 w-6" />
-                        </x-button>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                Drag to reorder
+                            </span>
+                            <x-button variant="secondary" wire:click="closeGalleryModal">
+                                <flux:icon name="x-mark" class="h-6 w-6" />
+                            </x-button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Media Content -->
                 <div class="flex-1 overflow-y-auto p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" 
+                         id="sortable-media" 
+                         x-ref="sortableContainer">
                         @forelse ($allMedia as $media)
-                            <div class="group relative">
+                            <div class="group relative cursor-move transition-transform hover:scale-105" 
+                                 data-media-id="{{ $media['id'] }}">
+                                <!-- Drag Handle -->
+                                {{-- <div class="absolute top-2 left-12 bg-black/50 backdrop-blur-sm text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                    </svg>
+                                </div>
+                                 --}}
                                 <!-- Serial Number Badge -->
-                                <span
-                                    class="absolute top-2 right-2 bg-black/30 dark:bg-white/30 backdrop-blur-sm text-white dark:text-black font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
+                                <span class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
                                     {{ $media['sort_order'] }}
                                 </span>
+                                
+                                <!-- Delete Button -->
+                                <button wire:click="deleteMediaFile({{ $media['id'] }})" 
+                                        class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
                                 
                                 @if ($media['type'] === 'image')
                                     <img src="{{ asset('storage/' . $media['file']) }}" alt="Image"
                                         class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
                                     <span
-                                        class="absolute top-2 left-2 bg-green-500 text-white text-xs px-1 py-0.5 rounded">IMG</span>
+                                        class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">IMG</span>
                                 @else
                                     <video
                                         class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow"
@@ -162,7 +182,7 @@
                                         <source src="{{ asset('storage/' . $media['file']) }}" type="video/mp4">
                                     </video>
                                     <span
-                                        class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-1 py-0.5 rounded">VID</span>
+                                        class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">VID</span>
                                 @endif
                             </div>
                         @empty
@@ -181,7 +201,6 @@
             </div>
         </div>
     @endif
-
 
     <!-- Product Form Modal -->
     @if ($showModal)
@@ -441,6 +460,9 @@
     @endif
 </div>
 
+<!-- Include SortableJS from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
 <script>
     function imageUpload() {
         return {
@@ -484,6 +506,138 @@
                 validFiles.forEach(file => {
                     @this.upload('videos', file);
                 });
+            }
+        }
+    }
+
+    function sortableGallery() {
+        return {
+            sortable: null,
+            
+            init() {
+                this.$nextTick(() => {
+                    this.initSortable();
+                });
+            },
+            
+            initSortable() {
+                const container = this.$refs.sortableContainer;
+                if (!container) return;
+                
+                this.sortable = new Sortable(container, {
+                    animation: 200,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    forceFallback: true,
+                    fallbackClass: 'sortable-fallback',
+                    fallbackOnBody: true,
+                    swapThreshold: 0.65,
+                    
+                    onStart: function(evt) {
+                        // Add visual feedback during drag
+                        evt.item.style.opacity = '0.7';
+                        evt.item.style.transform = 'rotate(5deg)';
+                    },
+                    
+                    onEnd: (evt) => {
+                        // Reset visual state
+                        evt.item.style.opacity = '';
+                        evt.item.style.transform = '';
+                        
+                        // Check if position actually changed
+                        if (evt.oldIndex !== evt.newIndex) {
+                            this.updateOrder();
+                        }
+                    }
+                });
+                
+                // Add custom CSS for better visual feedback
+                this.addCustomStyles();
+            },
+            
+            updateOrder() {
+                const container = this.$refs.sortableContainer;
+                const mediaItems = container.querySelectorAll('[data-media-id]');
+                
+                const orderedIds = Array.from(mediaItems).map(item => {
+                    return parseInt(item.getAttribute('data-media-id'));
+                });
+                
+                // Show loading state
+                this.showLoadingState(true);
+                
+                // Update the order via Livewire
+                @this.call('updateMediaOrder', orderedIds).then(() => {
+                    this.showLoadingState(false);
+                    this.updateSortOrderBadges();
+                }).catch((error) => {
+                    console.error('Error updating media order:', error);
+                    this.showLoadingState(false);
+                });
+            },
+            
+            updateSortOrderBadges() {
+                const container = this.$refs.sortableContainer;
+                const mediaItems = container.querySelectorAll('[data-media-id]');
+                
+                mediaItems.forEach((item, index) => {
+                    const badge = item.querySelector('span:last-child');
+                    if (badge) {
+                        badge.textContent = index;
+                    }
+                });
+            },
+            
+            showLoadingState(isLoading) {
+                const container = this.$refs.sortableContainer;
+                if (isLoading) {
+                    container.style.pointerEvents = 'none';
+                    container.style.opacity = '0.7';
+                } else {
+                    container.style.pointerEvents = '';
+                    container.style.opacity = '';
+                }
+            },
+            
+            addCustomStyles() {
+                if (document.getElementById('sortable-styles')) return;
+                
+                const styles = document.createElement('style');
+                styles.id = 'sortable-styles';
+                styles.textContent = `
+                    .sortable-ghost {
+                        opacity: 0.4 !important;
+                        background: #f3f4f6 !important;
+                        border: 2px dashed #d1d5db !important;
+                        border-radius: 0.5rem !important;
+                    }
+                    
+                    .sortable-chosen {
+                        transform: scale(1.05) !important;
+                        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+                        z-index: 1000 !important;
+                    }
+                    
+                    .sortable-drag {
+                        opacity: 0.8 !important;
+                        transform: rotate(3deg) !important;
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+                    }
+                    
+                    .sortable-fallback {
+                        display: none !important;
+                    }
+                    
+                    #sortable-media [data-media-id] {
+                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    }
+                    
+                    #sortable-media [data-media-id]:hover {
+                        transform: translateY(-2px);
+                    }
+                `;
+                document.head.appendChild(styles);
             }
         }
     }

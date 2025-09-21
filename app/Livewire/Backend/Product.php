@@ -91,8 +91,9 @@ class Product extends Component
     public function closeGalleryModal()
     {
         $this->showGalleryModal = false;
-        $this->allImages = [];
-        $this->allVideos = [];
+        $this->reset();
+        $this->resetValidation();
+        
     }
 
     public $allMedia = []; // Combined media array
@@ -133,6 +134,127 @@ class Product extends Component
             ->toArray();
     }
 
+    // Add this property for success modal
+    public $showSuccessModal = false;
+    public $successMessage = '';
+
+    /**
+     * Update the sort order of media files
+     * Expected payload: array of media IDs in their new order
+     */
+    public function updateMediaOrder($orderedIds)
+    {
+        try {
+            if (!is_array($orderedIds) || empty($orderedIds)) {
+                return [
+                    'success' => false,
+                    'message' => 'Invalid data provided'
+                ];
+            }
+
+            // Update sort_order for each file based on its position in the array
+            foreach ($orderedIds as $index => $fileId) {
+                ProductFile::where('id', $fileId)->update(['sort_order' => $index]);
+            }
+
+            // Get the current product ID from the first file if not set
+            if (!isset($this->productId) && !empty($orderedIds)) {
+                $firstFile = ProductFile::find($orderedIds[0]);
+                if ($firstFile) {
+                    $this->productId = $firstFile->product_id;
+                }
+            }
+
+            // Reload media to reflect the new order immediately
+            if ($this->showGalleryModal && $this->productId) {
+                $this->loadAllMediaFiles($this->productId);
+            }
+
+            // Show success modal
+            $this->successMessage = 'Media order updated successfully!';
+            $this->showSuccessModal = true;
+
+            Log::info('Media order updated for files: ' . implode(', ', $orderedIds));
+
+            return [
+                'success' => true,
+                'message' => 'Media order updated successfully!'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error updating media order: ' . $e->getMessage(), [
+                'exception' => $e,
+                'ordered_ids' => $orderedIds
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Failed to update media order.'
+            ];
+        }
+    }
+
+    public function closeSuccessModal()
+    {
+        $this->showSuccessModal = false;
+        $this->successMessage = '';
+    }
+
+    /**
+     * Delete a specific media file
+     */
+    public function deleteMediaFile($fileId)
+    {
+        try {
+            $productFile = ProductFile::find($fileId);
+            
+            if (!$productFile) {
+                session()->flash('error', 'File not found.');
+                return;
+            }
+
+            // Store the product ID for reloading
+            $productId = $productFile->product_id;
+
+            // Delete physical file from storage
+            if (Storage::disk('public')->exists($productFile->file)) {
+                Storage::disk('public')->delete($productFile->file);
+            }
+
+            // Delete database record
+            $productFile->delete();
+
+            // Reorder remaining files to fill gaps
+            $this->reorderRemainingFiles($productId);
+
+            // Reload media to reflect changes
+            if ($this->showGalleryModal) {
+                $this->loadAllMediaFiles($productId);
+            }
+
+            session()->flash('success', 'Media file deleted successfully!');
+            Log::info("Successfully deleted file: {$productFile->file}");
+
+        } catch (\Exception $e) {
+            Log::error("Error deleting file {$fileId}: " . $e->getMessage());
+            session()->flash('error', 'Failed to delete media file.');
+        }
+    }
+
+    /**
+     * Reorder remaining files after deletion to remove gaps in sort_order
+     */
+    private function reorderRemainingFiles($productId)
+    {
+        $files = ProductFile::where('product_id', $productId)
+            ->where('status', ProductFile::STATUS_ACTIVE)
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($files as $index => $file) {
+            $file->update(['sort_order' => $index]);
+        }
+    }
 
     public function resetForm()
     {
@@ -290,7 +412,6 @@ class Product extends Component
             session()->flash('error', 'Error uploading file: ' . $file->getClientOriginalName());
         }
     }
-
 
     public function editProduct($productId)
     {
