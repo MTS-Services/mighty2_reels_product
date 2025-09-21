@@ -11,6 +11,7 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'product'])]
 class Product extends Component
@@ -32,20 +33,19 @@ class Product extends Component
     public $status = 1;
 
     // File uploads
-    public $images = [];
-    public $videos;
-    public $tempImages = [];
-    public $tempVideos;
+    public $files = []; // Combined array for all files
+    public $existingFiles = []; // For edit mode - existing files from database
+    public $filesToDelete = []; // Track files marked for deletion
 
     protected $rules = [
-        'title' => 'sometimes|required|string|max:255',
-        'description' => 'sometimes|nullable|string',
-        'price' => 'sometimes|required|numeric|min:0',
-        'room' => 'sometimes|required|integer|min:1',
-        'city_id' => 'sometimes|required|exists:cities,id',
-        'type' => 'sometimes|required|in:0,1',
-        'file_type' => 'sometimes|required|in:1,2',
-        'status' => 'sometimes|required|in:0,1',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'room' => 'required|integer|min:1',
+        'city_id' => 'required|exists:cities,id',
+        'type' => 'required|in:0,1',
+        'status' => 'required|in:0,1',
+        'files.*' => 'nullable|file|max:51200', // Max 50MB
     ];
 
     protected $messages = [
@@ -54,8 +54,8 @@ class Product extends Component
         'price.numeric' => 'Price must be a valid number.',
         'room.required' => 'Number of rooms is required.',
         'city_id.required' => 'City selection is required.',
-        'images.*.image' => 'All uploaded files must be valid images.',
-        'videos.mimes' => 'The video must be in MP4, AVI, or MOV format.',
+        'files.*.file' => 'Each upload must be a valid file.',
+        'files.*.max' => 'Each file must not exceed 50MB.',
     ];
 
     public function openModal()
@@ -82,16 +82,13 @@ class Product extends Component
         $this->city_id = '';
         $this->type = 1;
         $this->status = 1;
-        $this->images = [];
-        $this->videos = null;
-        $this->tempImages = [];
-        $this->tempVideos = null;
+        $this->files = [];
+        $this->existingFiles = [];
+        $this->filesToDelete = [];
     }
 
     public function saveProduct()
     {
-        $this->rules['images.*'] = ($this->editMode ? 'nullable|' : 'required|') . 'image|mimes:jpg,jpeg,png,gif,webp,svg';
-        $this->rules['videos'] = ($this->editMode ? 'nullable|' : 'required|') . 'mimes:mp4,avi,mov,m4v';
         $this->validate();
 
         try {
@@ -112,91 +109,192 @@ class Product extends Component
                 $product = ProductModel::create(array_merge($data, ['created_at' => now(), 'created_by' => user()->id]));
             }
 
-            $this->handleImages($product->id);
-            $this->handleVideo($product->id);
+            $this->handleFileUploads($product->id);
 
             $this->closeModal();
             session()->flash('success', $this->editMode ? 'Product updated successfully!' : 'Product created successfully!');
+            
+            // Reset page to refresh the product list
+            $this->resetPage();
+            
         } catch (\Exception $e) {
             Log::error('Error saving product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while saving the product.');
         }
     }
 
-    private function handleImages($productId)
+    private function handleFileUploads($productId)
     {
-        // Delete removed existing images
-        foreach ($this->tempImages as $key => $image) {
-            if (!in_array($image['id'], array_column($this->tempImages, 'id'))) {
-                Storage::disk('public')->delete($image['file']);
-                ProductFile::find($image['id'])->delete();
+        try {
+            // First, delete files marked for deletion (only in edit mode)
+            if ($this->editMode) {
+                $this->deleteMarkedFiles();
             }
-        }
 
-        // Upload new images
-        foreach ($this->images as $image) {
-            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $path = $image->storeAs('products/images', $filename, 'public');
-
-                ProductFile::create([
-                    'product_id' => $productId,
-                    'file' => $path,
-                    'file_type' => ProductFile::TYPE_IMAGE,
-                    'status' => 1,
-                    'created_at' => now(),
-                    'created_by' => user()->id,
-                ]);
+            // Process new file uploads
+            if (!empty($this->files)) {
+                foreach ($this->files as $file) {
+                    if ($file instanceof UploadedFile) {
+                        $this->processAndSaveFile($file, $productId);
+                    }
+                }
             }
+        } catch (\Exception $e) {
+            Log::error('Error handling file uploads: ' . $e->getMessage(), ['exception' => $e]);
+            throw $e; // Re-throw to be caught by saveProduct
         }
     }
 
-    private function handleVideo($productId)
+    private function deleteMarkedFiles()
     {
-        if (!$this->videos)
+        if (empty($this->filesToDelete)) {
             return;
-
-        // Delete existing video
-        if ($this->editMode && $this->tempVideos) {
-            Storage::disk('public')->delete($this->tempVideos['file']);
-            ProductFile::find($this->tempVideos['id'])->delete();
         }
 
-        // Upload new video
-        if ($this->videos instanceof \Illuminate\Http\UploadedFile) {
-            $filename = time() . '_' . uniqid() . '.' . $this->videos->getClientOriginalExtension();
-            $path = $this->videos->storeAs('products/videos', $filename, 'public');
+        foreach ($this->filesToDelete as $fileId) {
+            try {
+                $productFile = ProductFile::find($fileId);
+                if ($productFile) {
+                    // Delete physical file from storage
+                    if (Storage::disk('public')->exists($productFile->file)) {
+                        Storage::disk('public')->delete($productFile->file);
+                    }
+                    
+                    // Delete database record
+                    $productFile->delete();
+                    
+                    Log::info("Successfully deleted file: {$productFile->file}");
+                }
+            } catch (\Exception $e) {
+                Log::error("Error deleting file {$fileId}: " . $e->getMessage());
+                // Continue with other files even if one fails
+            }
+        }
+        
+        // Clear the deletion array
+        $this->filesToDelete = [];
+    }
 
+    private function processAndSaveFile(UploadedFile $file, $productId)
+    {
+        try {
+            $mimeType = $file->getMimeType();
+            $fileType = $this->determineFileType($mimeType);
+            
+            if (!$fileType) {
+                Log::warning('Unsupported file type uploaded: ' . $mimeType);
+                session()->flash('error', 'Unsupported file type: ' . $file->getClientOriginalName());
+                return;
+            }
+
+            // Validate file type specific constraints
+            if (!$this->validateFileType($file, $fileType)) {
+                return;
+            }
+
+            // Generate unique filename
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $extension;
+            
+            // Determine storage path based on file type
+            $storagePath = $fileType === ProductFile::TYPE_IMAGE 
+                ? 'products/images' 
+                : 'products/videos';
+                
+            // Store the file
+            $path = $file->storeAs($storagePath, $filename, 'public');
+
+            // Create database record
             ProductFile::create([
                 'product_id' => $productId,
                 'file' => $path,
-                'file_type' => ProductFile::TYPE_REEL,
-                'status' => 1,
+                'file_type' => $fileType,
+                'status' => ProductFile::STATUS_ACTIVE,
                 'created_at' => now(),
                 'created_by' => user()->id,
             ]);
+            
+            Log::info("Successfully uploaded file: {$path}");
+            
+        } catch (\Exception $e) {
+            Log::error("Error processing file upload: " . $e->getMessage());
+            session()->flash('error', 'Error uploading file: ' . $file->getClientOriginalName());
         }
+    }
+
+    private function determineFileType($mimeType)
+    {
+        $imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        $videoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/quicktime', 'video/x-msvideo'];
+
+        if (in_array($mimeType, $imageTypes)) {
+            return ProductFile::TYPE_IMAGE;
+        }
+
+        if (in_array($mimeType, $videoTypes)) {
+            return ProductFile::TYPE_REEL;
+        }
+
+        return null; // Unsupported file type
+    }
+
+    private function validateFileType(UploadedFile $file, $fileType)
+    {
+        if ($fileType === ProductFile::TYPE_IMAGE) {
+            // Validate image file (max 10MB for images)
+            if ($file->getSize() > 10 * 1024 * 1024) {
+                session()->flash('error', 'Image files must not exceed 10MB: ' . $file->getClientOriginalName());
+                return false;
+            }
+        } elseif ($fileType === ProductFile::TYPE_REEL) {
+            // Validate video file (max 50MB for videos)
+            if ($file->getSize() > 50 * 1024 * 1024) {
+                session()->flash('error', 'Video files must not exceed 50MB: ' . $file->getClientOriginalName());
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function editProduct($productId)
     {
-        $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
+        try {
+            $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
 
-        $this->editMode = true;
-        $this->productId = $productId;
+            $this->editMode = true;
+            $this->productId = $productId;
 
-        $this->title = $product->title;
-        $this->description = $product->description;
-        $this->price = $product->price;
-        $this->room = $product->room;
-        $this->city_id = $product->city_id;
-        $this->type = $product->type;
-        $this->status = $product->status;
+            $this->title = $product->title;
+            $this->description = $product->description;
+            $this->price = $product->price;
+            $this->room = $product->room;
+            $this->city_id = $product->city_id;
+            $this->type = $product->type;
+            $this->status = $product->status;
 
-        $this->tempImages = $product->images->toArray();
-        $this->tempVideos = $product->reels->first()?->toArray();
+            // Combine all existing files (images and videos) with proper structure
+            $this->existingFiles = collect($product->images)
+                ->merge($product->reels)
+                ->map(function ($file) {
+                    return [
+                        'id' => $file->id,
+                        'file' => $file->file,
+                        'file_type' => $file->file_type,
+                        'status' => $file->status,
+                    ];
+                })
+                ->toArray();
 
-        $this->showModal = true;
+            // Reset file-related arrays
+            $this->files = [];
+            $this->filesToDelete = [];
+
+            $this->showModal = true;
+        } catch (\Exception $e) {
+            Log::error('Error loading product for edit: ' . $e->getMessage());
+            session()->flash('error', 'Error loading product for editing.');
+        }
     }
 
     public function deleteProduct($productId)
@@ -204,60 +302,70 @@ class Product extends Component
         try {
             $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
 
-            foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->file);
-                $image->forceDelete();
-            }
-
-            foreach ($product->reels as $reel) {
-                Storage::disk('public')->delete($reel->file);
-                $reel->forceDelete();
+            // Delete all associated files
+            $allFiles = collect($product->images)->merge($product->reels);
+            foreach ($allFiles as $file) {
+                if (Storage::disk('public')->exists($file->file)) {
+                    Storage::disk('public')->delete($file->file);
+                }
+                $file->forceDelete();
             }
 
             $product->forceDelete();
 
             session()->flash('success', 'Product deleted successfully!');
+            $this->resetPage(); // Reset pagination to refresh the list
+            
         } catch (\Exception $e) {
             Log::error('Error deleting product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while deleting the product.');
         }
     }
 
-    public function removeNewImage($index)
+    public function removeNewFile($index)
     {
-        if (isset($this->images[$index])) {
-            unset($this->images[$index]);
-            $this->images = array_values($this->images);
-        }
-
-        if (isset($this->tempImages[$index])) {
-            $image = $this->tempImages[$index];
-            Storage::disk('public')->delete($image['file']);
-            ProductFile::find($image['id'])->delete();
-            unset($this->tempImages[$index]);
-            $this->tempImages = array_values($this->tempImages);
+        if (isset($this->files[$index])) {
+            unset($this->files[$index]);
+            $this->files = array_values($this->files); // Re-index array
         }
     }
 
-    public function removeVideo()
+    public function removeExistingFile($fileId)
     {
-        $this->videos = null;
+        // Mark file for deletion
+        if (!in_array($fileId, $this->filesToDelete)) {
+            $this->filesToDelete[] = $fileId;
+        }
+        
+        // Remove from existing files display
+        $this->existingFiles = array_filter($this->existingFiles, function ($file) use ($fileId) {
+            return $file['id'] != $fileId;
+        });
+        
+        $this->existingFiles = array_values($this->existingFiles); // Re-index array
+    }
 
-        if ($this->editMode && $this->tempVideos) {
-            Storage::disk('public')->delete($this->tempVideos['file']);
-            ProductFile::find($this->tempVideos['id'])->delete();
-            $this->tempVideos = null;
+    public function updatedFiles()
+    {
+        // Validate files when they are updated
+        $this->validateOnly('files.*');
+        
+        // Optional: Validate total file count
+        $totalFiles = count($this->files) + count($this->existingFiles);
+        if ($totalFiles > 20) { // Adjust limit as needed
+            session()->flash('error', 'Maximum 20 files allowed per product.');
+            $this->files = [];
         }
     }
 
-    public function updatedVideos()
+    public function getImageFiles()
     {
-        $this->validateOnly('videos');
+        return collect($this->existingFiles)->where('file_type', ProductFile::TYPE_IMAGE)->values();
     }
 
-    public function updatedImages()
+    public function getVideoFiles()
     {
-        $this->validateOnly('images.*');
+        return collect($this->existingFiles)->where('file_type', ProductFile::TYPE_REEL)->values();
     }
 
     public function render()

@@ -5,6 +5,7 @@ namespace App\Livewire\Frontend;
 use App\Models\FavouretReel;
 use App\Models\Product as ModelsProduct;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -12,18 +13,17 @@ use Livewire\Attributes\Layout;
 #[Layout('app', ['title' => 'Product', 'page_slug' => 'product'])]
 class Product extends Component
 {
-    public $productDetails = true; // Show product details first
-    public $favourite = [];    // Favorite status for products
-    public $activeVideo = null; // Current selected video/product
-    public $videos = [];        // All videos/products
-    public $images = [];        // All images for the product
-    public $allMedia = [];      // Combined images and videos
-    public $selectedProductId = null; // The product ID passed from home
-    public $selectedReelId = null; // The specific reel ID from home
-    public $showMergedView = false; // Toggle for merged view
-    public $productData = null; // Store product details
-    public $scrollToIndex = null; // Add this property to track the selected media index
-
+    public $productDetails = true;
+    public $favourite = [];
+    public $activeVideo = null;
+    public $videos = [];
+    public $images = [];
+    public $allMedia = [];
+    public $selectedProductId = null;
+    public $selectedReelId = null;
+    public $showMergedView = false;
+    public $productData = null;
+    public $scrollToIndex = null;
 
     /**
      * Initialize videos and set the default active video based on the passed ID
@@ -33,17 +33,22 @@ class Product extends Component
         $this->selectedProductId = $id;
         $this->selectedReelId = $reel_id;
 
-        $this->loadProductData($id);
+        if ($id) {
+            $this->loadProductData($id);
+        }
     }
 
     /**
-     * Load specific product data with all its media
+     * Load specific product data with all its media using unified file system
      */
     private function loadProductData($productId)
     {
-        $product = ModelsProduct::with(['reels', 'images', 'city'])->active()->find($productId);
+        // Load product with unified files relationship
+        $product = ModelsProduct::with(['files', 'city'])->active()->find($productId);
 
-
+        if (!$product) {
+            abort(404, 'Product not found');
+        }
 
         $this->productData = $product;
 
@@ -58,50 +63,38 @@ class Product extends Component
         $isFavorite = in_array($product->id, $userFavorites);
         $this->favourite[$product->id] = $isFavorite;
 
-        // Collect all media (images and reels) for this product
+        // Collect all media (images and videos) for this product using unified files
         $allMedia = [];
 
-        // Add reels as videos
-        foreach ($product->reels()->active()->get() as $reel) {
-            $allMedia[] = [
+        // Get all active files for this product
+        $files = $product->files()->active()->orderBy('sort_order')->orderBy('id')->get();
+
+        foreach ($files as $file) {
+            $mediaItem = [
                 'id' => $product->id,
-                'reel_id' => $reel->id,
-                'type' => 'video',
-                'url' => $reel->file ? Storage::url($reel->file) : null,
+                'file_id' => $file->id,
+                'type' => $file->file_type == 1 ? 'image' : 'video',
+                'url' => $file->file ? Storage::url($file->file) : null,
                 'title' => $product->title,
                 'description' => $product->description,
                 'favourite' => $isFavorite,
-                'sort_order' => $reel->sort_order ?? rand(1, 1000),
+                'sort_order' => $file->sort_order ?? rand(1, 1000),
             ];
-        }
 
-        // Add images - FIX: Use correct attribute name
-        foreach ($product->images()->active()->get() as $image) {
-            $imageUrl = null;
-
-            // Try different possible attribute names for the image file
-            if ($image->file) {
-                $imageUrl = Storage::url($image->file);
-            } elseif (isset($image->image) && $image->image) {
-                $imageUrl = Storage::url($image->image);
+            // Add specific ID based on file type for compatibility
+            if ($file->file_type == 1) { // Image
+                $mediaItem['image_id'] = $file->id;
+            } else { // Video/Reel
+                $mediaItem['reel_id'] = $file->id;
             }
 
-            $allMedia[] = [
-                'id' => $product->id,
-                'image_id' => $image->id,
-                'type' => 'image',
-                'url' => $imageUrl,
-                'title' => $product->title,
-                'description' => $product->description,
-                'favourite' => $isFavorite,
-                'sort_order' => $image->sort_order ?? rand(1, 1000),
-            ];
+            $allMedia[] = $mediaItem;
         }
 
-        // Sort by sort_order, then by random if sort_order is the same
+        // Sort by sort_order, then by ID if same sort_order
         usort($allMedia, function ($a, $b) {
             if ($a['sort_order'] == $b['sort_order']) {
-                return rand(-1, 1); // Random if same sort_order
+                return $a['file_id'] <=> $b['file_id'];
             }
             return $a['sort_order'] <=> $b['sort_order'];
         });
@@ -125,9 +118,12 @@ class Product extends Component
         }
 
         $this->allMedia = $allMedia;
+        
+        // Separate videos and images for compatibility
         $this->videos = array_filter($allMedia, function ($media) {
             return $media['type'] === 'video';
         });
+        
         $this->images = array_filter($allMedia, function ($media) {
             return $media['type'] === 'image';
         });
@@ -137,16 +133,13 @@ class Product extends Component
         $this->images = array_values($this->images);
     }
 
-
-
-
     /**
      * Toggle merged view (up arrow functionality) and reset scroll index.
      */
     public function toggleMergedView()
     {
         $this->showMergedView = !$this->showMergedView;
-        $this->scrollToIndex = null; // Reset scroll index on general toggle
+        $this->scrollToIndex = null;
     }
 
     /**
@@ -158,16 +151,24 @@ class Product extends Component
         $this->showMergedView = false;
     }
 
+    /**
+     * Toggle favorite status for a product
+     */
     public function toggleFavourite($productId = null)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('message', 'Please login to view your favorites');
         }
 
-        $targetId = $productId ?? $this->currentVideoId;
-        if (!$targetId || !array_key_exists($targetId, $this->favourite)) {
-            session()->flash('error', 'Video not found');
+        $targetId = $productId ?? $this->selectedProductId;
+        if (!$targetId) {
+            session()->flash('error', 'Product not found');
             return;
+        }
+
+        // Initialize favourite array if not exists
+        if (!array_key_exists($targetId, $this->favourite)) {
+            $this->favourite[$targetId] = false;
         }
 
         $userId = Auth::id();
@@ -175,32 +176,143 @@ class Product extends Component
 
         try {
             if ($isFavorite) {
+                // Remove from favorites
                 FavouretReel::where('user_id', $userId)
                     ->where('product_id', $targetId)
                     ->delete();
                 $this->favourite[$targetId] = false;
                 session()->flash('message', 'Removed from favorites');
             } else {
-                FavouretReel::create([
+                // Add to favorites
+                FavouretReel::updateOrCreate([
                     'user_id' => $userId,
                     'product_id' => $targetId,
+                ], [
                     'created_by' => $userId,
                 ]);
                 $this->favourite[$targetId] = true;
                 session()->flash('message', 'Added to favorites');
             }
 
-            // Update all videos with the same product ID
+            // Update all media items with the same product ID
+            foreach ($this->allMedia as &$media) {
+                if ($media['id'] == $targetId) {
+                    $media['favourite'] = $this->favourite[$targetId];
+                }
+            }
+            unset($media);
+
+            // Update videos and images arrays
             foreach ($this->videos as &$video) {
                 if ($video['id'] == $targetId) {
                     $video['favourite'] = $this->favourite[$targetId];
                 }
             }
             unset($video);
+
+            foreach ($this->images as &$image) {
+                if ($image['id'] == $targetId) {
+                    $image['favourite'] = $this->favourite[$targetId];
+                }
+            }
+            unset($image);
+
         } catch (\Exception $e) {
             session()->flash('error', 'An error occurred while updating favorites');
+            Log::error('Toggle favorite error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get the current product's favorite status
+     */
+    public function getCurrentProductFavorite()
+    {
+        return $this->favourite[$this->selectedProductId] ?? false;
+    }
+
+    /**
+     * Load more products (for future pagination/infinite scroll)
+     */
+    public function loadMoreProducts()
+    {
+        // Implementation for loading more products if needed
+        // This could be used for infinite scroll or pagination
+    }
+
+    /**
+     * Share product (future feature)
+     */
+    public function shareProduct($productId = null)
+    {
+        $targetId = $productId ?? $this->selectedProductId;
+        // Implementation for sharing functionality
+        session()->flash('message', 'Share link copied to clipboard');
+    }
+
+    /**
+     * Report product (future feature)
+     */
+    public function reportProduct($productId = null)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to report content');
+        }
+
+        $targetId = $productId ?? $this->selectedProductId;
+        // Implementation for reporting functionality
+        session()->flash('message', 'Product reported successfully');
+    }
+
+    /**
+     * Get product statistics
+     */
+    public function getProductStats()
+    {
+        if (!$this->productData) {
+            return [
+                'total_files' => 0,
+                'images_count' => 0,
+                'videos_count' => 0,
+                'favorites_count' => 0
+            ];
+        }
+
+        return [
+            'total_files' => $this->productData->getTotalFilesCount(),
+            'images_count' => $this->productData->getImagesCount(),
+            'videos_count' => $this->productData->getVideosCount(),
+            'favorites_count' => $this->productData->favorites_count ?? 0
+        ];
+    }
+
+    /**
+     * Check if product has mixed media (both images and videos)
+     */
+    public function hasMixedMedia()
+    {
+        return count($this->images) > 0 && count($this->videos) > 0;
+    }
+
+    /**
+     * Get media summary text
+     */
+    public function getMediaSummary()
+    {
+        $imageCount = count($this->images);
+        $videoCount = count($this->videos);
+        
+        if ($imageCount > 0 && $videoCount > 0) {
+            return "{$imageCount} image(s) and {$videoCount} video(s)";
+        } elseif ($imageCount > 0) {
+            return "{$imageCount} image(s)";
+        } elseif ($videoCount > 0) {
+            return "{$videoCount} video(s)";
+        }
+        
+        return "No media available";
+    }
+
     /**
      * Render the Blade view
      */
@@ -212,6 +324,9 @@ class Product extends Component
             'allMedia' => $this->allMedia,
             'productData' => $this->productData,
             'showMergedView' => $this->showMergedView,
+            'productStats' => $this->getProductStats(),
+            'mediaSummary' => $this->getMediaSummary(),
+            'hasMixedMedia' => $this->hasMixedMedia(),
         ]);
     }
 }

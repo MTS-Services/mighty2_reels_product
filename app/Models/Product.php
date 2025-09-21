@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends BaseModel
 {
-    //
     const TYPE_SALE = 0;
     const TYPE_RENT = 1;
 
@@ -48,29 +47,64 @@ class Product extends BaseModel
     }
 
     /**
-     * Get the images for the product.
+     * Get all files for the product (unified approach)
      */
-    public function images(): HasMany
-    {
-        return $this->hasMany(ProductImage::class)->where('status', self::STATUS_ACTIVE);
-    }
-
     public function files(): HasMany
     {
         return $this->hasMany(ProductFile::class, 'product_id')->where('status', self::STATUS_ACTIVE);
     }
 
     /**
-     * Get the reels for the product.
+     * Get only image files for the product.
      */
-    public function reels(): HasMany
+    public function images(): HasMany
     {
-        return $this->hasMany(ProductReel::class)->where('status', self::STATUS_ACTIVE);
+        return $this->hasMany(ProductFile::class, 'product_id')
+                   ->where('status', self::STATUS_ACTIVE)
+                   ->where('file_type', ProductFile::TYPE_IMAGE);
     }
 
     /**
-     * Get the user who created the product.
+     * Get only video/reel files for the product.
      */
+    public function reels(): HasMany
+    {
+        return $this->hasMany(ProductFile::class, 'product_id')
+                   ->where('status', self::STATUS_ACTIVE)
+                   ->where('file_type', ProductFile::TYPE_REEL);
+    }
+
+    /**
+     * Alias for reels (for compatibility)
+     */
+    public function videos(): HasMany
+    {
+        return $this->reels();
+    }
+
+    /**
+     * Get active files with specific type
+     */
+    public function activeFiles()
+    {
+        return $this->files()->active();
+    }
+
+    /**
+     * Get active images
+     */
+    public function activeImages()
+    {
+        return $this->images()->active();
+    }
+
+    /**
+     * Get active videos/reels
+     */
+    public function activeVideos()
+    {
+        return $this->reels()->active();
+    }
 
     /**
      * Scope a query to only include active products.
@@ -101,16 +135,7 @@ class Product extends BaseModel
      */
     public function getTypeLabelAttribute()
     {
-        return $this->type == self::TYPE_RENT ? 'Rent' : 'Sale';
-    }
-
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->appends = array_merge(parent::getAppends(), [
-            'status_label',
-            'status_color',
-        ]);
+        return $this->type == self::TYPE_RENT ? 'For Rent' : 'For Sale';
     }
 
     /**
@@ -120,11 +145,76 @@ class Product extends BaseModel
     {
         return $this->status == self::STATUS_ACTIVE ? 'Active' : 'Inactive';
     }
+
+    /**
+     * Get the status color class.
+     */
     public function getStatusColorAttribute()
     {
         return $this->status == self::STATUS_ACTIVE ? 'badge-success' : 'badge-error';
     }
 
+    /**
+     * Get the primary image for the product
+     */
+    public function getPrimaryImageAttribute()
+    {
+        return $this->images()->where('is_primary', true)->first() 
+               ?? $this->images()->first();
+    }
+
+    /**
+     * Get the primary video for the product
+     */
+    public function getPrimaryVideoAttribute()
+    {
+        return $this->reels()->where('is_primary', true)->first() 
+               ?? $this->reels()->first();
+    }
+
+    /**
+     * Check if product has images
+     */
+    public function hasImages()
+    {
+        return $this->images()->exists();
+    }
+
+    /**
+     * Check if product has videos
+     */
+    public function hasVideos()
+    {
+        return $this->reels()->exists();
+    }
+
+    /**
+     * Get total files count
+     */
+    public function getTotalFilesCount()
+    {
+        return $this->files()->count();
+    }
+
+    /**
+     * Get images count
+     */
+    public function getImagesCount()
+    {
+        return $this->images()->count();
+    }
+
+    /**
+     * Get videos count
+     */
+    public function getVideosCount()
+    {
+        return $this->reels()->count();
+    }
+
+    /**
+     * Favorite relationships
+     */
     public function favouriteReels()
     {
         return $this->hasMany(FavouretReel::class, 'product_id');
@@ -156,5 +246,18 @@ class Product extends BaseModel
         return $this->favouriteReels()
             ->where('user_id', $userId)
             ->exists();
+    }
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->appends = array_merge(parent::getAppends(), [
+            'status_label',
+            'status_color',
+            'type_label',
+            'primary_image',
+            'primary_video',
+            'favorites_count'
+        ]);
     }
 }

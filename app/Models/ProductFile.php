@@ -6,8 +6,6 @@ use App\Models\BaseModel;
 
 class ProductFile extends BaseModel
 {
-    //
-
     protected $fillable = [
         'sort_order',
         'product_id',
@@ -25,18 +23,17 @@ class ProductFile extends BaseModel
     ];
 
     protected $casts = [
-        //
+        'is_primary' => 'boolean',
+        'status' => 'integer',
+        'file_type' => 'integer',
+        'sort_order' => 'integer',
     ];
 
-    /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=
-                Start of RELATIONSHIPS
-     =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#= */
-
-     // Status constants
+    // Status constants
     const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
 
-    // Media type constants
+    // File type constants
     const TYPE_IMAGE = 1;
     const TYPE_REEL = 2;
 
@@ -66,15 +63,86 @@ class ProductFile extends BaseModel
         return $query->where('file_type', self::TYPE_REEL);
     }
 
-    /* =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#=
-                End of RELATIONSHIPS
-     =#=#=#=#=#=#=#=#=#=#==#=#=#=#= =#=#=#=#=#=#=#=#=#=#==#=#=#=#= */
+    public function scopeVideos($query)
+    {
+        return $query->where('file_type', self::TYPE_REEL);
+    }
+
+    /**
+     * Accessors & Mutators
+     */
+    public function getFileUrlAttribute()
+    {
+        return $this->file ? asset('storage/' . $this->file) : null;
+    }
+
+    public function getIsImageAttribute()
+    {
+        return $this->file_type === self::TYPE_IMAGE;
+    }
+
+    public function getIsVideoAttribute()
+    {
+        return $this->file_type === self::TYPE_REEL;
+    }
+
+    public function getFileTypeNameAttribute()
+    {
+        return match($this->file_type) {
+            self::TYPE_IMAGE => 'Image',
+            self::TYPE_REEL => 'Video',
+            default => 'Unknown'
+        };
+    }
+
+    /**
+     * Static methods for file type detection
+     */
+    public static function getImageMimeTypes()
+    {
+        return [
+            'image/jpeg',
+            'image/jpg', 
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/svg+xml'
+        ];
+    }
+
+    public static function getVideoMimeTypes()
+    {
+        return [
+            'video/mp4',
+            'video/avi',
+            'video/mov',
+            'video/quicktime',
+            'video/x-msvideo',
+            'video/m4v'
+        ];
+    }
+
+    public static function determineFileTypeFromMime($mimeType)
+    {
+        if (in_array($mimeType, self::getImageMimeTypes())) {
+            return self::TYPE_IMAGE;
+        }
+        
+        if (in_array($mimeType, self::getVideoMimeTypes())) {
+            return self::TYPE_REEL;
+        }
+        
+        return null;
+    }
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->appends = array_merge(parent::getAppends(), [
-            //
+            'file_url',
+            'is_image', 
+            'is_video',
+            'file_type_name'
         ]);
     }
 }
