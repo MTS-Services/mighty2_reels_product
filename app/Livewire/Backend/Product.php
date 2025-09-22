@@ -290,7 +290,6 @@ class Product extends Component
             'city_id' => 'required|exists:cities,id',
             'type' => 'required|in:0,1',
             'status' => 'required|in:0,1',
-            'images.*' => 'mimetypes:image/jpeg,image/png,image/gif',
         ];
 
         // Conditional validation for videos
@@ -538,13 +537,8 @@ class Product extends Component
 
     public function updatedImages()
     {
-        $this->validateOnly('images.*');
+        $this->validateOnly('images');
 
-        $totalImages = count($this->images) + count($this->existingImages);
-        if ($totalImages > 10) {
-            session()->flash('error', 'Maximum 10 images allowed per product.');
-            $this->images = [];
-        }
     }
 
     public function updatedVideos()

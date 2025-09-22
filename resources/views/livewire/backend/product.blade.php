@@ -154,44 +154,45 @@
 
     <!-- Gallery Modal with Sortable Functionality -->
     @if ($showGalleryModal)
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" wire:click.self="closeGalleryModal"
-            x-data="sortableGallery()">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-7xl min-h-[90vh] m-4 flex flex-col">
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50  p-2 sm:p-4"
+            wire:click.self="closeGalleryModal" x-data="sortableGallery()" x-effect="document.body.classList.toggle('overflow-hidden', open)">
+            <div
+                class="bg-white rounded-lg shadow-xl w-full sm:max-w-xl md:max-w-4xl lg:max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
+
                 <!-- Header -->
-                <div class="p-6 border-b">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <h2 class="text-2xl font-semibold text-gray-900">Product Media Gallery</h2>
-                            <div class="p-2 text-sm text-white bg-orange-400/80 rounded-full">
-                                Total: {{ count($allMedia) }} items
-                            </div>
+                <div class="p-4 sm:p-6 border-b flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-sm sm:text-xl md:text-2xl font-semibold text-gray-900">Product Media Gallery
+                        </h2>
+                        <div class="p-1 sm:p-2 text-xs sm:text-sm text-white bg-orange-400/80 rounded-full">
+                            Total: {{ count($allMedia) }} items
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                Drag to reorder
-                            </span>
-                            <x-button variant="secondary" wire:click="closeGalleryModal">
-                                <flux:icon name="x-mark" class="h-6 w-6" />
-                            </x-button>
-                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-xs sm:text-sm text-gray-600 bg-gray-100 px-2 sm:px-3 py-1 rounded-full hidden sm:inline-block">
+                            Drag to reorder
+                        </span>
+                        <x-button variant="secondary" wire:click="closeGalleryModal">
+                            <flux:icon name="x-mark" class="h-3 w-3 sm:h-6 sm:w-6" />
+                        </x-button>
                     </div>
                 </div>
 
-                <!-- Media Content -->
-                <div class="flex-1 overflow-y-auto p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                <!-- Scrollable Media Grid -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
                         id="sortable-media" x-ref="sortableContainer">
                         @forelse ($allMedia as $index => $media)
                             <div class="group relative cursor-move transition-transform hover:scale-105"
                                 data-media-id="{{ $media['id'] }}">
 
-                                <!-- Sort Order Badge -->
+                                <!-- Index / Primary Badge / Delete Button / Media -->
                                 <span
-                                    class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
+                                    class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-2 py-1 rounded-full shadow-md z-10">
                                     {{ $index }}
                                 </span>
 
-                                <!-- Primary Badge (if applicable) -->
                                 @if ($media['is_primary'])
                                     <span
                                         class="absolute top-2 left-2 bg-yellow-500 text-white font-semibold text-xs px-2 py-1 rounded-full shadow-md z-10">
@@ -199,10 +200,9 @@
                                     </span>
                                 @endif
 
-                                <!-- Delete Button -->
                                 <button wire:click="deleteMediaFile({{ $media['id'] }})"
                                     wire:confirm="Are you sure you want to delete this media file?"
-                                    class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -212,17 +212,17 @@
 
                                 @if ($media['type'] === 'image')
                                     <img src="{{ asset('storage/' . $media['file']) }}" alt="Image"
-                                        class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
+                                        class="w-full h-32 sm:h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
                                     <span
-                                        class="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">IMG</span>
+                                        class="absolute bottom-2 left-2 bg-green-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded">IMG</span>
                                 @else
                                     <video
-                                        class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow"
+                                        class="w-full h-32 sm:h-48 object-cover rounded-lg border hover:shadow-md transition-shadow"
                                         controls>
                                         <source src="{{ asset('storage/' . $media['file']) }}" type="video/mp4">
                                     </video>
                                     <span
-                                        class="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">VID</span>
+                                        class="absolute bottom-2 left-2 bg-blue-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded">VID</span>
                                 @endif
                             </div>
                         @empty
@@ -235,6 +235,7 @@
                 </div>
             </div>
         </div>
+
     @endif
 
     <!-- Product Form Modal -->
@@ -251,7 +252,11 @@
                             <flux:icon name="x-mark" class="h-6 w-6" />
                         </x-button>
                     </div>
-
+                    @if (session()->has('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <form wire:submit="saveProduct" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="md:col-span-2">

@@ -29,7 +29,7 @@ class ProductReel extends Component
     // Rules for validation, with the file rule being conditional
     protected $rules = [
         'productId' => 'required|exists:products,id',
-        'file' => 'nullable|mimes:mp4,avi,mov|max:51200', // 50MB
+        'file' => 'nullable',
         'status' => 'required|integer',
     ];
 
@@ -62,7 +62,7 @@ class ProductReel extends Component
         // Specific validation for creating a new reel (file is required)
         $this->validate([
             'productId' => 'required|exists:products,id',
-            'file' => 'required|mimes:mp4,avi,mov|max:51200',
+            'file' => 'required',
             'status' => 'required|integer',
         ]);
 
