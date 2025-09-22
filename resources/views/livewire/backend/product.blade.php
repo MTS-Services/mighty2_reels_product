@@ -234,7 +234,7 @@
             </div>
         </div>
     @endif
-        {{--form  Modal --}}
+        {{--form  Modal add and edit --}}
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
