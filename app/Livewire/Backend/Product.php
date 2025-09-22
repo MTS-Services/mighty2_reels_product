@@ -91,7 +91,6 @@ class Product extends Component
         $this->showGalleryModal = false;
         $this->reset();
         $this->resetValidation();
-        
     }
 
     public $allMedia = []; // Combined media array
@@ -107,6 +106,7 @@ class Product extends Component
                 'file' => $file->file,
                 'type' => 'image',
                 'sort_order' => $file->sort_order,
+                'is_primary' => $file->is_primary ?? false,
                 'created_at' => $file->created_at,
             ])
             ->toArray();
@@ -121,21 +121,30 @@ class Product extends Component
                 'file' => $file->file,
                 'type' => 'video',
                 'sort_order' => $file->sort_order,
+                'is_primary' => $file->is_primary ?? false,
                 'created_at' => $file->created_at,
             ])
             ->toArray();
 
-        // Merge images & videos and sort by sort_order ascending
-        $this->allMedia = collect(array_merge($images, $videos))
-            ->sortBy('sort_order')
-            ->values()
-            ->toArray();
+        // Merge images & videos
+        $allMedia = collect(array_merge($images, $videos));
+
+        // Separate primary and non-primary files
+        $primaryFiles = $allMedia->where('is_primary', true)->sortBy('sort_order');
+        $nonPrimaryFiles = $allMedia->where('is_primary', false)->sortBy('sort_order');
+
+        // Merge with primary files first, then non-primary files
+        $this->allMedia = $primaryFiles->merge($nonPrimaryFiles)->values()->toArray();
     }
 
     // Add this property for success modal
     public $showSuccessModal = false;
     public $successMessage = '';
 
+    /**
+     * Update the sort order of media files
+     * Expected payload: array of media IDs in their new order
+     */
     /**
      * Update the sort order of media files
      * Expected payload: array of media IDs in their new order
@@ -150,9 +159,25 @@ class Product extends Component
                 ];
             }
 
+            // Get all files with their current primary status
+            $files = ProductFile::whereIn('id', $orderedIds)->get();
+            $primaryFiles = $files->where('is_primary', true);
+            $primaryCount = $primaryFiles->count();
+
             // Update sort_order for each file based on its position in the array
             foreach ($orderedIds as $index => $fileId) {
-                ProductFile::where('id', $fileId)->update(['sort_order' => $index]);
+                $file = $files->firstWhere('id', $fileId);
+
+                if ($file) {
+                    // If this is a primary file, maintain its primary status but update sort_order
+                    if ($file->is_primary) {
+                        $file->update(['sort_order' => $index]);
+                    } else {
+                        // For non-primary files, adjust sort_order accounting for primary files
+                        // This ensures proper ordering when displaying
+                        $file->update(['sort_order' => $index]);
+                    }
+                }
             }
 
             // Get the current product ID from the first file if not set
@@ -178,13 +203,12 @@ class Product extends Component
                 'success' => true,
                 'message' => 'Media order updated successfully!'
             ];
-
         } catch (\Exception $e) {
             Log::error('Error updating media order: ' . $e->getMessage(), [
                 'exception' => $e,
                 'ordered_ids' => $orderedIds
             ]);
-            
+
             return [
                 'success' => false,
                 'message' => 'Failed to update media order.'
@@ -205,7 +229,7 @@ class Product extends Component
     {
         try {
             $productFile = ProductFile::find($fileId);
-            
+
             if (!$productFile) {
                 session()->flash('error', 'File not found.');
                 return;
@@ -232,7 +256,6 @@ class Product extends Component
 
             session()->flash('success', 'Media file deleted successfully!');
             Log::info("Successfully deleted file: {$productFile->file}");
-
         } catch (\Exception $e) {
             Log::error("Error deleting file {$fileId}: " . $e->getMessage());
             session()->flash('error', 'Failed to delete media file.');
@@ -357,7 +380,7 @@ class Product extends Component
                     }
 
                     // Delete database record
-                    $productFile->delete();
+                    $productFile->forceDelete();
 
                     Log::info("Successfully deleted file: {$productFile->file}");
                 }
