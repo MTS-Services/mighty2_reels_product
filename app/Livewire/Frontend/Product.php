@@ -69,7 +69,7 @@ class Product extends Component
         $allMedia = [];
 
         // Get all active files for this product
-        $files = $product->files()->active()->orderBy('sort_order')->orderBy('id')->get();
+        $files = $product->files()->active()->orderBy('is_primary', 'desc')->orderBy('sort_order')->get();
 
         foreach ($files as $file) {
             $mediaItem = [

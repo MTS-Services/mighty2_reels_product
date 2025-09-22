@@ -87,7 +87,6 @@ class Home extends Component
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
     }
-
     public function loadVideos()
     {
         $this->isLoading = true;
@@ -139,13 +138,18 @@ class Home extends Component
             $isFavorite = in_array($product->id, $userFavorites);
             $this->favourite[$product->id] = $isFavorite;
 
-            $randomReel = $product->reels()->active()->inRandomOrder()->first();
+            // First try to get primary reel, if none exists get random reel
+            $selectedReel = $product->reels()->active()->where('is_primary', 1)->first();
+            // dd($selectedReel);
+            if (!$selectedReel) {
+                $selectedReel = $product->reels()->active()->inRandomOrder()->first();
+            }
 
-            if ($randomReel) {
+            if ($selectedReel) {
                 $this->videos[] = [
                     'id' => $product->id,
-                    'reel_id' => $randomReel->id,
-                    'file' => $randomReel->file ? Storage::url($randomReel->file) : null,
+                    'reel_id' => $selectedReel->id,
+                    'file' => $selectedReel->file ? Storage::url($selectedReel->file) : null,
                     'title' => $product->title,
                     'description' => $product->description,
                     'price' => $product->price,
