@@ -234,8 +234,7 @@
             </div>
         </div>
     @endif
-
-    <!-- Product Form Modal -->
+        {{--form  Modal --}}
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
@@ -334,13 +333,13 @@
                                 @enderror
                             </div>
 
-                            <!-- Image Upload Section -->
                             <div class="md:col-span-2" x-data="imageUpload()">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
                                     :class="{ 'border-green-500 bg-green-50': isDragging }"
                                     @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
-                                    @drop.prevent="handleDrop($event, 'images')">
+                                    @drop.prevent="handleDrop($event, 'images')"
+                                    wire:loading.class="opacity-50 pointer-events-none" wire:target="images">
                                     <input wire:model="images" type="file" multiple accept="image/*"
                                         class="hidden" id="image-upload">
                                     <label for="image-upload" class="cursor-pointer">
@@ -353,19 +352,30 @@
                                         <p class="text-sm text-gray-500">Click to upload images or drag and drop</p>
                                         {{-- <p class="text-xs text-gray-400">PNG, JPG, GIF, WebP, SVG (max 10MB each)</p> --}}
                                     </label>
+                                    <div wire:loading.flex wire:target="images"
+                                        class="absolute inset-0 items-center justify-center bg-white/70">
+                                        <svg class="animate-spin h-8 w-8 text-orange-500"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                    </div>
                                 </div>
                                 @error('images')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
 
-                            <!-- Video Upload Section -->
                             <div class="md:col-span-2" x-data="videoUpload()">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Videos/Reels</label>
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
                                     :class="{ 'border-blue-500 bg-blue-50': isDragging }"
                                     @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
-                                    @drop.prevent="handleDrop($event, 'videos')">
+                                    @drop.prevent="handleDrop($event, 'videos')"
+                                    wire:loading.class="opacity-50 pointer-events-none" wire:target="videos">
                                     <input wire:model="videos" type="file" multiple accept="video/*"
                                         class="hidden" id="video-upload">
                                     <label for="video-upload" class="cursor-pointer">
@@ -378,13 +388,23 @@
                                         <p class="text-sm text-gray-500">Click to upload videos or drag and drop</p>
                                         {{-- <p class="text-xs text-gray-400">MP4, AVI, MOV (max 50MB each)</p> --}}
                                     </label>
+                                    <div wire:loading.flex wire:target="videos"
+                                        class="absolute inset-0 items-center justify-center bg-white/70">
+                                        <svg class="animate-spin h-8 w-8 text-blue-500"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                    </div>
                                 </div>
                                 @error('videos')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
 
-                            <!-- Display New Images -->
                             @if (!empty($images))
                                 <div class="md:col-span-2">
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">New Images to Upload</h4>
@@ -406,7 +426,6 @@
                                 </div>
                             @endif
 
-                            <!-- Display New Videos -->
                             @if (!empty($videos))
                                 <div class="md:col-span-2">
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">New Videos to Upload</h4>
@@ -431,7 +450,6 @@
                                 </div>
                             @endif
 
-                            <!-- Display Existing Images in Edit Mode -->
                             @if ($editMode && !empty($existingImages))
                                 <div class="md:col-span-2">
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Images</h4>
@@ -453,7 +471,6 @@
                                 </div>
                             @endif
 
-                            <!-- Display Existing Videos in Edit Mode -->
                             @if ($editMode && !empty($existingVideos))
                                 <div class="md:col-span-2">
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Videos</h4>
