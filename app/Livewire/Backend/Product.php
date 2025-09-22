@@ -56,6 +56,7 @@ class Product extends Component
         'city_id' => 'required|exists:cities,id',
         'type' => 'required|in:0,1',
         'status' => 'required|in:0,1',
+
     ];
 
     protected $messages = [
@@ -280,8 +281,28 @@ class Product extends Component
 
     public function saveProduct()
     {
-        $this->validate();
+        // Base validation rules
+        $rules = [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'room' => 'required|integer|min:1',
+            'city_id' => 'required|exists:cities,id',
+            'type' => 'required|in:0,1',
+            'status' => 'required|in:0,1',
+            'images.*' => 'mimetypes:image/jpeg,image/png,image/gif',
+        ];
 
+        // Conditional validation for videos
+        if (!$this->editMode) {
+            // Creating new product - videos are required
+            $rules['videos'] = 'required|array|min:1';
+        } else {
+            // Editing existing product - videos are optional
+            $rules['videos'] = 'nullable|array';
+        }
+
+        $this->validate($rules);
         try {
             $data = [
                 'title' => $this->title,
@@ -371,6 +392,7 @@ class Product extends Component
 
     private function processAndSaveFile(UploadedFile $file, $productId, $fileType)
     {
+
         try {
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . uniqid() . '.' . $extension;

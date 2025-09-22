@@ -349,10 +349,10 @@
                                             </path>
                                         </svg>
                                         <p class="text-sm text-gray-500">Click to upload images or drag and drop</p>
-                                        <p class="text-xs text-gray-400">PNG, JPG, GIF, WebP, SVG (max 10MB each)</p>
+                                        {{-- <p class="text-xs text-gray-400">PNG, JPG, GIF, WebP, SVG (max 10MB each)</p> --}}
                                     </label>
                                 </div>
-                                @error('images.*')
+                                @error('images')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -374,10 +374,10 @@
                                             </path>
                                         </svg>
                                         <p class="text-sm text-gray-500">Click to upload videos or drag and drop</p>
-                                        <p class="text-xs text-gray-400">MP4, AVI, MOV (max 50MB each)</p>
+                                        {{-- <p class="text-xs text-gray-400">MP4, AVI, MOV (max 50MB each)</p> --}}
                                     </label>
                                 </div>
-                                @error('videos.*')
+                                @error('videos')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
