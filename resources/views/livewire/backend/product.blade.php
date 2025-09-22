@@ -159,7 +159,7 @@
             x-effect="document.body.classList.toggle('overflow-hidden', open)"
             x-on:close-gallery-modal.window="document.body.classList.remove('overflow-hidden')">
             <div
-                class="bg-white rounded-lg shadow-xl w-full sm:max-w-xl md:max-w-4xl lg:max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
+                class="bg-white rounded-lg shadow-xl w-full sm:max-w-xl md:max-w-4xl lg:max-w-7xl min-h-[95vh] flex flex-col overflow-hidden">
                 <div class="p-4 sm:p-6 border-b flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <h2 class="text-sm sm:text-xl md:text-2xl font-semibold text-gray-900">Product Media Gallery
