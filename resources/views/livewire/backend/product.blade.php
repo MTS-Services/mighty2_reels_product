@@ -25,6 +25,29 @@
         </div>
     @endif
 
+    <!-- Success Modal -->
+    @if ($showSuccessModal)
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" wire:click.self="closeSuccessModal">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-lg font-medium text-center text-gray-900 mb-2">Success!</h3>
+                <p class="text-sm text-center text-gray-600 mb-6">{{ $successMessage }}</p>
+                <div class="flex justify-center">
+                    <x-button wire:click="closeSuccessModal" variant="secondary">
+                        Close
+                    </x-button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         @forelse($products as $product)
             <div class="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm flex flex-col">
@@ -33,11 +56,20 @@
                     <span class="badge badge-soft {{ $product->status_color }} absolute top-3 left-3 z-10">
                         {{ $product->status_label }}
                     </span>
-                    @if ($product->images->count() > 0)
-                        <a href="{{ route('admin.product.details', $product->id) }}"
+
+                    @if ($product->files?->first() && $product->files->first()->file_type == \App\Models\ProductFile::TYPE_IMAGE)
+                        <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}"
                             class="w-full h-full flex items-center justify-center">
-                            <img src="{{ storage_url($product->images->first()->file) }}" alt="{{ $product->title }}"
-                                class="max-h-full max-w-full object-contain rounded" />
+                            <img src="{{ asset('storage/' . $product->files->first()->file) }}"
+                                alt="{{ $product->title }}" class="max-h-full max-w-full object-contain rounded" />
+                        </a>
+                    @elseif ($product->files?->first() && $product->files->first()->file_type == \App\Models\ProductFile::TYPE_REEL)
+                        <a href="{{ route('admin.product.details', ['productId' => $product->id]) }}"
+                            class="w-full h-full flex items-center justify-center">
+                            <video class="max-h-full max-w-full object-contain rounded">
+                                <source src="{{ asset('storage/' . $product->files->first()->file) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
                         </a>
                     @else
                         <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
@@ -122,16 +154,14 @@
 
     <!-- Gallery Modal with Sortable Functionality -->
     @if ($showGalleryModal)
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 "
-            wire:click.self="closeGalleryModal" x-data="sortableGallery()">
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" wire:click.self="closeGalleryModal"
+            x-data="sortableGallery()">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-7xl min-h-[90vh] m-4 flex flex-col">
                 <!-- Header -->
                 <div class="p-6 border-b">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center">
-                            <h2 class="text-2xl font-semibold text-gray-900">{{ $productTitle ?? 'Product Media' }}
-                            </h2>
-                            <!-- Footer -->
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-2xl font-semibold text-gray-900">Product Media Gallery</h2>
                             <div class="p-2 text-sm text-white bg-orange-400/80 rounded-full">
                                 Total: {{ count($allMedia) }} items
                             </div>
@@ -149,19 +179,29 @@
 
                 <!-- Media Content -->
                 <div class="flex-1 overflow-y-auto p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="sortable-media"
-                        x-ref="sortableContainer">
-                        @forelse ($allMedia as $media)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                        id="sortable-media" x-ref="sortableContainer">
+                        @forelse ($allMedia as $index => $media)
                             <div class="group relative cursor-move transition-transform hover:scale-105"
                                 data-media-id="{{ $media['id'] }}">
-                                <!-- Serial Number Badge -->
+
+                                <!-- Sort Order Badge -->
                                 <span
                                     class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-3 py-1 rounded-full shadow-md z-10">
-                                    {{ $media['sort_order'] }}
+                                    {{ $index }}
                                 </span>
+
+                                <!-- Primary Badge (if applicable) -->
+                                @if ($media['is_primary'])
+                                    <span
+                                        class="absolute top-2 left-2 bg-yellow-500 text-white font-semibold text-xs px-2 py-1 rounded-full shadow-md z-10">
+                                        PRIMARY
+                                    </span>
+                                @endif
 
                                 <!-- Delete Button -->
                                 <button wire:click="deleteMediaFile({{ $media['id'] }})"
+                                    wire:confirm="Are you sure you want to delete this media file?"
                                     class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -174,7 +214,7 @@
                                     <img src="{{ asset('storage/' . $media['file']) }}" alt="Image"
                                         class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
                                     <span
-                                        class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">IMG</span>
+                                        class="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">IMG</span>
                                 @else
                                     <video
                                         class="w-full h-48 object-cover rounded-lg border hover:shadow-md transition-shadow"
@@ -182,7 +222,7 @@
                                         <source src="{{ asset('storage/' . $media['file']) }}" type="video/mp4">
                                     </video>
                                     <span
-                                        class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">VID</span>
+                                        class="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">VID</span>
                                 @endif
                             </div>
                         @empty
@@ -193,8 +233,6 @@
                         @endforelse
                     </div>
                 </div>
-
-
             </div>
         </div>
     @endif
@@ -297,7 +335,6 @@
                             <!-- Image Upload Section -->
                             <div class="md:col-span-2" x-data="imageUpload()">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
-
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
                                     :class="{ 'border-green-500 bg-green-50': isDragging }"
                                     @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
@@ -323,7 +360,6 @@
                             <!-- Video Upload Section -->
                             <div class="md:col-span-2" x-data="videoUpload()">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Videos/Reels</label>
-
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative"
                                     :class="{ 'border-blue-500 bg-blue-50': isDragging }"
                                     @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
@@ -468,7 +504,6 @@
                 this.isDragging = false;
                 const droppedFiles = event.dataTransfer.files;
 
-                // Filter files based on type
                 const validFiles = Array.from(droppedFiles).filter(file => {
                     if (type === 'images') {
                         return file.type.startsWith('image/');
@@ -476,7 +511,6 @@
                     return false;
                 });
 
-                // Upload valid files
                 validFiles.forEach(file => {
                     @this.upload('images', file);
                 });
@@ -491,7 +525,6 @@
                 this.isDragging = false;
                 const droppedFiles = event.dataTransfer.files;
 
-                // Filter files based on type
                 const validFiles = Array.from(droppedFiles).filter(file => {
                     if (type === 'videos') {
                         return file.type.startsWith('video/');
@@ -499,7 +532,6 @@
                     return false;
                 });
 
-                // Upload valid files
                 validFiles.forEach(file => {
                     @this.upload('videos', file);
                 });
@@ -532,24 +564,20 @@
                     swapThreshold: 0.65,
 
                     onStart: function(evt) {
-                        // Add visual feedback during drag
                         evt.item.style.opacity = '0.7';
                         evt.item.style.transform = 'rotate(5deg)';
                     },
 
                     onEnd: (evt) => {
-                        // Reset visual state
                         evt.item.style.opacity = '';
                         evt.item.style.transform = '';
 
-                        // Check if position actually changed
                         if (evt.oldIndex !== evt.newIndex) {
                             this.updateOrder();
                         }
                     }
                 });
 
-                // Add custom CSS for better visual feedback
                 this.addCustomStyles();
             },
 
@@ -561,10 +589,8 @@
                     return parseInt(item.getAttribute('data-media-id'));
                 });
 
-                // Show loading state
                 this.showLoadingState(true);
 
-                // Update the order via Livewire
                 @this.call('updateMediaOrder', orderedIds).then(() => {
                     this.showLoadingState(false);
                     this.updateSortOrderBadges();
@@ -579,7 +605,7 @@
                 const mediaItems = container.querySelectorAll('[data-media-id]');
 
                 mediaItems.forEach((item, index) => {
-                    const badge = item.querySelector('span:last-child');
+                    const badge = item.querySelector('.absolute.top-2.right-2');
                     if (badge) {
                         badge.textContent = index;
                     }

@@ -30,42 +30,43 @@
                         <!-- Thumbnails Slider -->
                         <div id="thumbSlider"
                             class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8 shadow-sm">
-                            
-                            <!-- Images Thumbnails - Ordered by isprimary first -->
-                            @foreach ($product->images->sortByDesc('isprimary') as $image)
-                                <div wire:click="changeMedia('{{ $image->file }}', 'image')"
-                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
-                 {{ $activeMedia === $image->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-                                    
-                                    <!-- Primary badge for primary images -->
-                                    @if($image->isprimary)
-                                        <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
-                                            P
-                                        </span>
-                                    @endif
-                                    
-                                    <img src="{{ storage_url($image->file) }}"
-                                        class="w-full h-full object-contain rounded">
-                                </div>
-                            @endforeach
-
                             <!-- Videos Thumbnails - Ordered by isprimary first -->
-                            @foreach ($videos->sortByDesc('isprimary') as $video)
-                                <div wire:click="changeMedia('{{ $video->file }}', 'video')"
+                            @foreach ($files as $file)
+                                @if ($file->file_type == \App\Models\ProductFile::TYPE_IMAGE)
+                                    <div wire:click="changeMedia('{{ $file->file }}', 'image')"
+                                        class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
+                 {{ $activeMedia === $file->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+
+                                        <!-- Primary badge for primary images -->
+                                        @if ($file->isprimary)
+                                            <span
+                                                class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
+                                                P
+                                            </span>
+                                        @endif
+
+                                        <img src="{{ storage_url($file->file) }}"
+                                            class="w-full h-full object-contain rounded">
+                                    </div>
+                                @elseif ($file->file_type == \App\Models\ProductFile::TYPE_REEL)
+                                    <div wire:click="changeMedia('{{ $file->file }}', 'video')"
                                     class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
-                 {{ $activeMedia === $video->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-                                    
+                 {{ $activeMedia === $file->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
+
                                     <!-- Primary badge for primary videos -->
-                                    @if($video->isprimary)
-                                        <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
+                                    @if ($file->isprimary)
+                                        <span
+                                            class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
                                             P
                                         </span>
                                     @endif
-                                    
+
                                     <video class="w-full h-full object-contain rounded" autoplay muted>
-                                        <source src="{{ storage_url($video->file) }}" type="video/mp4">
+                                        <source src="{{ storage_url($file->file) }}" type="video/mp4">
                                     </video>
                                 </div>
+                                @endif
+                                
                             @endforeach
                         </div>
                     </div>

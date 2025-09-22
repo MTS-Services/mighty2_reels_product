@@ -20,7 +20,7 @@ class Product extends Component
 
     // Modal & state
     public $showModal = false;
-    public $showGalleryModal = false; // New property for gallery modal
+    public $showGalleryModal = false;
     public $editMode = false;
     public $productId;
 
@@ -34,16 +34,19 @@ class Product extends Component
     public $status = 1;
 
     // Separate file uploads
-    public $images = []; // For image files only
-    public $videos = []; // For video files only
-    public $existingImages = []; // For edit mode - existing images from database
-    public $existingVideos = []; // For edit mode - existing videos from database
-    public $imagesToDelete = []; // Track images marked for deletion
-    public $videosToDelete = []; // Track videos marked for deletion
+    public $images = [];
+    public $videos = [];
+    public $existingImages = [];
+    public $existingVideos = [];
+    public $imagesToDelete = [];
+    public $videosToDelete = [];
 
     // Gallery data
-    public $allImages = []; // All images for gallery display
-    public $allVideos = []; // All videos for gallery display
+    public $allMedia = [];
+
+    // Success modal
+    public $showSuccessModal = false;
+    public $successMessage = '';
 
     protected $rules = [
         'title' => 'required|string|max:255',
@@ -82,6 +85,7 @@ class Product extends Component
 
     public function openGalleryModal($productId)
     {
+        $this->productId = $productId;
         $this->loadAllMediaFiles($productId);
         $this->showGalleryModal = true;
     }
@@ -89,65 +93,39 @@ class Product extends Component
     public function closeGalleryModal()
     {
         $this->showGalleryModal = false;
-        $this->reset();
+        $this->allMedia = [];
+        $this->productId = null;
         $this->resetValidation();
     }
 
-    public $allMedia = []; // Combined media array
+    /**
+     * Load all media files (images and videos) for a product
+     */
     private function loadAllMediaFiles($productId)
     {
-        // Get images
-        $images = ProductFile::where('product_id', $productId)
-            ->where('file_type', ProductFile::TYPE_IMAGE)
+        // Get all media files (both images and videos) in one query
+        $allMediaFiles = ProductFile::where('product_id', $productId)
             ->where('status', ProductFile::STATUS_ACTIVE)
+            ->orderBy('sort_order')
             ->get()
             ->map(fn($file) => [
                 'id' => $file->id,
                 'file' => $file->file,
-                'type' => 'image',
+                'type' => $file->file_type === ProductFile::TYPE_IMAGE ? 'image' : 'video',
                 'sort_order' => $file->sort_order,
                 'is_primary' => $file->is_primary ?? false,
                 'created_at' => $file->created_at,
-            ])
-            ->toArray();
+            ]);
 
-        // Get videos
-        $videos = ProductFile::where('product_id', $productId)
-            ->where('file_type', ProductFile::TYPE_REEL)
-            ->where('status', ProductFile::STATUS_ACTIVE)
-            ->get()
-            ->map(fn($file) => [
-                'id' => $file->id,
-                'file' => $file->file,
-                'type' => 'video',
-                'sort_order' => $file->sort_order,
-                'is_primary' => $file->is_primary ?? false,
-                'created_at' => $file->created_at,
-            ])
-            ->toArray();
-
-        // Merge images & videos
-        $allMedia = collect(array_merge($images, $videos));
-
-        // Separate primary and non-primary files
-        $primaryFiles = $allMedia->where('is_primary', true)->sortBy('sort_order');
-        $nonPrimaryFiles = $allMedia->where('is_primary', false)->sortBy('sort_order');
-
+        // Sort: primary files first (by sort_order), then non-primary files (by sort_order)
+        $primaryFiles = $allMediaFiles->where('is_primary', true)->sortBy('sort_order');
+        $nonPrimaryFiles = $allMediaFiles->where('is_primary', false)->sortBy('sort_order');
         // Merge with primary files first, then non-primary files
         $this->allMedia = $primaryFiles->merge($nonPrimaryFiles)->values()->toArray();
     }
 
-    // Add this property for success modal
-    public $showSuccessModal = false;
-    public $successMessage = '';
-
     /**
      * Update the sort order of media files
-     * Expected payload: array of media IDs in their new order
-     */
-    /**
-     * Update the sort order of media files
-     * Expected payload: array of media IDs in their new order
      */
     public function updateMediaOrder($orderedIds)
     {
@@ -159,29 +137,19 @@ class Product extends Component
                 ];
             }
 
-            // Get all files with their current primary status
+            // Get all files
             $files = ProductFile::whereIn('id', $orderedIds)->get();
-            $primaryFiles = $files->where('is_primary', true);
-            $primaryCount = $primaryFiles->count();
 
             // Update sort_order for each file based on its position in the array
             foreach ($orderedIds as $index => $fileId) {
                 $file = $files->firstWhere('id', $fileId);
-
                 if ($file) {
-                    // If this is a primary file, maintain its primary status but update sort_order
-                    if ($file->is_primary) {
-                        $file->update(['sort_order' => $index]);
-                    } else {
-                        // For non-primary files, adjust sort_order accounting for primary files
-                        // This ensures proper ordering when displaying
-                        $file->update(['sort_order' => $index]);
-                    }
+                    $file->update(['sort_order' => $index]);
                 }
             }
 
             // Get the current product ID from the first file if not set
-            if (!isset($this->productId) && !empty($orderedIds)) {
+            if (!$this->productId && !empty($orderedIds)) {
                 $firstFile = ProductFile::find($orderedIds[0]);
                 if ($firstFile) {
                     $this->productId = $firstFile->product_id;
@@ -235,7 +203,6 @@ class Product extends Component
                 return;
             }
 
-            // Store the product ID for reloading
             $productId = $productFile->product_id;
 
             // Delete physical file from storage
@@ -246,7 +213,7 @@ class Product extends Component
             // Delete database record
             $productFile->delete();
 
-            // Reorder remaining files to fill gaps
+            // Reorder remaining files
             $this->reorderRemainingFiles($productId);
 
             // Reload media to reflect changes
@@ -263,17 +230,32 @@ class Product extends Component
     }
 
     /**
-     * Reorder remaining files after deletion to remove gaps in sort_order
+     * Reorder remaining files after deletion
      */
     private function reorderRemainingFiles($productId)
     {
-        $files = ProductFile::where('product_id', $productId)
+        // Get primary files first, then non-primary files
+        $primaryFiles = ProductFile::where('product_id', $productId)
             ->where('status', ProductFile::STATUS_ACTIVE)
+            ->where('is_primary', true)
             ->orderBy('sort_order')
             ->get();
 
-        foreach ($files as $index => $file) {
+        $nonPrimaryFiles = ProductFile::where('product_id', $productId)
+            ->where('status', ProductFile::STATUS_ACTIVE)
+            ->where('is_primary', false)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Reorder primary files
+        foreach ($primaryFiles as $index => $file) {
             $file->update(['sort_order' => $index]);
+        }
+
+        // Reorder non-primary files (continuing from where primary files ended)
+        $startIndex = $primaryFiles->count();
+        foreach ($nonPrimaryFiles as $index => $file) {
+            $file->update(['sort_order' => $startIndex + $index]);
         }
     }
 
@@ -323,7 +305,6 @@ class Product extends Component
             $this->closeModal();
             session()->flash('success', $this->editMode ? 'Product updated successfully!' : 'Product created successfully!');
 
-            // Reset page to refresh the product list
             $this->resetPage();
         } catch (\Exception $e) {
             Log::error('Error saving product: ' . $e->getMessage(), ['exception' => $e]);
@@ -334,7 +315,6 @@ class Product extends Component
     private function handleFileUploads($productId)
     {
         try {
-            // First, delete files marked for deletion (only in edit mode)
             if ($this->editMode) {
                 $this->deleteMarkedFiles();
             }
@@ -358,7 +338,7 @@ class Product extends Component
             }
         } catch (\Exception $e) {
             Log::error('Error handling file uploads: ' . $e->getMessage(), ['exception' => $e]);
-            throw $e; // Re-throw to be caught by saveProduct
+            throw $e;
         }
     }
 
@@ -374,23 +354,17 @@ class Product extends Component
             try {
                 $productFile = ProductFile::find($fileId);
                 if ($productFile) {
-                    // Delete physical file from storage
                     if (Storage::disk('public')->exists($productFile->file)) {
                         Storage::disk('public')->delete($productFile->file);
                     }
-
-                    // Delete database record
                     $productFile->forceDelete();
-
                     Log::info("Successfully deleted file: {$productFile->file}");
                 }
             } catch (\Exception $e) {
                 Log::error("Error deleting file {$fileId}: " . $e->getMessage());
-                // Continue with other files even if one fails
             }
         }
 
-        // Clear the deletion arrays
         $this->imagesToDelete = [];
         $this->videosToDelete = [];
     }
@@ -398,31 +372,27 @@ class Product extends Component
     private function processAndSaveFile(UploadedFile $file, $productId, $fileType)
     {
         try {
-            // Generate unique filename
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . uniqid() . '.' . $extension;
 
-            // Determine storage path based on file type
             $storagePath = $fileType === ProductFile::TYPE_IMAGE
                 ? 'products/images'
                 : 'products/videos';
 
-            // Store the file
             $path = $file->storeAs($storagePath, $filename, 'public');
 
-            // Calculate sort order for this product
             $lastSortOrder = ProductFile::where('product_id', $productId)
                 ->max('sort_order');
 
             $sortOrder = is_null($lastSortOrder) ? 0 : $lastSortOrder + 1;
 
-            // Create database record
             ProductFile::create([
                 'product_id' => $productId,
                 'file' => $path,
                 'file_type' => $fileType,
                 'status' => ProductFile::STATUS_ACTIVE,
                 'sort_order' => $sortOrder,
+                'is_primary' => false, // New files are not primary by default
                 'created_at' => now(),
                 'created_by' => user()->id,
             ]);
@@ -437,11 +407,10 @@ class Product extends Component
     public function editProduct($productId)
     {
         try {
-            $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
+            $product = ProductModel::with(['images', 'reels' => fn($query) => $query->where('is_primary', '!=', true)])->findOrFail($productId);
 
             $this->editMode = true;
             $this->productId = $productId;
-
             $this->title = $product->title;
             $this->description = $product->description;
             $this->price = $product->price;
@@ -450,7 +419,6 @@ class Product extends Component
             $this->type = $product->type;
             $this->status = $product->status;
 
-            // Separate existing files by type
             $this->existingImages = $product->images->map(function ($file) {
                 return [
                     'id' => $file->id,
@@ -469,7 +437,6 @@ class Product extends Component
                 ];
             })->toArray();
 
-            // Reset file-related arrays
             $this->images = [];
             $this->videos = [];
             $this->imagesToDelete = [];
@@ -487,7 +454,6 @@ class Product extends Component
         try {
             $product = ProductModel::with(['images', 'reels'])->findOrFail($productId);
 
-            // Delete all associated files
             $allFiles = collect($product->images)->merge($product->reels);
             foreach ($allFiles as $file) {
                 if (Storage::disk('public')->exists($file->file)) {
@@ -499,8 +465,7 @@ class Product extends Component
             $product->forceDelete();
 
             session()->flash('success', 'Product deleted successfully!');
-            $this->resetPage(); // Reset pagination to refresh the list
-
+            $this->resetPage();
         } catch (\Exception $e) {
             Log::error('Error deleting product: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', 'An error occurred while deleting the product.');
@@ -511,7 +476,7 @@ class Product extends Component
     {
         if (isset($this->images[$index])) {
             unset($this->images[$index]);
-            $this->images = array_values($this->images); // Re-index array
+            $this->images = array_values($this->images);
         }
     }
 
@@ -519,48 +484,42 @@ class Product extends Component
     {
         if (isset($this->videos[$index])) {
             unset($this->videos[$index]);
-            $this->videos = array_values($this->videos); // Re-index array
+            $this->videos = array_values($this->videos);
         }
     }
 
     public function removeExistingImage($imageId)
     {
-        // Mark image for deletion
         if (!in_array($imageId, $this->imagesToDelete)) {
             $this->imagesToDelete[] = $imageId;
         }
 
-        // Remove from existing images display
         $this->existingImages = array_filter($this->existingImages, function ($image) use ($imageId) {
             return $image['id'] != $imageId;
         });
 
-        $this->existingImages = array_values($this->existingImages); // Re-index array
+        $this->existingImages = array_values($this->existingImages);
     }
 
     public function removeExistingVideo($videoId)
     {
-        // Mark video for deletion
         if (!in_array($videoId, $this->videosToDelete)) {
             $this->videosToDelete[] = $videoId;
         }
 
-        // Remove from existing videos display
         $this->existingVideos = array_filter($this->existingVideos, function ($video) use ($videoId) {
             return $video['id'] != $videoId;
         });
 
-        $this->existingVideos = array_values($this->existingVideos); // Re-index array
+        $this->existingVideos = array_values($this->existingVideos);
     }
 
     public function updatedImages()
     {
-        // Validate images when they are updated
         $this->validateOnly('images.*');
 
-        // Optional: Validate total image count
         $totalImages = count($this->images) + count($this->existingImages);
-        if ($totalImages > 10) { // Adjust limit as needed
+        if ($totalImages > 10) {
             session()->flash('error', 'Maximum 10 images allowed per product.');
             $this->images = [];
         }
@@ -568,12 +527,10 @@ class Product extends Component
 
     public function updatedVideos()
     {
-        // Validate videos when they are updated
         $this->validateOnly('videos.*');
 
-        // Optional: Validate total video count
         $totalVideos = count($this->videos) + count($this->existingVideos);
-        if ($totalVideos > 5) { // Adjust limit as needed
+        if ($totalVideos > 5) {
             session()->flash('error', 'Maximum 5 videos allowed per product.');
             $this->videos = [];
         }
@@ -581,10 +538,12 @@ class Product extends Component
 
     public function render()
     {
-        $products = ProductModel::with(['city', 'images', 'reels'])
-            ->orderBy('created_at', 'desc')
+        $products = ProductModel::with(['city', 'files' => function ($query) {
+            $query->where('status', ProductFile::STATUS_ACTIVE)
+                ->orderBy('is_primary', 'desc')
+                ->orderBy('sort_order', 'asc');
+        }])
             ->paginate(9);
-
         $cities = City::where('status', 1)->orderBy('name')->get();
 
         return view('livewire.backend.product', [
