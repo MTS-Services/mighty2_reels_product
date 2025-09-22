@@ -154,12 +154,12 @@
 
     <!-- Gallery Modal with Sortable Functionality -->
     @if ($showGalleryModal)
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50  p-2 sm:p-4"
-            wire:click.self="closeGalleryModal" x-data="sortableGallery()" x-effect="document.body.classList.toggle('overflow-hidden', open)">
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4"
+            wire:click.self="closeGalleryModal" x-data="sortableGallery()"
+            x-effect="document.body.classList.toggle('overflow-hidden', open)"
+            x-on:close-gallery-modal.window="document.body.classList.remove('overflow-hidden')">
             <div
                 class="bg-white rounded-lg shadow-xl w-full sm:max-w-xl md:max-w-4xl lg:max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
-
-                <!-- Header -->
                 <div class="p-4 sm:p-6 border-b flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <h2 class="text-sm sm:text-xl md:text-2xl font-semibold text-gray-900">Product Media Gallery
@@ -179,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- Scrollable Media Grid -->
                 <div class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth">
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
                         id="sortable-media" x-ref="sortableContainer">
@@ -187,7 +186,6 @@
                             <div class="group relative cursor-move transition-transform hover:scale-105"
                                 data-media-id="{{ $media['id'] }}">
 
-                                <!-- Index / Primary Badge / Delete Button / Media -->
                                 <span
                                     class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-2 py-1 rounded-full shadow-md z-10">
                                     {{ $index }}
@@ -235,7 +233,6 @@
                 </div>
             </div>
         </div>
-
     @endif
 
     <!-- Product Form Modal -->

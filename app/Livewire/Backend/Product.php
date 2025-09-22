@@ -94,8 +94,8 @@ class Product extends Component
     public function closeGalleryModal()
     {
         $this->showGalleryModal = false;
-        $this->allMedia = [];
-        $this->productId = null;
+         $this->dispatch('close-gallery-modal');
+        $this->reset();
         $this->resetValidation();
     }
 
