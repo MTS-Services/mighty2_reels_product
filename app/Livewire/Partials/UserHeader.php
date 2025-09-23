@@ -5,6 +5,7 @@ namespace App\Livewire\Partials;
 use App\Models\City;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
@@ -158,6 +159,32 @@ class UserHeader extends Component
         $this->selectedType = '';
         
         // Apply filters immediately if on home page and NOT in modal
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Alternative method - Set to FOR SALE
+     */
+    public function setForSale()
+    {
+        $this->selectedType = 'sale'; // Use hardcoded value first
+        
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Alternative method - Set to FOR RENT
+     */
+    public function setForRent()
+    {
+        $this->selectedType = 'rent'; // Use hardcoded value first
+        
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
