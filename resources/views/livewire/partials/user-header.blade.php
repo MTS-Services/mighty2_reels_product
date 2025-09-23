@@ -137,7 +137,7 @@
             <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
                 <!-- Logo centered -->
                 <a href="{{ route('home') }}" wire:navigate
-                    class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] px-2 inline-flex items-center gap-4">
+                    class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex items-center gap-4">
                     {{-- <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover"> --}}
                     <span class="text-[20px]  text-orange-normal capitalize"> {{ site_name() }}</span>
                 </a>
@@ -288,35 +288,27 @@
     @if ($showSearchModal)
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             wire:click.self="closeSearchModal">
-            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[40vh] p-4 space-y-4 lg:max-w-xl"
+            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[40vh] p-4 flex flex-col space-y-4 lg:max-w-xl"
                 wire:click.stop>
+
                 {{-- Modal Header --}}
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Search Properties</h3>
                     <button wire:click="closeSearchModal" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+                        <flux:icon name="x-mark" class="w-6 h-6" />
                     </button>
                 </div>
 
                 {{-- Search Input --}}
                 <div class="relative">
-                    <input type="search" wire:model="searchTerm"
-                        placeholder="Search for properties, locations, price..."
-                        class="w-full px-4 py-3 rounded-full border-2 border-orange-200 text-gray-900 focus:ring-2 focus:ring-orange-normal focus:border-orange-normal bg-gray-50 placeholder:text-gray-400 text-base"
-                        autofocus />
-                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
+                    <input type="search" wire:model.live.debounce.500ms="searchTerm"
+                                placeholder="Search for products..."
+                                class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
+                                wire:loading.class="opacity-50" wire:target="searchTerm" />
                 </div>
 
-                {{-- Recent Searches --}}
-                @if (!empty($recentSearches))
+                {{-- Show Recent Searches ONLY if searchTerm is empty --}}
+                @if (empty($searchTerm) && !empty($recentSearches))
                     <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-sm font-medium text-gray-700">Recent searches:</p>
@@ -326,23 +318,15 @@
                         <div class="space-y-1">
                             @foreach ($recentSearches as $search)
                                 <div
-                                    class="flex items-center justify-between px-3 py-2 hover:bg-white rounded-md group">
+                                    class="flex items-center justify-between  px-3 py-2 hover:bg-white rounded-md group">
                                     <button type="button" class="flex-1 text-gray-800 text-left font-medium"
                                         wire:click="$set('searchTerm', '{{ $search }}')">
-                                        <svg class="w-4 h-4 inline mr-2 text-gray-400" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
+                                        <flux:icon name="clock" class="w-4 h-4 inline mr-2 text-gray-400" />
                                         {{ $search }}
                                     </button>
                                     <button type="button" wire:click="removeSearch('{{ $search }}')"
-                                        class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
+                                        class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-black! hover:text-red-500">
+                                        <flux:icon name="x-mark" class="w-4 h-4 text-black!" />
                                     </button>
                                 </div>
                             @endforeach
@@ -351,21 +335,21 @@
                 @endif
 
                 {{-- Action Buttons --}}
-                <div class="flex justify-between items-center pt-2">
+                <div class="flex justify-between items-center pt-2 mt-auto">
                     <button type="button" wire:click="performSearch"
-                        class="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                        class="bg-orange-500 text-white px-4 py-3 rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
+                        <flux:icon name="check" class="w-5 h-5" />
                         Search
                     </button>
+
                     <button type="button" wire:click="closeSearchModal"
-                        class="px-6 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                        class="px-4 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium flex items-center gap-2">
+                        <flux:icon name="x-mark" class="w-5 h-5" />
                         Cancel
                     </button>
                 </div>
             </div>
+
         </div>
     @endif
 
