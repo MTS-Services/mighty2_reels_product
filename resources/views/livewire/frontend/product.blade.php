@@ -295,7 +295,7 @@
                                 class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-screen sm:h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
-                                    <div class="absolute top-4 left-4 z-5">
+                                    <div class="absolute top-4 left-4 z-50">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
                                                 class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
@@ -329,21 +329,43 @@
                                     </div>
                                 </template>
 
-
+                                <!-- Dual Video Template for Videos -->
                                 <template x-if="video.url && video.type === 'video'">
-                                    <video x-ref="mainVideo" :data-video-id="video.id" :data-reel-id="video.reel_id"
-                                        @loadedmetadata="initVideo()" @loadeddata="generateThumbnails()"
-                                        @timeupdate="updateProgress()" @play="handlePlay()" @pause="handlePause()"
-                                        @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
-                                        @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                        class="w-full h-full object-contain" loop playsinline autoplay>
-                                        <source :src="video.url" type="video/mp4">
-                                    </video>
+                                    <div :data-video-id="video.id" :data-reel-id="video.reel_id"
+                                        class="w-full h-full flex items-center justify-center">
+
+                                        <!-- Background/Overlay Video (blurred) -->
+                                        <video x-ref="backgroundVideo" @loadeddata="initBackgroundVideo()"
+                                            class="absolute w-full h-full object-cover filter blur-sm transform scale-150 z-1"
+                                            loop playsinline muted>
+                                            <source :src="video.url" type="video/mp4">
+                                        </video>
+
+                                        <!-- Main/Original Video (clear) -->
+                                        <video x-ref="mainVideo" :data-video-id="video.id"
+                                            :data-reel-id="video.reel_id" @loadedmetadata="initVideo()"
+                                            @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
+                                            @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
+                                            @touchend.prevent="handleTouchEnd($event)"
+                                            @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
+                                            class="w-full h-full object-contain relative z-2" loop playsinline autoplay>
+                                            <source :src="video.url" type="video/mp4">
+                                        </video>
+                                    </div>
                                 </template>
 
                                 <template x-if="video.url && video.type === 'image'">
-                                    <img :src="video.url" :alt="video.title"
-                                        class="w-full h-full object-contain">
+                                    <div :data-image-id="video.image_id || video.id"
+                                        class="w-full h-full flex items-center justify-center">
+
+                                        <!-- Background/Overlay Image (blurred) -->
+                                        <img :src="video.url" :alt="video.title"
+                                            class="absolute w-full h-full object-cover filter blur-sm transform scale-150 z-1">
+
+                                        <!-- Main/Original Image (clear) -->
+                                        <img :src="video.url" :alt="video.title"
+                                            class="w-full h-full object-contain relative z-2">
+                                    </div>
                                 </template>
 
                                 <template x-if="!video.url">
@@ -365,10 +387,8 @@
                                     </div>
                                 </div>
 
-                                {{-- This is the div that was removed --}}
-                                {{-- <div
-                            class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/30 z-0">
-                        </div> --}}
+                                <!-- Video overlay gradient -->
+                                <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
                                 <button x-show="video.type === 'video'" @click.stop="togglePlay()"
                                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20 bg-white/90 backdrop-blur-md p-4"
@@ -439,7 +459,7 @@
                 </template>
             </div>
 
-               <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
+            <div x-show="$wire.showMergedView" x-transition:enter="transition transform ease-out duration-700"
                 x-transition:enter-start="opacity-0 scale-95 translate-y-6"
                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                 x-transition:leave="transition transform ease-in duration-500"
@@ -638,6 +658,8 @@
 
                 initVideo() {
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
                     if (!video) return;
 
                     this.progress = 0;
@@ -653,10 +675,87 @@
                         this.lastVolume = this.volume;
                     }
 
+                    // Sync background video with main video
+                    if (bgVideo) {
+                        this.syncBackgroundVideo();
+                    }
+
                     if (root.currentPlayingId === videoId) {
-                        video.play();
+                        this.playBothVideos();
                         this.isPlaying = true;
                     }
+                },
+
+                initBackgroundVideo() {
+                    const bgVideo = this.$refs.backgroundVideo;
+                    const mainVideo = this.$refs.mainVideo;
+
+                    if (!bgVideo || !mainVideo) return;
+
+                    // Keep background video muted always
+                    bgVideo.muted = true;
+                    bgVideo.volume = 0;
+
+                    // Sync with main video if it's loaded
+                    if (mainVideo.readyState >= 1) {
+                        this.syncBackgroundVideo();
+                    }
+                },
+
+                syncBackgroundVideo() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video || !bgVideo) return;
+
+                    // Sync current time
+                    bgVideo.currentTime = video.currentTime;
+
+                    // Sync play/pause state
+                    if (!video.paused && bgVideo.paused) {
+                        bgVideo.play().catch(() => {});
+                    } else if (video.paused && !bgVideo.paused) {
+                        bgVideo.pause();
+                    }
+                },
+
+                playBothVideos() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (!video) return;
+
+                    // Ensure volume is set correctly before playing
+                    if (!this.isMuted) {
+                        video.volume = this.volume;
+                        video.muted = false;
+                    } else {
+                        video.muted = true;
+                    }
+
+                    video.play().then(() => {
+                        this.isPlaying = true;
+                        root.currentPlayingId = videoId;
+
+                        // Play background video in sync
+                        if (bgVideo) {
+                            bgVideo.currentTime = video.currentTime;
+                            bgVideo.muted = true; // Always keep background muted
+                            bgVideo.play().catch(() => {});
+                        }
+                    }).catch(error => {
+                        console.error("Autoplay failed:", error);
+                        this.isPlaying = false;
+                    });
+                },
+
+                pauseBothVideos() {
+                    const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
+                    if (video) video.pause();
+                    if (bgVideo) bgVideo.pause();
+                    this.isPlaying = false;
                 },
 
                 // Enhanced thumbnail generation
@@ -685,6 +784,7 @@
                         this.preGenerateThumbnails(thumbnailCount);
                     });
                 },
+
                 preGenerateThumbnails(count) {
                     const video = this.$refs.mainVideo;
                     if (!video || !video.duration) return;
@@ -838,6 +938,7 @@
                     // Fallback: generate thumbnail on the fly (without affecting main video)
                     this.generateInstantThumbnail(time, ctx);
                 },
+
                 generateInstantThumbnail(time, ctx) {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
@@ -921,13 +1022,19 @@
 
                     // Actually seek the video only when drag stops
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
                     if (video) {
                         video.currentTime = this.currentTime;
 
+                        // Sync background video
+                        if (bgVideo) {
+                            bgVideo.currentTime = this.currentTime;
+                        }
+
                         // Restore play state if it was playing before drag
                         if (this.wasPlayingBeforeProgressDrag && video.paused) {
-                            video.play().catch(() => {});
-                            this.isPlaying = true;
+                            this.playBothVideos();
                         }
                     }
 
@@ -969,14 +1076,13 @@
                 togglePlay() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
+
                     if (video.paused) {
-                        video.play();
-                        this.isPlaying = true;
+                        this.playBothVideos();
                         root.currentPlayingId = videoId;
                         root.activeVideoIdInView = videoId;
                     } else {
-                        video.pause();
-                        this.isPlaying = false;
+                        this.pauseBothVideos();
                     }
                 },
 
@@ -987,28 +1093,21 @@
                     root.activeVideoIdInView = videoId;
 
                     document.querySelectorAll('video').forEach(v => {
-                        if (v !== video) v.pause();
+                        if (v !== video && !v.classList.contains('filter')) v.pause();
                     });
 
-                    video.play().then(() => {
-                        this.isPlaying = true;
-                        root.currentPlayingId = videoId;
-                    }).catch(error => {
-                        console.error("Autoplay failed:", error);
-                        this.isPlaying = false;
-                    });
+                    this.playBothVideos();
                 },
 
                 pauseVideo() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    video.pause();
-                    this.isPlaying = false;
+                    this.pauseBothVideos();
                     this.showThumbnail = false; // Hide thumbnail when video not visible
                 },
 
                 updateProgress() {
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
                     if (!video || !video.duration || this.isDraggingProgress) return;
 
                     this.currentTime = video.currentTime;
@@ -1017,12 +1116,18 @@
                     } else {
                         this.progress = 0;
                     }
+
+                    // Keep background video in sync
+                    if (bgVideo && Math.abs(bgVideo.currentTime - video.currentTime) > 0.3) {
+                        bgVideo.currentTime = video.currentTime;
+                    }
                 },
 
                 setProgress(event) {
                     if (this.isDraggingProgress) return; // Don't interfere with dragging
 
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
                     const progressBar = this.$refs.progressContainer;
                     if (!video || !progressBar) return;
 
@@ -1034,12 +1139,19 @@
                     if (clientX === undefined) return;
 
                     const pos = (clientX - rect.left) / rect.width;
-                    video.currentTime = Math.max(0, Math.min(video.duration, pos * video.duration));
+                    const newTime = Math.max(0, Math.min(video.duration, pos * video.duration));
+
+                    // Set time for both videos
+                    video.currentTime = newTime;
+                    if (bgVideo) {
+                        bgVideo.currentTime = newTime;
+                    }
+
                     this.updateProgress();
 
                     // Restore play state after seeking
                     if (wasPlaying && video.paused) {
-                        video.play().catch(() => {});
+                        this.playBothVideos();
                     }
 
                     event.preventDefault();
@@ -1049,6 +1161,7 @@
                 toggleMute() {
                     const video = this.$refs.mainVideo;
                     if (!video) return;
+
                     if (this.isMuted) {
                         this.isMuted = false;
                         video.muted = false;
@@ -1058,7 +1171,6 @@
                         this.lastVolume = this.volume;
                         this.isMuted = true;
                         video.muted = true;
-                        video.volume = 0;
                         this.volume = 0;
                     }
                     this.updateVolumeDisplay();
@@ -1096,15 +1208,30 @@
 
                 handleDoubleClick(event) {
                     const video = this.$refs.mainVideo;
+                    const bgVideo = this.$refs.backgroundVideo;
+
                     if (!video) return;
+
                     const rect = video.getBoundingClientRect();
                     const x = event.clientX - rect.left;
+                    let newTime;
+
                     if (x < rect.width / 2) {
-                        video.currentTime = Math.max(0, video.currentTime - 10);
+                        newTime = Math.max(0, video.currentTime - 10);
                     } else {
-                        video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                        newTime = Math.min(video.duration, video.currentTime + 10);
                     }
+
+                    // Set new time for both videos
+                    video.currentTime = newTime;
+                    if (bgVideo) {
+                        bgVideo.currentTime = newTime;
+                    }
+
                     this.updateProgress();
+
+                    event.preventDefault();
+                    event.stopPropagation();
                 },
 
                 startTopVolumeDrag(event) {
