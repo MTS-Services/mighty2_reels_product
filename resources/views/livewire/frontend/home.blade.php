@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" x-data="{
+<section class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
     currentPlayingId: null,
     productId: null,
     favourite: false,
@@ -266,7 +266,7 @@
     </style>
 
     <div class="rounded-lg">
-        <div class="max-w-7xl mx-auto px-0.5 pt-1 sm:px-6 lg:px-8" x-data="{
+        <div class="max-w-7xl mx-auto px-0.5  sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
             currentVideoId: @entangle('currentVideoId').live,
             productId: null,
@@ -313,7 +313,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="object-contain absolute top-4 right-4 md:right-8 z-5 rounded-full">
+                            class="object-contain absolute bottom-32 sm:top-4 right-4 md:right-8 z-50 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
@@ -323,17 +323,17 @@
                                                liked = video.favourite;
                                            }
                                        }"
-                                :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                                :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
                                 class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                                 :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                                <flux:icon name="heart" class="w-5 h-5" />
+                                <flux:icon name="heart" class="w-5 h-5 " />
                             </button>
                         </div>
 
                         <!-- Arrow Button - Navigate to Product Page -->
                         <div class="absolute bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
                             <button @click="$wire.goToProduct()"
-                                class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
+                                class="bg-orange-500 text-white  p-[13px]! sm:p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                                 <flux:icon name="arrow-right" class="w-5 h-5" />
                             </button>
                         </div>
@@ -341,7 +341,7 @@
                 </template>
 
                 <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-80px)] pt-0.5 space-y-6 scroll-smooth">
+                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-screen sm:h-[calc(100vh-85px)] pt-0.5 space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
                         <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
@@ -351,7 +351,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-80px)] max-w-lg rounded-xl max-h-[1100px]">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-screen sm:h-[calc(100vh-85px)] max-w-lg rounded-xl ">
 
                                     <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-40">
