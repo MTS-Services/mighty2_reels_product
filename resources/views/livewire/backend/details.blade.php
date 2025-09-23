@@ -15,6 +15,7 @@
             <div class="grid md:grid-cols-2 gap-12">
 
                 <div>
+                    <!-- Main Active Media -->
                     <div class="bg-gradient-to-br rounded-2xl mb-4 flex items-center justify-center shadow-sm">
                         @if ($activeType === 'image')
                             <img src="{{ storage_url($activeMedia) }}" alt="{{ $product->title }}"
@@ -26,47 +27,39 @@
                         @endif
                     </div>
 
+                    <!-- Thumbnails Slider -->
                     <div class="relative flex items-center">
-                        <!-- Thumbnails Slider -->
                         <div id="thumbSlider"
-                            class="flex space-x-3 overflow-x-auto py-2 scrollbar-hide w-full px-8 shadow-sm">
-                            <!-- Videos Thumbnails - Ordered by isprimary first -->
+                            class="flex space-x-3 overflow-x-auto scrollbar-hide w-full px-6 py-4 shadow-sm scroll-smooth snap-x snap-mandatory">
                             @foreach ($files as $file)
                                 @if ($file->file_type == \App\Models\ProductFile::TYPE_IMAGE)
-                                    <div wire:click="changeMedia('{{ $file->file }}', 'image')"
-                                        class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
-                 {{ $activeMedia === $file->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-
-                                        <!-- Primary badge for primary images -->
+                                    <div class="thumb-item flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative snap-start
+                                        {{ $activeMedia === $file->file && $activeType === 'image' ? 'border-orange-500 border-2' : 'border-gray-200' }}"
+                                        data-file="{{ $file->file }}" data-type="image">
                                         @if ($file->isprimary)
                                             <span
                                                 class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
                                                 P
                                             </span>
                                         @endif
-
                                         <img src="{{ storage_url($file->file) }}"
                                             class="w-full h-full object-contain rounded">
                                     </div>
                                 @elseif ($file->file_type == \App\Models\ProductFile::TYPE_REEL)
-                                    <div wire:click="changeMedia('{{ $file->file }}', 'video')"
-                                    class="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative
-                 {{ $activeMedia === $file->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}">
-
-                                    <!-- Primary badge for primary videos -->
-                                    @if ($file->isprimary)
-                                        <span
-                                            class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
-                                            P
-                                        </span>
-                                    @endif
-
-                                    <video class="w-full h-full object-contain rounded" autoplay muted>
-                                        <source src="{{ storage_url($file->file) }}" type="video/mp4">
-                                    </video>
-                                </div>
+                                    <div class="thumb-item flex-shrink-0 w-16 h-20 bg-gray-100 rounded-lg border flex items-center justify-center cursor-pointer transition-colors relative snap-start
+                                        {{ $activeMedia === $file->file && $activeType === 'video' ? 'border-orange-500 border-2' : 'border-gray-200' }}"
+                                        data-file="{{ $file->file }}" data-type="video">
+                                        @if ($file->isprimary)
+                                            <span
+                                                class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-full text-[10px] font-bold">
+                                                P
+                                            </span>
+                                        @endif
+                                        <video class="w-full h-full object-contain rounded">
+                                            <source src="{{ storage_url($file->file) }}" type="video/mp4">
+                                        </video>
+                                    </div>
                                 @endif
-                                
                             @endforeach
                         </div>
                     </div>
@@ -76,7 +69,6 @@
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $product->title }}</h1>
 
-                    <!-- Product Description -->
                     <div class="bg-white rounded-xl p-6 shadow-sm border mb-6" x-data="{
                         showDescription: false,
                         fullDescription: `{{ $product->description }}`,
@@ -91,7 +83,6 @@
                             x-text="showDescription ? fullDescription : truncatedDescription">
                         </p>
 
-                        <!-- Only show button if description is longer than 650 characters -->
                         <template x-if="shouldShowButton">
                             <button
                                 class="text-orange-500 font-medium hover:text-orange-600 transition-colors duration-200"
@@ -105,43 +96,54 @@
         </div>
 
         <script>
-            // Quantity selector functionality
-            const decreaseBtn = document.querySelector('button:contains("-")');
-            const increaseBtn = document.querySelector('button:contains("+")');
-            const quantitySpan = document.querySelector('span:contains("1")');
+            const slider = document.getElementById('thumbSlider');
 
-            let quantity = 1;
-
-            // Simple quantity management
-            document.addEventListener('click', function(e) {
-                if (e.target.textContent === '-' && quantity > 1) {
-                    quantity--;
-                    updateQuantityDisplay();
-                } else if (e.target.textContent === '+') {
-                    quantity++;
-                    updateQuantityDisplay();
-                }
+            // Drag-to-scroll
+            let isDown = false, startX, scrollLeft;
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => isDown = false);
+            slider.addEventListener('mouseup', () => isDown = false);
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                slider.scrollLeft = scrollLeft - walk;
             });
 
-            function updateQuantityDisplay() {
-                const quantityElement = document.querySelector('.border-x');
-                if (quantityElement) {
-                    quantityElement.textContent = quantity;
+            // Hover auto-scroll
+            let hoverInterval;
+            slider.addEventListener('mousemove', (e) => {
+                const { left, right, width } = slider.getBoundingClientRect();
+                const mouseX = e.clientX;
+                const edgeSize = 60; // edge zone size
+
+                clearInterval(hoverInterval);
+                if (mouseX < left + edgeSize) {
+                    hoverInterval = setInterval(() => slider.scrollLeft -= 5, 10);
+                } else if (mouseX > right - edgeSize) {
+                    hoverInterval = setInterval(() => slider.scrollLeft += 5, 10);
                 }
-            }
+            });
+            slider.addEventListener('mouseleave', () => clearInterval(hoverInterval));
 
-            // Add to cart feedback
-            document.querySelector('button:contains("Add to Cart")')?.addEventListener('click', function() {
-                const originalText = this.textContent;
-                this.textContent = 'Added to Cart!';
-                this.classList.add('bg-green-600');
-                this.classList.remove('bg-red-600');
+            // Click-to-center and change media
+            document.querySelectorAll('.thumb-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const file = item.dataset.file;
+                    const type = item.dataset.type;
+                    @this.changeMedia(file, type);
 
-                setTimeout(() => {
-                    this.textContent = originalText;
-                    this.classList.remove('bg-green-600');
-                    this.classList.add('bg-red-600');
-                }, 2000);
+                    // Smooth scroll to center
+                    const sliderRect = slider.getBoundingClientRect();
+                    const itemRect = item.getBoundingClientRect();
+                    const offset = (itemRect.left - sliderRect.left) - (sliderRect.width / 2) + (itemRect.width / 2);
+                    slider.scrollBy({ left: offset, behavior: 'smooth' });
+                });
             });
         </script>
     </div>
