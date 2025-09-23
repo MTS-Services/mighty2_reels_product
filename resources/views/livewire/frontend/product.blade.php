@@ -175,15 +175,15 @@
             50%,
             80%,
             100% {
-                transform: translateX(0);
+                transform: translateY(0);
             }
 
             40% {
-                transform: translateX(-5px);
+                transform: translateY(-8px);
             }
 
             60% {
-                transform: translateX(-3px);
+                transform: translateY(-3px);
             }
         }
 
