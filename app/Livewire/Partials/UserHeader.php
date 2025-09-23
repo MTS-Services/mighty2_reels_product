@@ -15,18 +15,21 @@ class UserHeader extends Component
     public bool $openProfileDropdown = false;
     public bool $filterOpen = false;
 
-    // Filter properties - only handle UI state, not actual filtering
+    // Filter properties
     public $searchTerm = '';
     public $selectedRooms = '';
     public $selectedCity = '';
     public $selectedType = '';
 
-    // Loading states for each filter
+    // Loading states
     public $searchLoading = false;
     public $roomsLoading = false;
     public $cityLoading = false;
     public $typeLoading = false;
     public $resetLoading = false;
+
+    // ✅ NEW: Search History
+    public $recentSearches = [];
 
     protected $listeners = [
         'syncFilters' => 'syncFilters',
@@ -36,7 +39,9 @@ class UserHeader extends Component
     {
         $this->pageSlug = $pageSlug;
 
-        // Initialize filters from URL parameters if on home page
+        // Load search history from session
+        $this->recentSearches = Session::get('recentSearches', []);
+
         if ($pageSlug === 'home') {
             $this->searchTerm = request()->get('search', '');
             $this->selectedRooms = request()->get('rooms', '');
@@ -46,8 +51,46 @@ class UserHeader extends Component
     }
 
     /**
-     * Sync filters from Home component
+     * Trigger search manually (when user clicks ✅ button)
      */
+    public function performSearch()
+    {
+        $term = trim($this->searchTerm);
+        if (!empty($term)) {
+            $history = Session::get('recentSearches', []);
+
+            // Remove if exists (avoid duplicates)
+            $history = array_filter($history, fn($item) => $item !== $term);
+
+            // Add at the beginning
+            array_unshift($history, $term);
+
+            // Limit to 10 items
+            $history = array_slice($history, 0, 10);
+
+            Session::put('recentSearches', $history);
+            $this->recentSearches = $history;
+        }
+
+        // Navigate with filters after saving search
+        $this->navigateWithFilters();
+    }
+
+    public function removeSearch($term)
+    {
+        $history = Session::get('recentSearches', []);
+        $history = array_values(array_filter($history, fn($item) => $item !== $term));
+
+        Session::put('recentSearches', $history);
+        $this->recentSearches = $history;
+    }
+
+    public function clearSearches()
+    {
+        Session::forget('recentSearches');
+        $this->recentSearches = [];
+    }
+
     public function syncFilters($filters)
     {
         $this->searchTerm = $filters['searchTerm'] ?? '';
@@ -55,24 +98,14 @@ class UserHeader extends Component
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
 
-        // Reset all loading states
         $this->resetLoadingStates();
     }
 
-    /**
-     * Handle search term updates with loading state and URL navigation
-     */
     public function updatedSearchTerm()
     {
-        if ($this->pageSlug === 'home') {
-            $this->searchLoading = true;
-            $this->navigateWithFilters();
-        }
+        // 🚫 Disabled auto search — now search runs only when user clicks ✅
     }
 
-    /**
-     * Handle rooms filter updates with loading state and URL navigation
-     */
     public function updatedSelectedRooms()
     {
         if ($this->pageSlug === 'home') {
@@ -81,9 +114,6 @@ class UserHeader extends Component
         }
     }
 
-    /**
-     * Handle city filter updates with loading state and URL navigation
-     */
     public function updatedSelectedCity()
     {
         if ($this->pageSlug === 'home') {
@@ -92,9 +122,6 @@ class UserHeader extends Component
         }
     }
 
-    /**
-     * Handle type filter updates with loading state and URL navigation
-     */
     public function updatedSelectedType()
     {
         if ($this->pageSlug === 'home') {
@@ -103,55 +130,30 @@ class UserHeader extends Component
         }
     }
 
-    /**
-     * Navigate to home with current filter parameters as query strings
-     */
     private function navigateWithFilters()
     {
         $queryParams = [];
 
-        if (!empty($this->searchTerm)) {
-            $queryParams['search'] = $this->searchTerm;
-        }
+        if (!empty($this->searchTerm)) $queryParams['search'] = $this->searchTerm;
+        if (!empty($this->selectedRooms)) $queryParams['rooms'] = $this->selectedRooms;
+        if (!empty($this->selectedCity)) $queryParams['city'] = $this->selectedCity;
+        if (!empty($this->selectedType)) $queryParams['type'] = $this->selectedType;
 
-        if (!empty($this->selectedRooms)) {
-            $queryParams['rooms'] = $this->selectedRooms;
-        }
-
-        if (!empty($this->selectedCity)) {
-            $queryParams['city'] = $this->selectedCity;
-        }
-
-        if (!empty($this->selectedType)) {
-            $queryParams['type'] = $this->selectedType;
-        }
-
-        // Build URL with query parameters
         $url = route('home');
         if (!empty($queryParams)) {
             $url .= '?' . http_build_query($queryParams);
         }
 
-        // Navigate to the URL with wire:navigate
         $this->redirect($url, navigate: true);
     }
 
-    /**
-     * Reset all filters with loading state
-     */
     public function resetAllFilters()
     {
         $this->resetLoading = true;
-
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
-
-        // Navigate to clean home URL
         return $this->redirect(route('home'), navigate: true);
     }
 
-    /**
-     * Reset all loading states
-     */
     private function resetLoadingStates()
     {
         $this->searchLoading = false;
