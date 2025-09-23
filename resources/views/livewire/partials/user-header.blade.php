@@ -353,109 +353,118 @@
         </div>
     @endif
 
-    {{-- Filter Modal - Enhanced for Mobile --}}
-    @if ($showFilterModal)
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
-            wire:click.self="closeFilterModal">
-            <div
-                class="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
-                {{-- Modal Header --}}
-                <div class="flex justify-between items-center mb-6 flex-shrink-0">
-                    <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
-                    <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+  {{-- Fixed Filter Modal Section - Replace the existing filter modal in your blade template --}}
+{{-- Fixed Filter Modal Section - Replace the existing filter modal in your blade template --}}
+@if ($showFilterModal)
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
+        wire:click.self="closeFilterModal">
+        <div
+            class="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
+            {{-- Modal Header --}}
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
+                <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
 
-                {{-- Modal Body: Scrollable --}}
-                <div class="flex-1 overflow-y-auto scroll-smooth space-y-6">
+            {{-- Modal Body: Scrollable --}}
+            <div class="flex-1 overflow-y-auto scroll-smooth space-y-6">
 
-                    {{-- Rooms Filter --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
-                                    </path>
-                                </svg>
-                                Rooms
-                            </span>
-                        </label>
-                        <div class="flex flex-wrap gap-2">
-                            <button wire:click="clearSelectedRooms"
-                                class="px-4 py-2 rounded-full border transition-colors {{ empty($selectedRooms) || $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                                All
-                            </button>
-                            @for ($room = 1; $room <= 4; $room++)
-                                <button wire:click="toggleRoom('{{ $room }}')"
-                                    class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected($room) ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                                    {{ $room }}
-                                </button>
-                            @endfor
-                            <button wire:click="toggleRoom('5+')"
-                                class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected('5+') ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                                5+
-                            </button>
-                        </div>
-                    </div>
-
-                    <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span class="text-2xl font-black text-orange-600">+</span>Searchable dropdown+ for cities
-                    </p>
-
-                    <div class="flex flex-col space-y-2">
-                        <select wire:model="selectedCity"
-                            class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
-                            <option value="">All Cities</option>
-                            @foreach ($cities as $id => $name)
-                                <option value="{{ $id }}">{{ $name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Property Type Filter --}}
-                    <div>
-                        <div class="flex border-2 border-gray-300 rounded-full overflow-hidden">
-                            <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_SALE }}')"
-                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
-                                FOR SALE
-                            </button>
-                            <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_RENT }}')"
-                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
-                                FOR RENT
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                {{-- Modal Actions --}}
-                <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-4 flex-shrink-0">
-                    <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                        class="bg-orange-600 text-white w-16 h-16 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                            </path>
-                        </svg>
-                    </button>
-
-                    @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
-                        <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                            class="w-16 h-16 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4l16 16M4 16L16 4"></path>
+                {{-- Rooms Filter --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+                                </path>
                             </svg>
+                            Rooms
+                        </span>
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button wire:click="clearSelectedRooms"
+                            class="px-4 py-2 rounded-full border transition-colors {{ empty($selectedRooms) || $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                            All
+                        </button>
+                        @for ($room = 1; $room <= 4; $room++)
+                            <button wire:click="toggleRoom('{{ $room }}')"
+                                class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected($room) ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                {{ $room }}
+                            </button>
+                        @endfor
+                        <button wire:click="toggleRoom('5+')"
+                            class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected('5+') ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                            5+
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span class="text-2xl font-black text-orange-600">+</span>Searchable dropdown for cities
+                </p>
+
+                {{-- FIXED: City Filter with proper wire:model --}}
+                <div class="flex flex-col space-y-2">
+                    <select wire:model.live="selectedCity"
+                        class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
+                        <option value="">All Cities</option>
+                        @foreach ($cities as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- FIXED: Property Type Filter with proper methods --}}
+                <div>
+                    <div class="flex border-2 border-gray-300 rounded-full overflow-hidden">
+                        <button wire:click="setPropertyType('{{ \App\Models\Product::TYPE_SALE }}')"
+                            class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
+                            FOR SALE
+                        </button>
+                        <button wire:click="setPropertyType('{{ \App\Models\Product::TYPE_RENT }}')"
+                            class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
+                            FOR RENT
+                        </button>
+                    </div>
+                    {{-- FIXED: Add clear type option --}}
+                    @if (!empty($selectedType))
+                        <button wire:click="clearPropertyType" 
+                            class="w-full mt-2 px-4 py-2 text-sm text-gray-600 hover:text-orange-600 transition-colors">
+                            Clear Type Selection
                         </button>
                     @endif
                 </div>
+
+            </div>
+
+            {{-- Modal Actions --}}
+            <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-4 flex-shrink-0">
+                <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                    class="bg-orange-600 text-white w-16 h-16 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                        </path>
+                    </svg>
+                </button>
+
+                @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
+                    <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                        class="w-16 h-16 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4l16 16M4 16L16 4"></path>
+                        </svg>
+                    </button>
+                @endif
             </div>
         </div>
-    @endif
+    </div>
+@endif
 
     <!-- Loading Overlay for Page Navigation -->
     <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"

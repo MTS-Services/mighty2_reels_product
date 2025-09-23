@@ -1,5 +1,5 @@
 <?php
-// Updated UserHeader.php Component
+// Fixed UserHeader.php Component
 namespace App\Livewire\Partials;
 
 use App\Models\City;
@@ -15,14 +15,14 @@ class UserHeader extends Component
     public bool $openProfileDropdown = false;
     public bool $filterOpen = false;
     
-    // ✅ Modal states
+    // Modal states
     public bool $showFilterModal = false;
-    public bool $showSearchModal = false; // NEW: Search modal state
+    public bool $showSearchModal = false;
 
     // Filter properties
     public $searchTerm = '';
     public $selectedRooms = '';
-    public $selectedRoomsArray = []; // ✅ NEW: Array-based room selection
+    public $selectedRoomsArray = [];
     public $selectedCity = '';
     public $selectedType = '';
 
@@ -53,12 +53,12 @@ class UserHeader extends Component
             $this->selectedCity = request()->get('city', '');
             $this->selectedType = request()->get('type', '');
             
-            // ✅ Convert comma-separated rooms string to array
+            // Convert comma-separated rooms string to array
             $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
         }
     }
 
-    // ✅ Filter Modal methods
+    // Filter Modal methods
     public function openFilterModal()
     {
         $this->showFilterModal = true;
@@ -75,7 +75,7 @@ class UserHeader extends Component
         $this->navigateWithFilters();
     }
 
-    // ✅ NEW: Search Modal methods
+    // Search Modal methods
     public function openSearchModal()
     {
         $this->showSearchModal = true;
@@ -87,30 +87,38 @@ class UserHeader extends Component
     }
 
     /**
-     * Trigger search manually (when user clicks ✅ button)
+     * Trigger search manually (when user clicks search button)
      */
     public function performSearch()
     {
         $term = trim($this->searchTerm);
         if (!empty($term)) {
-            $history = Session::get('recentSearches', []);
-
-            // Remove if exists (avoid duplicates)
-            $history = array_filter($history, fn($item) => $item !== $term);
-
-            // Add at the beginning
-            array_unshift($history, $term);
-
-            // Limit to 10 items
-            $history = array_slice($history, 0, 10);
-
-            Session::put('recentSearches', $history);
-            $this->recentSearches = $history;
+            $this->addToSearchHistory($term);
         }
 
         // Close search modal and navigate with filters
         $this->showSearchModal = false;
         $this->navigateWithFilters();
+    }
+
+    /**
+     * Add search term to history
+     */
+    private function addToSearchHistory($term)
+    {
+        $history = Session::get('recentSearches', []);
+
+        // Remove if exists (avoid duplicates)
+        $history = array_filter($history, fn($item) => $item !== $term);
+
+        // Add at the beginning
+        array_unshift($history, $term);
+
+        // Limit to 10 items
+        $history = array_slice($history, 0, 10);
+
+        Session::put('recentSearches', $history);
+        $this->recentSearches = $history;
     }
 
     public function removeSearch($term)
@@ -129,7 +137,35 @@ class UserHeader extends Component
     }
 
     /**
-     * ✅ Toggle room selection
+     * Set property type and apply filters
+     */
+    public function setPropertyType($type)
+    {
+        $this->selectedType = $type;
+        
+        // Apply filters immediately if on home page and NOT in modal
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Clear property type
+     */
+    public function clearPropertyType()
+    {
+        $this->selectedType = '';
+        
+        // Apply filters immediately if on home page and NOT in modal
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Toggle room selection
      */
     public function toggleRoom($room)
     {
@@ -147,7 +183,7 @@ class UserHeader extends Component
         // Update the selectedRooms string
         $this->selectedRooms = implode(',', $this->selectedRoomsArray);
 
-        // Apply filters if on home page and not in modal
+        // Apply filters immediately if on home page and NOT in modal
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->roomsLoading = true;
             $this->navigateWithFilters();
@@ -155,13 +191,14 @@ class UserHeader extends Component
     }
 
     /**
-     * ✅ Clear all room selections
+     * Clear all room selections
      */
     public function clearSelectedRooms()
     {
         $this->selectedRoomsArray = [];
         $this->selectedRooms = '';
 
+        // Apply filters immediately if on home page and NOT in modal
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->roomsLoading = true;
             $this->navigateWithFilters();
@@ -169,7 +206,7 @@ class UserHeader extends Component
     }
 
     /**
-     * ✅ Check if a room is selected
+     * Check if a room is selected
      */
     public function isRoomSelected($room)
     {
@@ -183,25 +220,35 @@ class UserHeader extends Component
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
 
-        // ✅ Convert comma-separated rooms string to array
+        // Convert comma-separated rooms string to array
         $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
 
         $this->resetLoadingStates();
     }
 
+    // FIXED: Re-enable auto-apply for search term
     public function updatedSearchTerm()
     {
-        // 🚫 Disabled auto search — now search runs only when user clicks ✅
+        // Only auto-search if NOT in modal and search term is not empty
+        if ($this->pageSlug === 'home' && !$this->showSearchModal && !empty(trim($this->searchTerm))) {
+            $this->addToSearchHistory(trim($this->searchTerm));
+            $this->searchLoading = true;
+            $this->navigateWithFilters();
+        }
     }
 
     public function updatedSelectedRooms()
     {
+        // Update array when string changes (from URL or other sources)
+        $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
+        
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->roomsLoading = true;
             $this->navigateWithFilters();
         }
     }
 
+    // FIXED: Re-enable auto-apply for city selection
     public function updatedSelectedCity()
     {
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
@@ -210,6 +257,7 @@ class UserHeader extends Component
         }
     }
 
+    // FIXED: Re-enable auto-apply for type selection
     public function updatedSelectedType()
     {
         if ($this->pageSlug === 'home' && !$this->showFilterModal) {
@@ -218,6 +266,9 @@ class UserHeader extends Component
         }
     }
 
+    /**
+     * Navigate with current filter state
+     */
     private function navigateWithFilters()
     {
         $queryParams = [];
@@ -235,14 +286,25 @@ class UserHeader extends Component
         $this->redirect($url, navigate: true);
     }
 
+    /**
+     * Reset all filters and navigate to clean home page
+     */
     public function resetAllFilters()
     {
         $this->resetLoading = true;
-        $this->selectedRoomsArray = []; // ✅ Clear array as well
+        $this->selectedRoomsArray = [];
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
+        
+        // Close any open modals
+        $this->showFilterModal = false;
+        $this->showSearchModal = false;
+        
         return $this->redirect(route('home'), navigate: true);
     }
 
+    /**
+     * Reset loading states
+     */
     private function resetLoadingStates()
     {
         $this->searchLoading = false;
@@ -252,6 +314,9 @@ class UserHeader extends Component
         $this->resetLoading = false;
     }
 
+    /**
+     * User logout
+     */
     public function logout()
     {
         Auth::guard('web')->logout();

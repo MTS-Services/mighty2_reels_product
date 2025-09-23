@@ -561,10 +561,10 @@
                                         class="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
                                         Clear Filters
                                     </button>
-                                    <button @click="$wire.refreshReels()"
+                                    {{-- <button @click="$wire.refreshReels()"
                                         class="block mx-auto text-orange-500 hover:text-orange-600 transition-colors underline">
                                         Refresh Content
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
                         </div>
