@@ -22,6 +22,7 @@ class UserHeader extends Component
     // Filter properties
     public $searchTerm = '';
     public $selectedRooms = '';
+    public $selectedRoomsArray = []; // ✅ NEW: Array-based room selection
     public $selectedCity = '';
     public $selectedType = '';
 
@@ -51,6 +52,9 @@ class UserHeader extends Component
             $this->selectedRooms = request()->get('rooms', '');
             $this->selectedCity = request()->get('city', '');
             $this->selectedType = request()->get('type', '');
+            
+            // ✅ Convert comma-separated rooms string to array
+            $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
         }
     }
 
@@ -124,12 +128,63 @@ class UserHeader extends Component
         $this->recentSearches = [];
     }
 
+    /**
+     * ✅ Toggle room selection
+     */
+    public function toggleRoom($room)
+    {
+        if (in_array($room, $this->selectedRoomsArray)) {
+            // Remove room from selection
+            $this->selectedRoomsArray = array_values(array_filter(
+                $this->selectedRoomsArray,
+                fn($r) => $r != $room
+            ));
+        } else {
+            // Add room to selection
+            $this->selectedRoomsArray[] = $room;
+        }
+
+        // Update the selectedRooms string
+        $this->selectedRooms = implode(',', $this->selectedRoomsArray);
+
+        // Apply filters if on home page and not in modal
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->roomsLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * ✅ Clear all room selections
+     */
+    public function clearSelectedRooms()
+    {
+        $this->selectedRoomsArray = [];
+        $this->selectedRooms = '';
+
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
+            $this->roomsLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * ✅ Check if a room is selected
+     */
+    public function isRoomSelected($room)
+    {
+        return in_array($room, $this->selectedRoomsArray);
+    }
+
     public function syncFilters($filters)
     {
         $this->searchTerm = $filters['searchTerm'] ?? '';
         $this->selectedRooms = $filters['selectedRooms'] ?? '';
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
+
+        // ✅ Convert comma-separated rooms string to array
+        $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
 
         $this->resetLoadingStates();
     }
@@ -183,6 +238,7 @@ class UserHeader extends Component
     public function resetAllFilters()
     {
         $this->resetLoading = true;
+        $this->selectedRoomsArray = []; // ✅ Clear array as well
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
         return $this->redirect(route('home'), navigate: true);
     }

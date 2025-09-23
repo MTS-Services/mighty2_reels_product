@@ -36,6 +36,9 @@ class Home extends Component
     #[Url(as: 'type', except: '')]
     public $selectedType = '';
 
+    // Room selection array for multiple room selection
+    public $selectedRoomsArray = [];
+
     // Loading state
     public $isLoading = false;
 
@@ -46,6 +49,9 @@ class Home extends Component
 
     public function mount()
     {
+        // Convert comma-separated rooms string to array
+        $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
+        
         // Sync initial URL parameters with UserHeader component
         $this->dispatch('syncFilters', [
             'searchTerm' => $this->searchTerm,
@@ -64,6 +70,11 @@ class Home extends Component
     public function updated($property)
     {
         if (in_array($property, ['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType'])) {
+            // Update selectedRoomsArray when selectedRooms URL parameter changes
+            if ($property === 'selectedRooms') {
+                $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
+            }
+            
             $this->loadVideos();
 
             // Dispatch to header component to keep it in sync
@@ -77,6 +88,42 @@ class Home extends Component
     }
 
     /**
+     * Toggle room selection
+     */
+    public function toggleRoom($room)
+    {
+        if (in_array($room, $this->selectedRoomsArray)) {
+            // Remove room from selection
+            $this->selectedRoomsArray = array_values(array_filter($this->selectedRoomsArray, function($r) use ($room) {
+                return $r != $room;
+            }));
+        } else {
+            // Add room to selection
+            $this->selectedRoomsArray[] = $room;
+        }
+        
+        // Update the URL parameter
+        $this->selectedRooms = implode(',', $this->selectedRoomsArray);
+    }
+
+    /**
+     * Clear all room selections
+     */
+    public function clearSelectedRooms()
+    {
+        $this->selectedRoomsArray = [];
+        $this->selectedRooms = '';
+    }
+
+    /**
+     * Check if a room is selected
+     */
+    public function isRoomSelected($room)
+    {
+        return in_array($room, $this->selectedRoomsArray);
+    }
+
+    /**
      * Apply filters coming from UserHeader component (via event dispatch)
      * This method won't be needed anymore since we're using URL navigation
      */
@@ -86,7 +133,11 @@ class Home extends Component
         $this->selectedRooms = $filters['selectedRooms'] ?? '';
         $this->selectedCity = $filters['selectedCity'] ?? '';
         $this->selectedType = $filters['selectedType'] ?? '';
+        
+        // Update selectedRoomsArray
+        $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
     }
+
     public function loadVideos()
     {
         $this->isLoading = true;
@@ -109,9 +160,19 @@ class Home extends Component
             });
         }
 
-        // Room filter
-        if (!empty($this->selectedRooms)) {
-            $query->where('room', $this->selectedRooms);
+        // Room filter - Updated to handle multiple selections
+        if (!empty($this->selectedRoomsArray)) {
+            $query->where(function ($q) {
+                foreach ($this->selectedRoomsArray as $room) {
+                    if ($room === '5+') {
+                        // For 5+, show all rooms that are 5 or greater
+                        $q->orWhere('room', '>=', 5);
+                    } else {
+                        // For specific room numbers (1-4), show exact match
+                        $q->orWhere('room', $room);
+                    }
+                }
+            });
         }
 
         // City filter
@@ -176,6 +237,7 @@ class Home extends Component
 
     public function resetFilters()
     {
+        $this->selectedRoomsArray = [];
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
 
         // Clear URL parameters by redirecting to clean URL

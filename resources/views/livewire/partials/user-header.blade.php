@@ -302,9 +302,9 @@
                 {{-- Search Input --}}
                 <div class="relative">
                     <input type="search" wire:model.live.debounce.500ms="searchTerm"
-                                placeholder="Search for products..."
-                                class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
-                                wire:loading.class="opacity-50" wire:target="searchTerm" />
+                        placeholder="Search for products..."
+                        class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
+                        wire:loading.class="opacity-50" wire:target="searchTerm" />
                 </div>
 
                 {{-- Show Recent Searches ONLY if searchTerm is empty --}}
@@ -355,10 +355,10 @@
 
     {{-- Filter Modal - Enhanced for Mobile --}}
     @if ($showFilterModal)
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
             wire:click.self="closeFilterModal">
 
-            <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col"
+            <div class="bg-white rounded-2xl p-2 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col"
                 wire:click.stop>
 
                 {{-- Modal Header --}}
@@ -373,7 +373,7 @@
                 </div>
 
                 {{-- Modal Body: Scrollable --}}
-                <div class="flex-1 overflow-y-auto scroll-smooth pr-2 space-y-6">
+                <div class="flex-1 overflow-y-auto scroll-smooth  space-y-6">
 
                     {{-- Rooms Filter --}}
                     <div>
@@ -388,19 +388,22 @@
                             </span>
                         </label>
                         <div class="flex flex-wrap gap-2">
-                            <button wire:click="$set('selectedRooms', '')"
-                                class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                            <button wire:click="clearSelectedRooms"
+                                class="px-4 py-2 rounded-full border transition-colors {{ empty($selectedRooms) || $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
                                 All
                             </button>
-                            @for ($room = 1; $room <= $maxRooms; $room++)
-                                <button wire:click="$set('selectedRooms', '{{ $room }}')"
-                                    class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == $room ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                                    {{ $room }}{{ $room > 4 ? '+' : '' }}
+                            @for ($room = 1; $room <= 4; $room++)
+                                <button wire:click="toggleRoom('{{ $room }}')"
+                                    class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected($room) ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                    {{ $room }}
                                 </button>
                             @endfor
+                            <button wire:click="toggleRoom('5+')"
+                                class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected('5+') ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                5+
+                            </button>
                         </div>
                     </div>
-
                     {{-- Cities Filter --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">
