@@ -9,7 +9,7 @@
                 <nav class=" items-center hidden sm:flex justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex w-[140px] items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
-                        <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
+                        <span class="text-[24px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
 
                     {{-- Desktop Navigation --}}
