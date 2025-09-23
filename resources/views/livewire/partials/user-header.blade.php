@@ -133,7 +133,7 @@
         </header>
 
         {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-        @if ($pageSlug == 'home')
+       @if ($pageSlug == 'home' || $pageSlug == 'product')
             <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
                 <!-- Logo centered -->
                 <a href="{{ route('home') }}" wire:navigate
@@ -149,6 +149,8 @@
                     </x-button>
                 </div>
             </div>
+        @endif
+        @if ($pageSlug == 'home')
             <div class="sm:hidden fixed right-4 bottom-1/5 transform -translate-y-1/2 z-40 flex flex-col gap-3">
                 {{-- Reset Filters Button (only show when filters are active) --}}
                 @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
@@ -358,7 +360,7 @@
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
             wire:click.self="closeFilterModal">
             <div
-                class="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
+                class="bg-white rounded-2xl p-4 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
                 {{-- Modal Header --}}
                 <div class="flex justify-between items-center mb-6 flex-shrink-0">
                     <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
@@ -408,9 +410,9 @@
                     </p>
 
                     {{-- FIXED: City Filter with proper wire:model --}}
-                    <div class="flex flex-col space-y-2">
+                    <div class="flex flex-col space-y-2 px-4">
                         <select wire:model.live="selectedCity"
-                            class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
+                            class="w-full px-2 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
                             <option value="">All Cities</option>
                             @foreach ($cities as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
@@ -420,25 +422,28 @@
 
                     {{-- FIXED: Property Type Filter with multiple approaches --}}
                     <div>
-                        <div class="flex border-2 border-gray-300 rounded-full overflow-hidden">
+                        <div class="flex border border-gray-300 rounded-lg overflow-hidden w-[80%]  mx-auto">
+                            <!-- For Sale Button -->
                             <button wire:click="setForSale"
-                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == 'sale' || $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
+                                class="flex-1 px-4 py-4 text-sm font-bold transition-colors  {{ $selectedType == 'sale' || $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-400 text-white' : 'bg-white text-orange-500' }}">
                                 FOR SALE
                             </button>
+
+                            <!-- For Rent Button -->
                             <button wire:click="setForRent"
-                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == 'rent' || $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
+                                class="flex-1 px-4 py-4 text-sm font-bold transition-colors {{ $selectedType == 'rent' || $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-400 text-white' : 'bg-white text-orange-500' }}">
                                 FOR RENT
                             </button>
                         </div>
-                      
                     </div>
+
 
                 </div>
 
                 {{-- Modal Actions --}}
-                <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-4 flex-shrink-0">
+                <div class="flex justify-between items-center pt-6  border-gray-200 mt-4 flex-shrink-0">
                     <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                        class="bg-orange-600 text-white w-16 h-16 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
+                        class="bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
                             </path>
@@ -447,7 +452,7 @@
 
                     @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
                         <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                            class="w-16 h-16 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                            class="w-12 h-12 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 4l16 16M4 16L16 4"></path>

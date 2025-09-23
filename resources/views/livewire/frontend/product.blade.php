@@ -1,4 +1,4 @@
-<section class=" max-w-7xl mx-auto px-1 pt-1 sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class=" max-w-7xl mx-auto   sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     <style>
         .progress-bar {
             background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -216,7 +216,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute top-4 lg:right-8 right-2 z-5 rounded-full">
+                class="absolute top-16 sm:top-4 lg:right-8 right-4 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -257,7 +257,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-0 lg:right-6 right-2 z-5 rounded-full">
+                    class="absolute top-16 sm:top-4 lg:right-6 right-4 z-5 rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -279,10 +279,10 @@
             </div>
         </div>
 
-        <div class="relative w-full mx-auto h-full mt-1 sm:mt-0 scrollbar-hide"
+        <div class="relative w-full mx-auto h-full  sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-screen sm:h-[calc(100vh-130px)]  space-y-6 scroll-smooth">
 
                 <template x-for="(video, index) in (allMediaItems || [])"
                     :key="`media-${video.id}-${video.type}-${video.reel_id || video.image_id || index}-${index}`">
@@ -292,7 +292,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl rounded-2xl transition-all duration-600 relative h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative h-screen sm:h-[calc(100vh-130px)] max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-5">
@@ -445,7 +445,7 @@
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[calc(100vh-120px)] flex flex-col max-w-lg">
+                class="h-screen sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
                 <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
