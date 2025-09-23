@@ -341,7 +341,7 @@
                 </template>
 
                 <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-130px)] pt-0.5 space-y-6 scroll-smooth">
+                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-[calc(100vh-80px)] pt-0.5 space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
                         <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
@@ -351,7 +351,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-130px)] max-w-lg rounded-xl max-h-[1100px]">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-[calc(100vh-80px)] max-w-lg rounded-xl max-h-[1100px]">
 
                                     <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-40">

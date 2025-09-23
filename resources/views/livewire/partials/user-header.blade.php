@@ -12,6 +12,7 @@
                         <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
 
+                    {{-- Desktop Navigation --}}
                     <div class="items-center gap-9 w-[600px] -mr-10 hidden lg:flex justify-between">
                         @if ($pageSlug == 'home' || $pageSlug == 'favorites' || $pageSlug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
@@ -22,7 +23,6 @@
                         {{-- Filter Button for Home Page --}}
                         @if ($pageSlug == 'home')
                             <div class="flex items-center gap-4 justify-end">
-                                {{-- ✅ UPDATED: Use wire:click instead of x-on:click --}}
                                 <button wire:click="openSearchModal"
                                     class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -53,6 +53,7 @@
                         @endif
                     </div>
 
+                    {{-- Desktop User Profile/Auth --}}
                     @if (Auth::check())
                         <div class="hidden lg:flex items-center gap-4 relative py-2 {{ $pageSlug == 'Favorites' || $pageSlug == 'profile' ? 'ml-auto' : '' }}"
                             x-on:click.away="openProfileDropdown = false">
@@ -94,8 +95,7 @@
                             </div>
                         </div>
                     @else
-                        <div
-                            class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2 ">
+                        <div class="px-4 hidden lg:block flex {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2 ">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
@@ -117,14 +117,115 @@
                         </div>
                     @endif
 
-                    <div class="flex items-center gap-4">
-                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
-                            <flux:icon name="bars-4" />
-                        </x-button>
-                    </div>
+                    {{-- Mobile Menu Button - Only show on non-home pages --}}
+                    @if ($pageSlug !== 'home')
+                        <div class="flex items-center gap-4">
+                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
+                                <flux:icon name="bars-4" />
+                            </x-button>
+                        </div>
+                    @endif
                 </nav>
             </div>
         </header>
+
+        {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+        @if ($pageSlug == 'home')
+            <div class="sm:hidden fixed right-4 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-4">
+                {{-- Search Button --}}
+                <x-button wire:click="openSearchModal" variant="secondary"
+                    class="w-12 h-12  backdrop-blur-sm  rounded-full! flex items-center justify-center  transition-all duration-200 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
+                    </svg>
+                </x-button>
+
+                {{-- Filter Button --}}
+                <x-button wire:click="openFilterModal" variant="secondary"
+                    class="w-12 h-12  backdrop-blur-sm  rounded-full! flex items-center justify-center  transition-all duration-200 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    </svg>
+                </x-button>
+
+                {{-- Profile/Auth Button --}}
+                @if (Auth::check())
+                    <div class="relative" x-data="{ showMobileProfile: false }">
+                        <button @click="showMobileProfile = !showMobileProfile"
+                            class="w-12 h-12 bg-gray-900/70 backdrop-blur-sm rounded-full overflow-hidden flex items-center justify-center hover:bg-gray-900/80 transition-all duration-200 shadow-lg">
+                            <img src="{{ asset('assets/images/profile.jpg') }}" alt="Profile"
+                                class="w-10 h-10 rounded-full object-cover">
+                        </button>
+
+                        {{-- Mobile Profile Dropdown --}}
+                        <div x-show="showMobileProfile" x-cloak @click.away="showMobileProfile = false"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform scale-95 translate-x-4"
+                            x-transition:enter-end="opacity-100 transform scale-100 translate-x-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 transform scale-100 translate-x-0"
+                            x-transition:leave-end="opacity-0 transform scale-95 translate-x-4"
+                            class="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-xl border py-2 z-50">
+                            
+                            <div class="px-4 py-2 border-b">
+                                <p class="text-sm font-medium text-gray-900">{{ user()->full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ user()->email }}</p>
+                            </div>
+
+                            <a href="{{ route('profile') }}" wire:navigate
+                                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Profile
+                            </a>
+
+                            @if (is_admin())
+                                <a href="{{ route('admin.products') }}" wire:navigate
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                    Dashboard
+                                </a>
+                            @endif
+
+                            <button wire:click="logout"
+                                class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" wire:navigate
+                        class="w-12 h-12 bg-gray-900/70 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-gray-900/80 transition-all duration-200 shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </a>
+                @endif
+
+                {{-- Reset Filters Button (only show when filters are active) --}}
+                @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
+                    <button wire:click="resetAllFilters"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
+                        class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 transition-all duration-200 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                    </button>
+                @endif
+            </div>
+        @endif
 
         {{-- Sidebar --}}
         <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
@@ -167,19 +268,6 @@
                                 <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
                             </x-button>
 
-                            {{-- Mobile Filter Button --}}
-                            @if ($pageSlug == 'home')
-                                <x-button wire:click="openFilterModal"
-                                    class="text-black !px-2 !py-1 w-full justify-start" size="lg" linkText>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-                                    </svg>
-                                    FILTER
-                                </x-button>
-                            @endif
-
                             <flux:spacer />
                             <flux:separator variant="subtle" class="my-2" />
                             <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
@@ -212,9 +300,9 @@
             </div>
         </aside>
 
-        {{-- Search Area --}}
+        {{-- Remove desktop search area for mobile --}}
         @if ($pageSlug == 'home')
-            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area"
+            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area hidden lg:block"
                 x-data="{ filterOpen: @entangle('filterOpen').live }">
 
                 <div class="flex items-center gap-4">
@@ -235,152 +323,201 @@
         @endif
     </div>
 
-    {{-- ✅ UPDATED: Search Modal - Now controlled by Livewire --}}
+    {{-- Search Modal - Enhanced for Mobile --}}
     @if ($showSearchModal)
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             wire:click.self="closeSearchModal">
 
-            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[30vh] p-4 space-y-3" wire:click.stop>
-                <div class="relative">
-                    <input type="search" wire:model="searchTerm" placeholder="Search for products..."
-                        class="w-full px-4 py-2 rounded-full border border-orange-400 text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-100 placeholder:text-orange-400" />
+            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[40vh] p-4 space-y-4 lg:max-w-xl" wire:click.stop>
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Search Properties</h3>
+                    <button wire:click="closeSearchModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
 
+                {{-- Search Input --}}
+                <div class="relative">
+                    <input type="search" wire:model="searchTerm" placeholder="Search for properties, locations, price..."
+                        class="w-full px-4 py-3 rounded-full border-2 border-orange-200 text-gray-900 focus:ring-2 focus:ring-orange-normal focus:border-orange-normal bg-gray-50 placeholder:text-gray-400 text-base" 
+                        autofocus />
+                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                {{-- Recent Searches --}}
                 @if (!empty($recentSearches))
-                    <div class="bg-gray-100 rounded-lg p-2 max-h-40 overflow-y-auto">
-                        <div class="flex justify-between items-center mb-1">
-                            <p class="text-sm text-orange-500">Recent searches:</p>
+                    <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-sm font-medium text-gray-700">Recent searches:</p>
                             <button wire:click="clearSearches"
-                                class="text-xs text-gray-500 hover:text-red-500">Clear All</button>
+                                class="text-xs text-gray-500 hover:text-red-500 font-medium">Clear All</button>
                         </div>
-                        @foreach ($recentSearches as $search)
-                            <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-200 rounded">
-                                <button type="button" class="flex-1 text-black text-left"
-                                    wire:click="$set('searchTerm', '{{ $search }}')">
-                                    {{ $search }}
-                                </button>
-                                <button type="button" wire:click="removeSearch('{{ $search }}')"
-                                    class="ml-2 text-xs text-gray-500 hover:text-red-500">✕</button>
-                            </div>
-                        @endforeach
+                        <div class="space-y-1">
+                            @foreach ($recentSearches as $search)
+                                <div class="flex items-center justify-between px-3 py-2 hover:bg-white rounded-md group">
+                                    <button type="button" class="flex-1 text-gray-800 text-left font-medium"
+                                        wire:click="$set('searchTerm', '{{ $search }}')">
+                                        <svg class="w-4 h-4 inline mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ $search }}
+                                    </button>
+                                    <button type="button" wire:click="removeSearch('{{ $search }}')"
+                                        class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
 
-                <div class="flex justify-between items-center absolute bottom-4 left-4 right-4">
+                {{-- Action Buttons --}}
+                <div class="flex justify-between items-center pt-2">
                     <button type="button" wire:click="performSearch"
-                        class="w-10 h-10 flex items-center justify-center rounded-full bg-orange-500 text-white hover:bg-orange-600">
-                        ✓
+                        class="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Search
                     </button>
                     <button type="button" wire:click="closeSearchModal"
-                        class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100">
-                        ✕
+                        class="px-6 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                        Cancel
                     </button>
                 </div>
             </div>
         </div>
     @endif
 
-    {{-- Filter Modal - Outside all other containers --}}
- @if ($showFilterModal)
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
-        wire:click.self="closeFilterModal">
-        
-        <div 
-            class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden"
-            wire:click.stop
-        >
-            {{-- Modal Header --}}
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-orange-normal">FILTER</h2>
-                <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            {{-- Modal Body: Scrollable --}}
-            <div class="max-h-[70vh] overflow-y-auto scroll-smooth pr-2 space-y-6">
+    {{-- Filter Modal - Enhanced for Mobile --}}
+    @if ($showFilterModal)
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
+            wire:click.self="closeFilterModal">
+            
+            <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col"
+                wire:click.stop>
                 
-                {{-- Rooms Filter --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
-                                </path>
-                            </svg>
-                            All rooms or multiple options
-                        </span>
-                    </label>
-                    <div class="flex flex-wrap gap-2">
-                        <button wire:click="$set('selectedRooms', '')"
-                            class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                            All Rooms
-                        </button>
-                        @for ($room = 1; $room <= $maxRooms; $room++)
-                            <button wire:click="$set('selectedRooms', '{{ $room }}')"
-                                class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == $room ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
-                                {{ $room }}{{ $room > 4 ? '+' : '' }}
+                {{-- Modal Header --}}
+                <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                    <h2 class="text-xl font-bold text-orange-normal">FILTER</h2>
+                    <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Modal Body: Scrollable --}}
+                <div class="flex-1 overflow-y-auto scroll-smooth pr-2 space-y-6">
+                    
+                    {{-- Rooms Filter --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+                                    </path>
+                                </svg>
+                                Rooms
+                            </span>
+                        </label>
+                        <div class="flex flex-wrap gap-2">
+                            <button wire:click="$set('selectedRooms', '')"
+                                class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                All
                             </button>
-                        @endfor
+                            @for ($room = 1; $room <= $maxRooms; $room++)
+                                <button wire:click="$set('selectedRooms', '{{ $room }}')"
+                                    class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == $room ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                    {{ $room }}{{ $room > 4 ? '+' : '' }}
+                                </button>
+                            @endfor
+                        </div>
                     </div>
+
+                    {{-- Cities Filter --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Location
+                            </span>
+                        </label>
+                        <select wire:model="selectedCity"
+                            class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-normal focus:border-orange-normal bg-white">
+                            <option value="">All Cities</option>
+                            @foreach ($cities as $id => $name)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Property Type Filter --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
+                                    <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                Property Type
+                            </span>
+                        </label>
+                        <div class="grid grid-cols-1 gap-3">
+                            <button wire:click="$set('selectedType', '')"
+                                class="px-4 py-3 rounded-lg border transition-colors text-left bg-orange-normal text-white border-orange-normal">
+                                All Types
+                            </button>
+                            <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_SALE }}')"
+                                class="px-4 py-3 rounded-lg border transition-colors text-left {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                                FOR SALE
+                            </button>
+                            <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_RENT }}')"
+                                class="px-4 py-3 rounded-lg border transition-colors text-left {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                                FOR RENT
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
-                {{-- Cities Filter --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Searchable dropdown for cities
-                        </span>
-                    </label>
-                    <select wire:model="selectedCity"
-                        class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-normal focus:border-orange-normal">
-                        <option value="">All Cities</option>
-                        @foreach ($cities as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Property Type Filter --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">Property Type</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_SALE }}')"
-                            class="px-4 py-3 rounded-lg border transition-colors {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
-                            FOR SALE
+                {{-- Modal Actions --}}
+                <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-4 flex-shrink-0">
+                    <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                        class="bg-orange-normal text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        
+                    </button>
+                    
+                    @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
+                        <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                            class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                           X
                         </button>
-                        <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_RENT }}')"
-                            class="px-4 py-3 rounded-lg border transition-colors {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
-                            FOR RENT
-                        </button>
-                    </div>
+                    @endif
                 </div>
 
             </div>
-
-            {{-- Modal Actions --}}
-            <div class="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
-                <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                    class="bg-orange-normal text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Apply Filters
-                </button>
-            </div>
-
         </div>
-    </div>
-@endif
+    @endif
 
     <!-- Loading Overlay for Page Navigation -->
     <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"
