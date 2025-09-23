@@ -357,13 +357,11 @@
     @if ($showFilterModal)
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
             wire:click.self="closeFilterModal">
-
-            <div class="bg-white rounded-2xl p-2 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col"
-                wire:click.stop>
-
+            <div
+                class="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
                 {{-- Modal Header --}}
                 <div class="flex justify-between items-center mb-6 flex-shrink-0">
-                    <h2 class="text-xl font-bold text-orange-normal">FILTER</h2>
+                    <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
                     <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -373,7 +371,7 @@
                 </div>
 
                 {{-- Modal Body: Scrollable --}}
-                <div class="flex-1 overflow-y-auto scroll-smooth  space-y-6">
+                <div class="flex-1 overflow-y-auto scroll-smooth space-y-6">
 
                     {{-- Rooms Filter --}}
                     <div>
@@ -404,20 +402,14 @@
                             </button>
                         </div>
                     </div>
-                    {{-- Cities Filter --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                Location
-                            </span>
-                        </label>
+
+                    <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span class="text-2xl font-black text-orange-600">+</span>Searchable dropdown+ for cities
+                    </p>
+
+                    <div class="flex flex-col space-y-2">
                         <select wire:model="selectedCity"
-                            class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-normal focus:border-orange-normal bg-white">
+                            class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
                             <option value="">All Cities</option>
                             @foreach ($cities as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
@@ -427,28 +419,13 @@
 
                     {{-- Property Type Filter --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
-                                    <path fill-rule="evenodd"
-                                        d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                Property Type
-                            </span>
-                        </label>
-                        <div class="grid grid-cols-1 gap-3">
-                            <button wire:click="$set('selectedType', '')"
-                                class="px-4 py-3 rounded-lg border transition-colors text-left bg-orange-normal text-white border-orange-normal">
-                                All Types
-                            </button>
+                        <div class="flex border-2 border-gray-300 rounded-full overflow-hidden">
                             <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_SALE }}')"
-                                class="px-4 py-3 rounded-lg border transition-colors text-left {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
                                 FOR SALE
                             </button>
                             <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_RENT }}')"
-                                class="px-4 py-3 rounded-lg border transition-colors text-left {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                                class="flex-1 px-4 py-3 transition-colors text-center font-bold text-lg {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white' : 'bg-white text-gray-500' }}">
                                 FOR RENT
                             </button>
                         </div>
@@ -459,22 +436,23 @@
                 {{-- Modal Actions --}}
                 <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-4 flex-shrink-0">
                     <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                        class="bg-orange-normal text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="bg-orange-600 text-white w-16 h-16 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
                             </path>
                         </svg>
-
                     </button>
 
                     @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
                         <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
-                            class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
-                            X
+                            class="w-16 h-16 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4l16 16M4 16L16 4"></path>
+                            </svg>
                         </button>
                     @endif
                 </div>
-
             </div>
         </div>
     @endif
