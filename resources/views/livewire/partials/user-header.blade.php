@@ -7,13 +7,13 @@
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-0 sm:py-3 px-4 md:px-6 lg:px-8">
                 <nav class=" items-center hidden sm:flex justify-between gap-4">
-                    <a href="{{ route('home') }}" wire:navigate class="inline-flex w-[140px] items-center justify-start gap-4">
+                    <a href="{{ route('home') }}" wire:navigate class="inline-flex w-[160px] items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                         <span class="text-[24px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
 
                     {{-- Desktop Navigation --}}
-                    <div class="items-center gap-9 w-[750px] -mr-14 hidden lg:flex justify-between">
+                    <div class="items-center gap-9 w-[720px] -mr-14 hidden lg:flex justify-between">
                         @if ($pageSlug == 'home' || $pageSlug == 'favorites' || $pageSlug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
                                 <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
