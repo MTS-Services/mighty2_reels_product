@@ -323,7 +323,7 @@
                                                liked = video.favourite;
                                            }
                                        }"
-                                :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
+                                :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 sm:border-none border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
                                 class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                                 :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                                 <flux:icon name="heart" class="w-5 h-5 " />

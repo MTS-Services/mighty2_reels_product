@@ -5,7 +5,7 @@
         filterOpen: @entangle('filterOpen').live
     }" class="w-full">
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
-            <div class="container max-w-[1200px] mx-auto py-0 px-4 md:px-6 lg:px-8">
+            <div class="container max-w-[1200px] mx-auto py-0 sm:py-3 px-4 md:px-6 lg:px-8">
                 <nav class=" items-center hidden sm:flex justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
@@ -288,7 +288,6 @@
     @if ($showSearchModal)
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             wire:click.self="closeSearchModal">
-
             <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[40vh] p-4 space-y-4 lg:max-w-xl"
                 wire:click.stop>
                 {{-- Modal Header --}}
