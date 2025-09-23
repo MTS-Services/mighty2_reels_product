@@ -216,7 +216,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute top-16 sm:top-4 lg:right-8 right-4 z-5 rounded-full">
+                class="absolute bottom-[110px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -229,7 +229,7 @@
                     } else {
                         liked = !liked;
                     }"
-                    :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                    :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:border-none border border-orange-600 sm:text-black text-orange-600 hover:bg-white/70'"
                     class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                     :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                     <flux:icon name="heart" class="w-5 h-5" />
@@ -257,7 +257,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-16 sm:top-4 lg:right-6 right-4 z-5 rounded-full">
+                    class="absolute top-[530px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -270,7 +270,7 @@
                     } else {
                         liked = !liked;
                     }"
-                        :class="liked ? 'bg-red-400 text-white' : 'bg-white text-black hover:bg-white/70'"
+                        :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:border-none border border-orange-600 sm:text-black text-orange-600 hover:bg-white/70'"
                         class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                         :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                         <flux:icon name="heart" class="w-5 h-5" />
