@@ -1,5 +1,5 @@
 <?php
-
+// Updated UserHeader.php Component
 namespace App\Livewire\Partials;
 
 use App\Models\City;
@@ -14,6 +14,10 @@ class UserHeader extends Component
     public bool $sidebarOpen = false;
     public bool $openProfileDropdown = false;
     public bool $filterOpen = false;
+    
+    // ✅ Modal states
+    public bool $showFilterModal = false;
+    public bool $showSearchModal = false; // NEW: Search modal state
 
     // Filter properties
     public $searchTerm = '';
@@ -28,7 +32,7 @@ class UserHeader extends Component
     public $typeLoading = false;
     public $resetLoading = false;
 
-    // ✅ NEW: Search History
+    // Search History
     public $recentSearches = [];
 
     protected $listeners = [
@@ -48,6 +52,34 @@ class UserHeader extends Component
             $this->selectedCity = request()->get('city', '');
             $this->selectedType = request()->get('type', '');
         }
+    }
+
+    // ✅ Filter Modal methods
+    public function openFilterModal()
+    {
+        $this->showFilterModal = true;
+    }
+
+    public function closeFilterModal()
+    {
+        $this->showFilterModal = false;
+    }
+
+    public function applyFilters()
+    {
+        $this->showFilterModal = false;
+        $this->navigateWithFilters();
+    }
+
+    // ✅ NEW: Search Modal methods
+    public function openSearchModal()
+    {
+        $this->showSearchModal = true;
+    }
+
+    public function closeSearchModal()
+    {
+        $this->showSearchModal = false;
     }
 
     /**
@@ -72,7 +104,8 @@ class UserHeader extends Component
             $this->recentSearches = $history;
         }
 
-        // Navigate with filters after saving search
+        // Close search modal and navigate with filters
+        $this->showSearchModal = false;
         $this->navigateWithFilters();
     }
 
@@ -108,7 +141,7 @@ class UserHeader extends Component
 
     public function updatedSelectedRooms()
     {
-        if ($this->pageSlug === 'home') {
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->roomsLoading = true;
             $this->navigateWithFilters();
         }
@@ -116,7 +149,7 @@ class UserHeader extends Component
 
     public function updatedSelectedCity()
     {
-        if ($this->pageSlug === 'home') {
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->cityLoading = true;
             $this->navigateWithFilters();
         }
@@ -124,7 +157,7 @@ class UserHeader extends Component
 
     public function updatedSelectedType()
     {
-        if ($this->pageSlug === 'home') {
+        if ($this->pageSlug === 'home' && !$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
         }

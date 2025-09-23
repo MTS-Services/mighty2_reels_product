@@ -12,87 +12,47 @@
                         <span class="text-[26px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
 
-                    <div class="items-center gap-9 -mr-10 hidden lg:flex justify-between">
+                    <div class="items-center gap-9 w-[600px] -mr-10 hidden lg:flex justify-between">
                         @if ($pageSlug == 'home' || $pageSlug == 'favorites' || $pageSlug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
                                 <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
                             </x-button>
                         @endif
 
+                        {{-- Filter Button for Home Page --}}
                         @if ($pageSlug == 'home')
-                            <div class="flex flex-col md:flex-row gap-4">
-                                <!-- Rooms Filter -->
-                                <div class="relative">
-                                    <select wire:model.live="selectedRooms"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
-                                        wire:loading.class="opacity-50" wire:target="selectedRooms">
-                                        <option value="" selected>All Rooms</option>
-                                        @for ($room = 1; $room <= $maxRooms; $room++)
-                                            <option value="{{ $room }}">
-                                                {{ $room . ' ' . ($room > 1 ? 'Rooms' : 'Room') }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                    <div wire:loading wire:target="selectedRooms"
-                                        class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                        <div
-                                            class="animate-spin rounded-full h-4 w-4 border-2 border-orange-normal border-t-transparent">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Cities Filter -->
-                                <div class="relative">
-                                    <select wire:model.live="selectedCity"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
-                                        wire:loading.class="opacity-50" wire:target="selectedCity">
-                                        <option value="" selected>All Cities</option>
-                                        @foreach ($cities as $id => $name)
-                                            <option value="{{ $id }}">{{ $name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div wire:loading wire:target="selectedCity"
-                                        class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                        <div
-                                            class="animate-spin rounded-full h-4 w-4 border-2 border-orange-normal border-t-transparent">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Type Filter -->
-                                <div class="relative">
-                                    <select wire:model.live="selectedType"
-                                        class="select focus:outline-none focus-within:ring-0 focus-within:ring-offset-0 border-orange-normal text-orange-400 bg-orange-normal/10 rounded-full flex-1 px-6 py-2 pr-10 bg-none"
-                                        wire:loading.class="opacity-50" wire:target="selectedType">
-                                        <option value="" selected>All Types</option>
-                                        <option value="{{ \App\Models\Product::TYPE_RENT }}">Rent</option>
-                                        <option value="{{ \App\Models\Product::TYPE_SALE }}">Sale</option>
-                                    </select>
-                                    <div wire:loading wire:target="selectedType"
-                                        class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                        <div
-                                            class="animate-spin rounded-full h-4 w-4 border-2 border-orange-normal border-t-transparent">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Reset Button -->
-                                <div class="flex justify-center items-center">
+                            <div class="flex items-center gap-4 justify-end">
+                                {{-- ✅ UPDATED: Use wire:click instead of x-on:click --}}
+                                <button wire:click="openSearchModal"
+                                    class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
+                                    </svg>
+                                </button>
+                                <button wire:click="openFilterModal" variant="secondary" class="bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 p-2! rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                                    </svg>
+                                </button>
+                                @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
                                     <button wire:click="resetAllFilters"
-                                        wire:loading.class="opacity-50 cursor-not-allowed" wire:target="resetAllFilters"
-                                        class="p-2 text-gray-700 focus:outline-none transition-transform duration-300 ease-in-out hover:text-orange-500 relative">
+                                        wire:loading.class="opacity-50 cursor-not-allowed"
+                                        class="p-2 text-gray-700 hover:text-orange-normal transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
-                                            wire:loading.class.remove="animate-none" wire:loading.class="animate-spin"
-                                            wire:target="resetAllFilters">
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                                         </svg>
                                     </button>
-                                </div>
+                                @endif
                             </div>
                         @endif
                     </div>
+
                     @if (Auth::check())
                         <div class="hidden lg:flex items-center gap-4 relative py-2 {{ $pageSlug == 'Favorites' || $pageSlug == 'profile' ? 'ml-auto' : '' }}"
                             x-on:click.away="openProfileDropdown = false">
@@ -116,7 +76,6 @@
                                 x-transition:leave-end="grid-rows-[0fr] opacity-0"
                                 class="absolute top-full right-0 mt-2 grid bg-white backdrop-blur-lg shadow-lg rounded-lg overflow-hidden z-50">
                                 <div class="p-4 space-y-2 overflow-hidden relative z-50">
-                                    {{-- @if (Auth::check()) --}}
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
                                         href="{{ route('profile') }}" wire:navigate>
                                         <flux:icon name="user-circle" /> Profile
@@ -131,7 +90,6 @@
                                         wire:click="logout">
                                         <flux:icon name="power" /> Logout
                                     </x-button>
-
                                 </div>
                             </div>
                         </div>
@@ -156,14 +114,11 @@
                                     <flux:icon name="user-plus" />
                                 </x-button>
                             @endif
-
                         </div>
-
                     @endif
 
                     <div class="flex items-center gap-4">
-                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
-                            class="lg:hidden">
+                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
                             <flux:icon name="bars-4" />
                         </x-button>
                     </div>
@@ -211,6 +166,20 @@
                                 size="lg" linkText>
                                 <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
                             </x-button>
+
+                            {{-- Mobile Filter Button --}}
+                            @if ($pageSlug == 'home')
+                                <x-button wire:click="openFilterModal"
+                                    class="text-black !px-2 !py-1 w-full justify-start" size="lg" linkText>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                                    </svg>
+                                    FILTER
+                                </x-button>
+                            @endif
+
                             <flux:spacer />
                             <flux:separator variant="subtle" class="my-2" />
                             <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
@@ -238,103 +207,180 @@
                                 </x-button>
                             @endif
                         @endif
-
                     </div>
                 </div>
             </div>
         </aside>
 
+        {{-- Search Area --}}
         @if ($pageSlug == 'home')
-            {{-- Search & Filters Area --}}
             <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area"
-                x-data="{ filterOpen: @entangle('filterOpen').live, searchOpen: false, tempSearch: '' }">
+                x-data="{ filterOpen: @entangle('filterOpen').live }">
 
                 <div class="flex items-center gap-4">
                     <div class="flex-1 flex items-center gap-1">
-
-                        {{-- 🔎 Search Icon --}}
-                        <button x-on:click="searchOpen = true"
-                            class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
-                            </svg>
-                        </button>
-
-                        {{-- Filters (unchanged) --}}
                         <div x-show="filterOpen && window.innerWidth < 1024" x-cloak
                             class="flex-1 flex items-center gap-2"
                             x-transition:enter="transition-all duration-300 ease-out"
                             x-transition:leave="transition-all duration-200 ease-in">
-                            {{-- keep filters same as before --}}
                         </div>
 
-                        {{-- Funnel button (mobile only) --}}
                         <x-button variant="secondary" class="!rounded-full lg:hidden flex-shrink-0"
                             x-on:click="filterOpen = !filterOpen">
                             <flux:icon name="funnel" />
                         </x-button>
                     </div>
                 </div>
-
-                {{-- 🔎 Search Modal --}}
-                <div x-show="searchOpen" x-cloak
-                    class="fixed inset-0 bg-black/50  backdrop-blur-sm flex items-center justify-center z-50 p-4"
-                    x-transition x-on:click.self="searchOpen = false">
-
-                    <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[30vh] p-4 space-y-3">
-
-                        {{-- Search Input --}}
-                        <div class="relative">
-                            <input type="search" x-model="tempSearch" placeholder="Search for products..."
-                                class="w-full px-4 py-2 rounded-full border border-orange-400 text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-100 placeholder:text-orange-400" />
-                        </div>
-
-                        {{-- Recent Searches --}}
-                        @if (!empty($recentSearches))
-                            <div class="bg-gray-100 rounded-lg p-2 max-h-40 overflow-y-auto">
-                                <div class="flex justify-between items-center mb-1">
-                                    <p class="text-sm text-orange-500">Recent searches:</p>
-                                    <button wire:click="clearSearches"
-                                        class="text-xs text-gray-500 hover:text-red-500">Clear All</button>
-                                </div>
-                                @foreach ($recentSearches as $search)
-                                    <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-200 rounded">
-                                        <button type="button" class="flex-1 text-black text-left"
-                                            x-on:click="tempSearch = '{{ $search }}'">
-                                            {{ $search }}
-                                        </button>
-                                        <button type="button" wire:click="removeSearch('{{ $search }}')"
-                                            class="ml-2 text-xs text-gray-500 hover:text-red-500">✕</button>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-
-
-                        {{-- Action Buttons --}}
-                        <div class="flex justify-between items-center absolute bottom-4 left-4 right-4">
-                            {{-- ✅ Tick Button --}}
-                            <button type="button"
-                                x-on:click="$wire.set('searchTerm', tempSearch); $wire.performSearch(); searchOpen = false"
-                                class="w-10 h-10 flex items-center justify-center rounded-full bg-orange-500 text-white hover:bg-orange-600">
-                                ✓
-                            </button>
-
-
-                            {{-- ❌ Close Button --}}
-                            <button type="button" x-on:click="searchOpen = false"
-                                class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100">
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         @endif
-
     </div>
+
+    {{-- ✅ UPDATED: Search Modal - Now controlled by Livewire --}}
+    @if ($showSearchModal)
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            wire:click.self="closeSearchModal">
+
+            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[30vh] p-4 space-y-3" wire:click.stop>
+                <div class="relative">
+                    <input type="search" wire:model="searchTerm" placeholder="Search for products..."
+                        class="w-full px-4 py-2 rounded-full border border-orange-400 text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-100 placeholder:text-orange-400" />
+                </div>
+
+                @if (!empty($recentSearches))
+                    <div class="bg-gray-100 rounded-lg p-2 max-h-40 overflow-y-auto">
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="text-sm text-orange-500">Recent searches:</p>
+                            <button wire:click="clearSearches"
+                                class="text-xs text-gray-500 hover:text-red-500">Clear All</button>
+                        </div>
+                        @foreach ($recentSearches as $search)
+                            <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-200 rounded">
+                                <button type="button" class="flex-1 text-black text-left"
+                                    wire:click="$set('searchTerm', '{{ $search }}')">
+                                    {{ $search }}
+                                </button>
+                                <button type="button" wire:click="removeSearch('{{ $search }}')"
+                                    class="ml-2 text-xs text-gray-500 hover:text-red-500">✕</button>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="flex justify-between items-center absolute bottom-4 left-4 right-4">
+                    <button type="button" wire:click="performSearch"
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-orange-500 text-white hover:bg-orange-600">
+                        ✓
+                    </button>
+                    <button type="button" wire:click="closeSearchModal"
+                        class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Filter Modal - Outside all other containers --}}
+ @if ($showFilterModal)
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
+        wire:click.self="closeFilterModal">
+        
+        <div 
+            class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl relative overflow-hidden"
+            wire:click.stop
+        >
+            {{-- Modal Header --}}
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-orange-normal">FILTER</h2>
+                <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal Body: Scrollable --}}
+            <div class="max-h-[70vh] overflow-y-auto scroll-smooth pr-2 space-y-6">
+                
+                {{-- Rooms Filter --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+                                </path>
+                            </svg>
+                            All rooms or multiple options
+                        </span>
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button wire:click="$set('selectedRooms', '')"
+                            class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                            All Rooms
+                        </button>
+                        @for ($room = 1; $room <= $maxRooms; $room++)
+                            <button wire:click="$set('selectedRooms', '{{ $room }}')"
+                                class="px-4 py-2 rounded-full border transition-colors {{ $selectedRooms == $room ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                {{ $room }}{{ $room > 4 ? '+' : '' }}
+                            </button>
+                        @endfor
+                    </div>
+                </div>
+
+                {{-- Cities Filter --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Searchable dropdown for cities
+                        </span>
+                    </label>
+                    <select wire:model="selectedCity"
+                        class="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-normal focus:border-orange-normal">
+                        <option value="">All Cities</option>
+                        @foreach ($cities as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Property Type Filter --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Property Type</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_SALE }}')"
+                            class="px-4 py-3 rounded-lg border transition-colors {{ $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                            FOR SALE
+                        </button>
+                        <button wire:click="$set('selectedType', '{{ \App\Models\Product::TYPE_RENT }}')"
+                            class="px-4 py-3 rounded-lg border transition-colors {{ $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-600 text-white border-gray-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600' }}">
+                            FOR RENT
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Modal Actions --}}
+            <div class="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+                <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                    class="bg-orange-normal text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Apply Filters
+                </button>
+            </div>
+
+        </div>
+    </div>
+@endif
 
     <!-- Loading Overlay for Page Navigation -->
     <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"
