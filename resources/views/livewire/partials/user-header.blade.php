@@ -133,7 +133,7 @@
         </header>
 
         {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-       @if ($pageSlug == 'home' || $pageSlug == 'product')
+        @if ($pageSlug == 'home' || $pageSlug == 'product')
             <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
                 <!-- Logo centered -->
                 <a href="{{ route('home') }}" wire:navigate
@@ -360,7 +360,7 @@
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
             wire:click.self="closeFilterModal">
             <div
-                class="bg-white rounded-2xl p-4 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
+                class="bg-white rounded-2xl p-4 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden sm:min-h-[54vh]  min-h-[75vh] flex flex-col">
                 {{-- Modal Header --}}
                 <div class="flex justify-between items-center mb-6 flex-shrink-0">
                     <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
@@ -405,19 +405,85 @@
                         </div>
                     </div>
 
-                    <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span class="text-2xl font-black text-orange-600">+</span>Searchable dropdown for cities
-                    </p>
+                    
+                    {{-- City Filter with Collapsible Search --}}
+                    <div class="flex flex-col space-x-1 sm:space-y-2" x-data="{ cityDropdownOpen: false }">
+                        <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <span class="text-2xl font-black text-orange-600">+</span>Cities
+                        </p>
+                        {{-- Dropdown Trigger Button --}}
+                        <div class="relative" x-on:click.away="cityDropdownOpen = false">
+                            <button type="button" x-on:click="cityDropdownOpen = !cityDropdownOpen"
+                                class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white text-gray-900 flex items-center justify-between">
+                                <span>
+                                    @if (empty($selectedCity))
+                                        All Cities
+                                    @else
+                                        {{ $cities[$selectedCity] ?? 'Unknown City' }}
+                                    @endif
+                                </span>
+                                <svg class="w-4 h-4 text-gray-400 transition-transform"
+                                    x-bind:class="{ 'rotate-180': cityDropdownOpen }" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
 
-                    {{-- FIXED: City Filter with proper wire:model --}}
-                    <div class="flex flex-col space-y-2 px-4">
-                        <select wire:model.live="selectedCity"
-                            class="w-full px-2 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white">
-                            <option value="">All Cities</option>
-                            @foreach ($cities as $id => $name)
-                                <option value="{{ $id }}">{{ $name }}</option>
-                            @endforeach
-                        </select>
+                            {{-- Dropdown Content --}}
+                            <div x-show="cityDropdownOpen" x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 transform scale-100"
+                                x-transition:leave-end="opacity-0 transform scale-95"
+                                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg  shadow-lg">
+
+                                {{-- Search Input (only shows when dropdown is open) --}}
+                                <div class="p-2 border-b border-gray-200">
+                                    <div class="relative">
+                                        <input type="text" wire:model.live.debounce.300ms="citySearch"
+                                            placeholder="Search cities..."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white text-gray-900 placeholder-gray-500 text-sm">
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- City Options --}}
+                                <div class="max-h-24 sm:max-h-48 overflow-y-auto">
+                                    {{-- All Cities Option --}}
+                                    <button type="button" wire:click="$set('selectedCity', '')"
+                                        x-on:click="cityDropdownOpen = false"
+                                        class="w-full px-3 py-1 text-left hover:bg-gray-50 transition-colors {{ empty($selectedCity) ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-900' }}">
+                                        All Cities
+                                    </button>
+
+                                    {{-- Individual Cities --}}
+                                    @forelse($cities as $id => $name)
+                                        <button type="button"
+                                            wire:click="$set('selectedCity', '{{ $id }}')"
+                                            x-on:click="cityDropdownOpen = false"
+                                            class="w-full px-3 py-1 text-left hover:bg-gray-50 transition-colors {{ $selectedCity == $id ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-900' }}">
+                                            {{ $name }}
+                                        </button>
+                                    @empty
+                                        @if (!empty($citySearch))
+                                            <div class="px-3 py-1 text-gray-500 text-sm">
+                                                No cities found matching "{{ $citySearch }}"
+                                            </div>
+                                        @endif
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- FIXED: Property Type Filter with multiple approaches --}}
@@ -441,7 +507,7 @@
                 </div>
 
                 {{-- Modal Actions --}}
-                <div class="flex justify-between items-center pt-6  border-gray-200 mt-4 flex-shrink-0">
+                <div class="flex justify-between items-center pt-2  border-gray-200  flex-shrink-0">
                     <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
                         class="bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -473,13 +539,15 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Listen for filter updates from home component
-            window.addEventListener('updateHomeFilters', function(event) {
-                // This will sync any additional filter updates if needed
-                console.log('Filters updated:', event.detail);
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Listen for filter updates from home component
+                window.addEventListener('updateHomeFilters', function(event) {
+                    // This will sync any additional filter updates if needed
+                    console.log('Filters updated:', event.detail);
+                });
             });
-        });
-    </script>
+        </script>
+    @endpush
 </div>

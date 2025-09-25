@@ -27,6 +27,9 @@ class UserHeader extends Component
     public $selectedCity = '';
     public $selectedType = '';
 
+    // City search property
+    public $citySearch = '';
+
     // Loading states
     public $searchLoading = false;
     public $roomsLoading = false;
@@ -68,11 +71,13 @@ class UserHeader extends Component
     public function closeFilterModal()
     {
         $this->showFilterModal = false;
+        $this->citySearch = ''; // Reset city search when closing modal
     }
 
     public function applyFilters()
     {
         $this->showFilterModal = false;
+        $this->citySearch = ''; // Reset city search when applying filters
         $this->navigateWithFilters();
     }
 
@@ -320,6 +325,7 @@ class UserHeader extends Component
     {
         $this->resetLoading = true;
         $this->selectedRoomsArray = [];
+        $this->citySearch = ''; // Reset city search
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
         
         // Close any open modals
@@ -354,8 +360,19 @@ class UserHeader extends Component
 
     public function render()
     {
+        // Get all cities
+        $allCities = City::active()->pluck('name', 'id');
+        
+        // Filter cities based on search term
+        $filteredCities = $allCities;
+        if (!empty($this->citySearch)) {
+            $filteredCities = $allCities->filter(function($name, $id) {
+                return stripos($name, $this->citySearch) !== false;
+            });
+        }
+
         return view('livewire.partials.user-header', [
-            'cities' => City::active()->pluck('name', 'id'),
+            'cities' => $filteredCities,
             'maxRooms' => max(Product::active()->max('room') ?? 0, 5),
         ]);
     }

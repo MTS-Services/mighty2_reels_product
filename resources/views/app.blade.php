@@ -11,6 +11,7 @@
 
     <link rel="icon" href="{{ favicon() }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ favicon() }}">
+    @stack('links') 
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

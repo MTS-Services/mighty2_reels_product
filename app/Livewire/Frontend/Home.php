@@ -180,9 +180,17 @@ class Home extends Component
             $query->where('city_id', $this->selectedCity);
         }
 
-        // Type filter
+        // FIXED: Type filter - properly handle the type filtering
         if (!empty($this->selectedType)) {
-            $query->where('type', $this->selectedType);
+            // Map frontend values to database values
+            $typeMapping = [
+                'sale' => Product::TYPE_SALE,
+                'rent' => Product::TYPE_RENT,
+            ];
+            
+            // Use the mapped value if it exists, otherwise use the raw value
+            $dbType = $typeMapping[$this->selectedType] ?? $this->selectedType;
+            $query->where('type', $dbType);
         }
 
         $products = $query->inRandomOrder()->get();
