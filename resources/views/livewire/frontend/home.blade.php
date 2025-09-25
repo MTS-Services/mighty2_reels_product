@@ -6,511 +6,8 @@
     showInfoPanel: false
 }">
     @push('styles')
+        <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
-            /* CSS Custom Properties for enhanced dynamic viewport heights */
-            :root {
-                --vh: 1vh;
-                --device-height: 100vh;
-                --screen-width: 100vw;
-                --screen-height: 100vh;
-                --safe-area-top: env(safe-area-inset-top, 0px);
-                --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-                --safe-area-left: env(safe-area-inset-left, 0px);
-                --safe-area-right: env(safe-area-inset-right, 0px);
-                --header-height: 85px;
-                --footer-height: 0px;
-
-                /* Device-specific properties (set by JavaScript) */
-                --ios-vh: 1vh;
-                --android-vh: 1vh;
-                --ios-fill-available: 100vh;
-            }
-
-            /* Base dynamic viewport height classes */
-            .dvh-100 {
-                height: 100vh;
-                /* Fallback */
-                height: calc(var(--vh, 1vh) * 100);
-            }
-
-            .dvh-screen {
-                height: 100vh;
-                /* Fallback */
-                height: calc(var(--vh, 1vh) * 100);
-                min-height: 100vh;
-                min-height: calc(var(--vh, 1vh) * 100);
-            }
-
-            .dvh-screen-header {
-                height: calc(100vh - var(--header-height));
-                /* Fallback */
-                height: calc((var(--vh, 1vh) * 100) - var(--header-height));
-                min-height: calc(100vh - var(--header-height));
-                min-height: calc((var(--vh, 1vh) * 100) - var(--header-height));
-            }
-
-            .dvh-screen-nav {
-                height: calc(100vh - var(--header-height) - var(--footer-height));
-                /* Fallback */
-                height: calc((var(--vh, 1vh) * 100) - var(--header-height) - var(--footer-height));
-            }
-
-            .dvh-75 {
-                height: 75vh;
-                /* Fallback */
-                height: calc(var(--vh, 1vh) * 75);
-            }
-
-            .dvh-50 {
-                height: 50vh;
-                /* Fallback */
-                height: calc(var(--vh, 1vh) * 50);
-            }
-
-            /* iOS-specific optimizations */
-            body.ios-device .dvh-screen,
-            body.ios-device .dvh-100 {
-                height: -webkit-fill-available !important;
-                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100) !important;
-                min-height: -webkit-fill-available !important;
-            }
-
-            body.ios-device.safari-browser .dvh-screen {
-                /* Safari-specific adjustments */
-                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
-                min-height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
-            }
-
-            body.ios-device.has-notch .dvh-screen {
-                /* Notch-aware sizing */
-                padding-top: var(--safe-area-top);
-                padding-bottom: var(--safe-area-bottom);
-                padding-left: var(--safe-area-left);
-                padding-right: var(--safe-area-right);
-                box-sizing: border-box;
-            }
-
-            body.ios-device.landscape .dvh-screen {
-                /* Landscape-specific adjustments */
-                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
-            }
-
-            /* Android-specific optimizations */
-            body.android-device .dvh-screen,
-            body.android-device .dvh-100 {
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-                min-height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            body.android-device.chrome-browser .dvh-screen {
-                /* Chrome address bar compensation */
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            body.android-device .video-item-dvh {
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            /* Desktop-specific optimizations */
-            body.desktop-device .dvh-screen {
-                height: 100vh;
-                height: calc(var(--vh, 1vh) * 100);
-                min-height: 600px;
-                /* Ensure minimum height on desktop */
-            }
-
-            /* Mobile-specific classes with enhanced support */
-            @media screen and (max-width: 768px) {
-                .mobile-dvh-100 {
-                    height: 100vh;
-                    height: calc(var(--vh, 1vh) * 100);
-                }
-
-                .mobile-dvh-screen {
-                    height: 100vh;
-                    height: calc(var(--vh, 1vh) * 100);
-                    min-height: 100vh;
-                    min-height: calc(var(--vh, 1vh) * 100);
-                }
-
-                /* iOS Safari mobile-specific */
-                body.ios-device.safari-browser .mobile-dvh-screen {
-                    height: -webkit-fill-available;
-                    min-height: -webkit-fill-available;
-                }
-
-                /* Android mobile-specific */
-                body.android-device .mobile-dvh-screen {
-                    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-                }
-            }
-
-            /* Tablet-specific optimizations */
-            @media screen and (min-width: 768px) and (max-width: 1024px) {
-                body.tablet-device .dvh-screen {
-                    height: calc(var(--vh, 1vh) * 100);
-                }
-            }
-
-            /* Large desktop optimizations */
-            @media screen and (min-width: 1025px) {
-                .desktop-vh-100 {
-                    height: 100vh;
-                }
-
-                .desktop-vh-screen {
-                    height: calc(100vh - var(--header-height));
-                }
-            }
-
-            /* Keyboard visibility adjustments */
-            body.keyboard-visible .dvh-screen {
-                height: calc(var(--vh, 1vh) * 60);
-                /* Reduce height when keyboard is visible */
-                transition: height 0.2s ease;
-            }
-
-            body.keyboard-visible .mobile-dvh-screen {
-                height: calc(var(--vh, 1vh) * 60);
-                transition: height 0.2s ease;
-            }
-
-            body.keyboard-visible .video-scroll-container {
-                height: calc(var(--vh, 1vh) * 60);
-                transition: height 0.2s ease;
-            }
-
-            /* Orientation-specific classes */
-            body.landscape .dvh-screen {
-                height: calc(var(--vh, 1vh) * 100);
-            }
-
-            body.portrait .dvh-screen {
-                height: calc(var(--vh, 1vh) * 100);
-            }
-
-            /* PWA-specific adjustments */
-            body.ios-pwa .dvh-screen {
-                height: calc(var(--vh, 1vh) * 100);
-                padding-top: var(--safe-area-top);
-                padding-bottom: var(--safe-area-bottom);
-            }
-
-            /* Enhanced responsive grid layouts with dynamic heights */
-            .dvh-container {
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
-                height: calc(var(--vh, 1vh) * 100);
-            }
-
-            .dvh-header {
-                flex-shrink: 0;
-                height: var(--header-height);
-                padding-top: var(--safe-area-top);
-                /* Safe area for notched devices */
-            }
-
-            .dvh-content {
-                flex: 1;
-                overflow-y: auto;
-                min-height: 0;
-                /* Important for flex overflow */
-                -webkit-overflow-scrolling: touch;
-                /* Smooth scrolling on iOS */
-            }
-
-            .dvh-footer {
-                flex-shrink: 0;
-                height: var(--footer-height);
-                padding-bottom: var(--safe-area-bottom);
-                /* Safe area for notched devices */
-            }
-
-            /* Video-specific enhanced classes */
-            .video-container-dvh {
-                height: calc(var(--vh, 1vh) * 100);
-                width: 100vw;
-                max-width: 100%;
-                position: relative;
-                overflow: hidden;
-            }
-
-            body.ios-device .video-container-dvh {
-                height: -webkit-fill-available;
-            }
-
-            body.android-device .video-container-dvh {
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            /* Specific adjustments for your video scroll container */
-            .video-scroll-container {
-                overflow-y: scroll;
-                scroll-snap-type: y mandatory;
-                scrollbar-width: none;
-                /* Firefox */
-                -ms-overflow-style: none;
-                /* IE/Edge */
-                height: calc(var(--vh, 1vh) * 100);
-            }
-
-            body.ios-device .video-scroll-container {
-                height: -webkit-fill-available;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            body.android-device .video-scroll-container {
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            .video-scroll-container::-webkit-scrollbar {
-                display: none;
-                /* Safari/Chrome */
-            }
-
-            /* Video item specific */
-            .video-item-dvh {
-                scroll-snap-align: start;
-                height: calc(var(--vh, 1vh) * 100);
-                width: 100%;
-                position: relative;
-            }
-
-            body.ios-device .video-item-dvh {
-                height: -webkit-fill-available;
-            }
-
-            /* Touch device optimizations */
-            body.touch-device .dvh-screen {
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                user-select: none;
-            }
-
-            /* Smooth transitions for height changes */
-            .dvh-transition {
-                transition: height 0.2s ease-out, min-height 0.2s ease-out;
-            }
-
-            /* Specific browser engine optimizations */
-            body[data-engine="WebKit"] .dvh-screen {
-                -webkit-transform: translateZ(0);
-                /* Force hardware acceleration */
-            }
-
-            body[data-engine="Blink"] .dvh-screen {
-                will-change: height;
-                /* Optimize for height changes */
-            }
-
-            /* High pixel ratio device optimizations */
-            @media (-webkit-min-device-pixel-ratio: 2),
-            (min-resolution: 192dpi) {
-                .dvh-screen {
-                    -webkit-backface-visibility: hidden;
-                    backface-visibility: hidden;
-                }
-            }
-
-            /* Viewport units fallback for better browser support */
-            @supports (height: 100dvh) {
-                .dvh-screen {
-                    height: 100dvh;
-                }
-
-                .dvh-100 {
-                    height: 100dvh;
-                }
-
-                .video-container-dvh {
-                    height: 100dvh;
-                }
-
-                .video-scroll-container {
-                    height: 100dvh;
-                }
-
-                .video-item-dvh {
-                    height: 100dvh;
-                }
-            }
-
-            @supports (height: 100svh) {
-
-                body.mobile-device .dvh-screen,
-                body.mobile-device .video-container-dvh,
-                body.mobile-device .video-scroll-container {
-                    height: 100svh;
-                    /* Small viewport height */
-                }
-            }
-
-            @supports (height: 100lvh) {
-                body.desktop-device .dvh-screen {
-                    height: 100lvh;
-                    /* Large viewport height */
-                }
-            }
-
-            /* Legacy support for older browsers */
-            @supports not (height: calc(var(--vh) * 100)) {
-
-                .dvh-100,
-                .dvh-screen {
-                    height: 100vh !important;
-                }
-
-                .dvh-screen-header {
-                    height: calc(100vh - 85px) !important;
-                }
-
-                .video-container-dvh,
-                .video-scroll-container,
-                .video-item-dvh {
-                    height: 100vh !important;
-                }
-            }
-
-            /* Debug classes for development */
-            .dvh-debug {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px;
-                font-size: 12px;
-                border-radius: 4px;
-                z-index: 9999;
-                font-family: monospace;
-                max-width: 300px;
-            }
-
-            .dvh-debug::before {
-                content: 'VH Debug: ' attr(data-vh) ' | Height: ' attr(data-height) ' | Device: ' attr(data-device);
-            }
-
-            /* Print media adjustments */
-            @media print {
-
-                .dvh-screen,
-                .dvh-100,
-                .video-container-dvh,
-                .video-scroll-container {
-                    height: auto !important;
-                    min-height: auto !important;
-                }
-            }
-
-            /* Accessibility improvements */
-            @media (prefers-reduced-motion: reduce) {
-
-                .dvh-transition,
-                .video-scroll-container {
-                    transition: none !important;
-                    scroll-behavior: auto !important;
-                }
-            }
-
-            /* Dark mode support */
-            @media (prefers-color-scheme: dark) {
-                .dvh-debug {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                }
-            }
-
-            /* Additional utility classes */
-            .dvh-25 {
-                height: 25vh;
-                height: calc(var(--vh, 1vh) * 25);
-            }
-
-            .dvh-33 {
-                height: 33.333333vh;
-                height: calc(var(--vh, 1vh) * 33.333333);
-            }
-
-            .dvh-66 {
-                height: 66.666667vh;
-                height: calc(var(--vh, 1vh) * 66.666667);
-            }
-
-            .dvh-80 {
-                height: 80vh;
-                height: calc(var(--vh, 1vh) * 80);
-            }
-
-            .dvh-90 {
-                height: 90vh;
-                height: calc(var(--vh, 1vh) * 90);
-            }
-
-            /* Min and max height utilities */
-            .min-dvh-screen {
-                min-height: 100vh;
-                min-height: calc(var(--vh, 1vh) * 100);
-            }
-
-            .max-dvh-screen {
-                max-height: 100vh;
-                max-height: calc(var(--vh, 1vh) * 100);
-            }
-
-            /* Specific fixes for common issues */
-            body.ios-device.landscape .video-scroll-container {
-                height: -webkit-fill-available;
-                max-height: -webkit-fill-available;
-            }
-
-            body.android-device.landscape .video-scroll-container {
-                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-            }
-
-            /* Status bar adjustments for mobile devices */
-            @media screen and (max-width: 768px) {
-                body.mobile-device .dvh-screen {
-                    padding-top: var(--safe-area-top);
-                }
-            }
-
-            /* Fullscreen API support */
-            .dvh-screen:fullscreen,
-            .video-container-dvh:fullscreen {
-                height: 100vh !important;
-                height: 100dvh !important;
-            }
-
-            /* Responsive breakpoint adjustments */
-            @media screen and (max-width: 480px) {
-
-                body.mobile-device .dvh-screen,
-                body.mobile-device .video-container-dvh {
-                    height: -webkit-fill-available;
-                    height: calc(var(--vh, 1vh) * 100);
-                }
-            }
-
-            @media screen and (min-width: 481px) and (max-width: 768px) {
-                body.mobile-device .dvh-screen {
-                    height: calc(var(--vh, 1vh) * 100);
-                }
-            }
-
-            /* Special handling for foldable devices */
-            @media (spanning: single-fold-vertical) {
-                .dvh-screen {
-                    height: calc(var(--vh, 1vh) * 100);
-                }
-            }
-
-            @media (spanning: single-fold-horizontal) {
-                .dvh-screen {
-                    height: calc(var(--vh, 1vh) * 50);
-                }
-            }
-
             .progress-bar {
                 background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
             }
@@ -770,7 +267,7 @@
         </style>
     @endpush
     <div class="rounded-lg">
-        <div class="max-w-7xl mx-auto px-0.5  sm:px-6 lg:px-8" x-data="{
+        <div class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
             currentVideoId: @entangle('currentVideoId').live,
             productId: null,
@@ -818,7 +315,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="object-contain absolute bottom-32 sm:top-4 right-4 md:right-8 z-40 rounded-full">
+                            class="object-contain absolute bottom-40 sm:top-4 right-4 md:right-8 z-40 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
@@ -837,7 +334,7 @@
                         </div>
 
                         <!-- Arrow Button - Navigate to Product Page -->
-                        <div class="absolute bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
+                        <div class="absolute bottom-[100px] z-40 right-4 md:right-8 arrow-bounce">
                             <button @click="$wire.goToProduct()"
                                 class="bg-orange-500 text-white  p-[13px]! sm:p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                                 <flux:icon name="arrow-right" class="w-5 h-5" />
@@ -847,7 +344,7 @@
                 </template>
 
                 <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen video-scroll-container pt-0.5 space-y-6 scroll-smooth">
+                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen sm:h-[calc(100vh-82px)]! video-scroll-container  space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
                         <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
@@ -857,7 +354,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-xl ">
+                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-xl ">
 
                                     <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">
@@ -1068,1082 +565,809 @@
         </div>
     </div>
 
-    <script>
-        function videoController(videoId, root, videoData) {
-            return {
-                // Existing properties
-                isPlaying: false,
-                progress: 0,
-                duration: 0,
-                currentTime: 0,
-                videoLoaded: false,
-                videoError: false,
-                clickTimeout: null,
-                videoId: videoId,
-                volume: root.volume || 1.0,
-                isMuted: root.isMuted || false,
-                lastVolume: 1.0,
-                isDraggingVolume: false,
-                lastTap: 0,
-                videoData: videoData,
-                observer: null,
+    @push('scripts')
+        <script>
+            function videoController(videoId, root, videoData) {
+                return {
+                    // Existing properties
+                    isPlaying: false,
+                    progress: 0,
+                    duration: 0,
+                    currentTime: 0,
+                    videoLoaded: false,
+                    videoError: false,
+                    clickTimeout: null,
+                    videoId: videoId,
+                    volume: root.volume || 1.0,
+                    isMuted: root.isMuted || false,
+                    lastVolume: 1.0,
+                    isDraggingVolume: false,
+                    lastTap: 0,
+                    videoData: videoData,
+                    observer: null,
 
-                // New properties for enhanced progress bar and thumbnails
-                bufferProgress: 0,
-                showProgressHandle: false,
-                isDraggingProgress: false,
-                showThumbnail: false,
-                thumbnailTime: 0,
-                thumbnails: [],
-                thumbnailsGenerated: false,
-                wasPlayingBeforeDrag: false,
-                wasPlayingBeforeProgressDrag: false,
+                    // New properties for enhanced progress bar and thumbnails
+                    bufferProgress: 0,
+                    showProgressHandle: false,
+                    isDraggingProgress: false,
+                    showThumbnail: false,
+                    thumbnailTime: 0,
+                    thumbnails: [],
+                    thumbnailsGenerated: false,
+                    wasPlayingBeforeDrag: false,
+                    wasPlayingBeforeProgressDrag: false,
 
-                initVideo() {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
+                    initVideo() {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
 
-                    if (!video) return;
+                        if (!video) return;
 
-                    this.progress = 0;
-                    this.duration = video.duration;
-                    this.videoLoaded = true;
-                    this.videoError = false;
-                    this.isPlaying = !video.paused;
-                    this.volume = video.volume;
-                    this.isMuted = video.muted;
+                        this.progress = 0;
+                        this.duration = video.duration;
+                        this.videoLoaded = true;
+                        this.videoError = false;
+                        this.isPlaying = !video.paused;
+                        this.volume = video.volume;
+                        this.isMuted = video.muted;
 
-                    if (this.isMuted) {
-                        this.volume = 0;
-                    } else {
-                        this.lastVolume = this.volume;
-                    }
+                        if (this.isMuted) {
+                            this.volume = 0;
+                        } else {
+                            this.lastVolume = this.volume;
+                        }
 
-                    // Sync background video with main video
-                    if (bgVideo) {
-                        this.syncBackgroundVideo();
-                    }
+                        // Sync background video with main video
+                        if (bgVideo) {
+                            this.syncBackgroundVideo();
+                        }
 
-                    // Auto-play first video on page load if it's the current video
-                    if (root.currentVideoId === this.videoId || (!root.currentVideoId && root.videos && root.videos[0] &&
-                            root.videos[0].id === this.videoId)) {
-                        setTimeout(() => {
+                        // Auto-play first video on page load if it's the current video
+                        if (root.currentVideoId === this.videoId || (!root.currentVideoId && root.videos && root.videos[0] &&
+                                root.videos[0].id === this.videoId)) {
+                            setTimeout(() => {
+                                this.playBothVideos();
+                                root.currentVideoId = this.videoId;
+                            }, 100);
+                        }
+
+                        this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
+                            root: null,
+                            rootMargin: '0px',
+                            threshold: 0.7
+                        });
+                        this.observer.observe(video);
+                    },
+
+                    initBackgroundVideo() {
+                        const bgVideo = this.$refs.backgroundVideo;
+                        const mainVideo = this.$refs.mainVideo;
+
+                        if (!bgVideo || !mainVideo) return;
+
+                        // Keep background video muted always
+                        bgVideo.muted = true;
+                        bgVideo.volume = 0;
+
+                        // Sync with main video if it's loaded
+                        if (mainVideo.readyState >= 1) {
+                            this.syncBackgroundVideo();
+                        }
+                    },
+
+                    syncBackgroundVideo() {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
+
+                        if (!video || !bgVideo) return;
+
+                        // Sync current time
+                        bgVideo.currentTime = video.currentTime;
+
+                        // Sync play/pause state
+                        if (!video.paused && bgVideo.paused) {
+                            bgVideo.play().catch(() => {});
+                        } else if (video.paused && !bgVideo.paused) {
+                            bgVideo.pause();
+                        }
+                    },
+
+                    playBothVideos() {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
+
+                        if (!video) return;
+
+                        // Ensure volume is set correctly before playing
+                        if (!this.isMuted) {
+                            video.volume = this.volume;
+                            video.muted = false;
+                        } else {
+                            video.muted = true;
+                        }
+
+                        video.play().then(() => {
+                            this.isPlaying = true;
+                            root.currentPlayingId = this.videoId;
+
+                            // Play background video in sync
+                            if (bgVideo) {
+                                bgVideo.currentTime = video.currentTime;
+                                bgVideo.muted = true; // Always keep background muted
+                                bgVideo.play().catch(() => {});
+                            }
+                        }).catch(error => {
+                            console.error("Autoplay failed:", error);
+                            this.isPlaying = false;
+                        });
+                    },
+
+                    pauseBothVideos() {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
+
+                        if (video) video.pause();
+                        if (bgVideo) bgVideo.pause();
+                        this.isPlaying = false;
+                    },
+
+                    autoplayOnScroll() {
+                        const video = this.$refs.mainVideo;
+                        if (!video || this.isPlaying) return;
+
+                        // Update the current video ID in the root component
+                        root.currentVideoId = this.videoId;
+
+                        // Pause all other videos
+                        document.querySelectorAll('video').forEach(v => {
+                            if (v !== video && !v.classList.contains('filter')) {
+                                v.pause();
+                            }
+                        });
+
+                        this.playBothVideos();
+                    },
+
+                    pauseVideo() {
+                        this.pauseBothVideos();
+                    },
+                    togglePlay() {
+                        const video = this.$refs.mainVideo;
+                        if (!video) return;
+
+                        if (video.paused) {
                             this.playBothVideos();
                             root.currentVideoId = this.videoId;
-                        }, 100);
-                    }
+                        } else {
+                            this.pauseBothVideos();
+                        }
+                    },
 
-                    this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
-                        root: null,
-                        rootMargin: '0px',
-                        threshold: 0.7
-                    });
-                    this.observer.observe(video);
-                },
+                    updateProgress() {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
 
-                initBackgroundVideo() {
-                    const bgVideo = this.$refs.backgroundVideo;
-                    const mainVideo = this.$refs.mainVideo;
+                        if (!video || !video.duration || this.isDraggingProgress) return;
 
-                    if (!bgVideo || !mainVideo) return;
+                        this.currentTime = video.currentTime;
+                        if (video.duration > 0) {
+                            this.progress = (video.currentTime / video.duration) * 100;
+                        } else {
+                            this.progress = 0;
+                        }
 
-                    // Keep background video muted always
-                    bgVideo.muted = true;
-                    bgVideo.volume = 0;
-
-                    // Sync with main video if it's loaded
-                    if (mainVideo.readyState >= 1) {
-                        this.syncBackgroundVideo();
-                    }
-                },
-
-                syncBackgroundVideo() {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-
-                    if (!video || !bgVideo) return;
-
-                    // Sync current time
-                    bgVideo.currentTime = video.currentTime;
-
-                    // Sync play/pause state
-                    if (!video.paused && bgVideo.paused) {
-                        bgVideo.play().catch(() => {});
-                    } else if (video.paused && !bgVideo.paused) {
-                        bgVideo.pause();
-                    }
-                },
-
-                playBothVideos() {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-
-                    if (!video) return;
-
-                    // Ensure volume is set correctly before playing
-                    if (!this.isMuted) {
-                        video.volume = this.volume;
-                        video.muted = false;
-                    } else {
-                        video.muted = true;
-                    }
-
-                    video.play().then(() => {
-                        this.isPlaying = true;
-                        root.currentPlayingId = this.videoId;
-
-                        // Play background video in sync
-                        if (bgVideo) {
+                        // Keep background video in sync
+                        if (bgVideo && Math.abs(bgVideo.currentTime - video.currentTime) > 0.3) {
                             bgVideo.currentTime = video.currentTime;
-                            bgVideo.muted = true; // Always keep background muted
-                            bgVideo.play().catch(() => {});
                         }
-                    }).catch(error => {
-                        console.error("Autoplay failed:", error);
-                        this.isPlaying = false;
-                    });
-                },
+                    },
 
-                pauseBothVideos() {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
+                    setProgress(event) {
+                        if (this.isDraggingProgress) return;
 
-                    if (video) video.pause();
-                    if (bgVideo) bgVideo.pause();
-                    this.isPlaying = false;
-                },
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
+                        const progressBar = this.$refs.progressContainer;
 
-                autoplayOnScroll() {
-                    const video = this.$refs.mainVideo;
-                    if (!video || this.isPlaying) return;
+                        if (!video || !progressBar) return;
 
-                    // Update the current video ID in the root component
-                    root.currentVideoId = this.videoId;
+                        const wasPlaying = !video.paused;
 
-                    // Pause all other videos
-                    document.querySelectorAll('video').forEach(v => {
-                        if (v !== video && !v.classList.contains('filter')) {
-                            v.pause();
+                        const rect = progressBar.getBoundingClientRect();
+                        const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+                        if (clientX === undefined) return;
+
+                        const pos = (clientX - rect.left) / rect.width;
+                        const newTime = Math.max(0, Math.min(video.duration, pos * video.duration));
+
+                        // Set time for both videos
+                        video.currentTime = newTime;
+                        if (bgVideo) {
+                            bgVideo.currentTime = newTime;
                         }
-                    });
 
-                    this.playBothVideos();
-                },
+                        this.updateProgress();
 
-                pauseVideo() {
-                    this.pauseBothVideos();
-                },
-                togglePlay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-
-                    if (video.paused) {
-                        this.playBothVideos();
-                        root.currentVideoId = this.videoId;
-                    } else {
-                        this.pauseBothVideos();
-                    }
-                },
-
-                updateProgress() {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-
-                    if (!video || !video.duration || this.isDraggingProgress) return;
-
-                    this.currentTime = video.currentTime;
-                    if (video.duration > 0) {
-                        this.progress = (video.currentTime / video.duration) * 100;
-                    } else {
-                        this.progress = 0;
-                    }
-
-                    // Keep background video in sync
-                    if (bgVideo && Math.abs(bgVideo.currentTime - video.currentTime) > 0.3) {
-                        bgVideo.currentTime = video.currentTime;
-                    }
-                },
-
-                setProgress(event) {
-                    if (this.isDraggingProgress) return;
-
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-                    const progressBar = this.$refs.progressContainer;
-
-                    if (!video || !progressBar) return;
-
-                    const wasPlaying = !video.paused;
-
-                    const rect = progressBar.getBoundingClientRect();
-                    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-                    if (clientX === undefined) return;
-
-                    const pos = (clientX - rect.left) / rect.width;
-                    const newTime = Math.max(0, Math.min(video.duration, pos * video.duration));
-
-                    // Set time for both videos
-                    video.currentTime = newTime;
-                    if (bgVideo) {
-                        bgVideo.currentTime = newTime;
-                    }
-
-                    this.updateProgress();
-
-                    // Restore play state for both videos
-                    if (wasPlaying && video.paused) {
-                        this.playBothVideos();
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-                handleDoubleClick(event) {
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-
-                    if (!video) return;
-
-                    const rect = video.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    let newTime;
-
-                    if (x < rect.width / 2) {
-                        // Left side - go backward 10 seconds
-                        newTime = Math.max(0, video.currentTime - 10);
-                    } else {
-                        // Right side - go forward 10 seconds
-                        newTime = Math.min(video.duration, video.currentTime + 10);
-                    }
-
-                    console.log('currentTime:', video.currentTime);
-                    // Set new time for both videos
-                    video.currentTime = newTime;
-                    console.log('New Time:', newTime, 'currentTime:', video.currentTime);
-                    if (bgVideo) {
-                        bgVideo.currentTime = newTime;
-                    }
-
-                    this.updateProgress();
-
-                    // Prevent the event from bubbling up
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-                stopProgressDrag(event) {
-                    this.isDraggingProgress = false;
-
-                    const video = this.$refs.mainVideo;
-                    const bgVideo = this.$refs.backgroundVideo;
-
-                    if (video) {
-                        // Since we're already seeking during drag, no need to seek again
-                        // Just restore play state if it was playing before drag
-                        if (this.wasPlayingBeforeProgressDrag && video.paused) {
+                        // Restore play state for both videos
+                        if (wasPlaying && video.paused) {
                             this.playBothVideos();
                         }
-                    }
 
-                    // Hide thumbnail after short delay
-                    setTimeout(() => {
-                        const preview = this.$refs.thumbnailPreview;
-                        if (preview && !this.showProgressHandle) {
-                            preview.style.opacity = '0';
-                            setTimeout(() => {
-                                if (!this.showThumbnail) {
-                                    preview.style.display = 'none';
-                                }
-                                this.showThumbnail = false;
-                            }, 150);
-                        }
-                    }, 300);
-
-                    document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
-                    document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
-
-                    // Re-enable text selection
-                    document.body.style.userSelect = '';
-
-                    if (event) {
                         event.preventDefault();
                         event.stopPropagation();
-                    }
-                },
+                    },
 
-                selectVideo(videoId) {
-                    root.selectedVideoId = videoId;
-                    root.currentVideoId = videoId;
+                    handleDoubleClick(event) {
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
 
-                    // Pause all other videos
-                    document.querySelectorAll('video').forEach(v => {
-                        if (v.dataset.videoId !== videoId && !v.classList.contains('filter')) {
-                            v.pause();
+                        if (!video) return;
+
+                        const rect = video.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        let newTime;
+
+                        if (x < rect.width / 2) {
+                            // Left side - go backward 10 seconds
+                            newTime = Math.max(0, video.currentTime - 10);
+                        } else {
+                            // Right side - go forward 10 seconds
+                            newTime = Math.min(video.duration, video.currentTime + 10);
                         }
-                    });
 
-                    const video = this.$refs.mainVideo;
-                    if (video && video.dataset.videoId === videoId) {
-                        this.playBothVideos();
-                    }
-                },
+                        console.log('currentTime:', video.currentTime);
+                        // Set new time for both videos
+                        video.currentTime = newTime;
+                        console.log('New Time:', newTime, 'currentTime:', video.currentTime);
+                        if (bgVideo) {
+                            bgVideo.currentTime = newTime;
+                        }
 
-                toggleMute() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
+                        this.updateProgress();
 
-                    if (this.isMuted) {
-                        // Unmute
-                        this.isMuted = false;
-                        video.muted = false;
-                        this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                        // Prevent the event from bubbling up
+                        event.preventDefault();
+                        event.stopPropagation();
+                    },
+
+                    stopProgressDrag(event) {
+                        this.isDraggingProgress = false;
+
+                        const video = this.$refs.mainVideo;
+                        const bgVideo = this.$refs.backgroundVideo;
+
+                        if (video) {
+                            // Since we're already seeking during drag, no need to seek again
+                            // Just restore play state if it was playing before drag
+                            if (this.wasPlayingBeforeProgressDrag && video.paused) {
+                                this.playBothVideos();
+                            }
+                        }
+
+                        // Hide thumbnail after short delay
+                        setTimeout(() => {
+                            const preview = this.$refs.thumbnailPreview;
+                            if (preview && !this.showProgressHandle) {
+                                preview.style.opacity = '0';
+                                setTimeout(() => {
+                                    if (!this.showThumbnail) {
+                                        preview.style.display = 'none';
+                                    }
+                                    this.showThumbnail = false;
+                                }, 150);
+                            }
+                        }, 300);
+
+                        document.removeEventListener('mousemove', this.handleProgressDrag.bind(this));
+                        document.removeEventListener('mouseup', this.stopProgressDrag.bind(this));
+
+                        // Re-enable text selection
+                        document.body.style.userSelect = '';
+
+                        if (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                    },
+
+                    selectVideo(videoId) {
+                        root.selectedVideoId = videoId;
+                        root.currentVideoId = videoId;
+
+                        // Pause all other videos
+                        document.querySelectorAll('video').forEach(v => {
+                            if (v.dataset.videoId !== videoId && !v.classList.contains('filter')) {
+                                v.pause();
+                            }
+                        });
+
+                        const video = this.$refs.mainVideo;
+                        if (video && video.dataset.videoId === videoId) {
+                            this.playBothVideos();
+                        }
+                    },
+
+                    toggleMute() {
+                        const video = this.$refs.mainVideo;
+                        if (!video) return;
+
+                        if (this.isMuted) {
+                            // Unmute
+                            this.isMuted = false;
+                            video.muted = false;
+                            this.volume = this.lastVolume > 0 ? this.lastVolume : 0.5;
+                            video.volume = this.volume;
+                        } else {
+                            // Mute
+                            this.lastVolume = this.volume;
+                            this.isMuted = true;
+                            video.muted = true;
+                            this.volume = 0;
+                        }
+
+                        this.updateVolumeDisplay();
+                    },
+
+                    setTopVolume(event) {
+                        const slider = this.$refs.topVolumeSlider;
+                        const video = this.$refs.mainVideo;
+                        if (!slider || !video || this.isDraggingVolume) return;
+
+                        const rect = slider.getBoundingClientRect();
+                        const clientX = event.clientX;
+                        const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+                        // Store play state before volume change
+                        const wasPlaying = !video.paused;
+
+                        this.volume = pos;
                         video.volume = this.volume;
-                    } else {
-                        // Mute
-                        this.lastVolume = this.volume;
-                        this.isMuted = true;
-                        video.muted = true;
-                        this.volume = 0;
-                    }
 
-                    this.updateVolumeDisplay();
-                },
-
-                setTopVolume(event) {
-                    const slider = this.$refs.topVolumeSlider;
-                    const video = this.$refs.mainVideo;
-                    if (!slider || !video || this.isDraggingVolume) return;
-
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = event.clientX;
-                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
-                    // Store play state before volume change
-                    const wasPlaying = !video.paused;
-
-                    this.volume = pos;
-                    video.volume = this.volume;
-
-                    if (this.volume === 0) {
-                        video.muted = true;
-                        this.isMuted = true;
-                    } else {
-                        video.muted = false;
-                        this.isMuted = false;
-                        this.lastVolume = this.volume;
-                    }
-
-                    // Restore play state if it was playing
-                    if (wasPlaying && video.paused) {
-                        video.play().catch(() => {});
-                        this.isPlaying = true;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-                handleTopVolumeDrag(event) {
-                    if (!this.isDraggingVolume) return;
-
-                    const slider = this.$refs.topVolumeSlider;
-                    const video = this.$refs.mainVideo;
-                    if (!slider || !video) return;
-
-                    const rect = slider.getBoundingClientRect();
-                    const clientX = event.clientX;
-                    const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
-                    this.volume = pos;
-                    video.volume = this.volume;
-
-                    if (this.volume === 0) {
-                        video.muted = true;
-                        this.isMuted = true;
-                    } else {
-                        video.muted = false;
-                        this.isMuted = false;
-                        this.lastVolume = this.volume;
-                    }
-
-                    // Ensure video continues playing if it was playing before drag
-                    if (this.wasPlayingBeforeDrag && video.paused) {
-                        video.play().catch(() => {});
-                        this.isPlaying = true;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-                // Enhanced thumbnail generation
-                generateThumbnails() {
-                    if (this.thumbnailsGenerated) return;
-
-                    const video = this.$refs.mainVideo;
-                    if (!video || !video.duration) return;
-
-                    this.thumbnailsGenerated = true;
-                    this.thumbnails = [];
-
-                    // Pre-generate thumbnails at key intervals for smooth preview
-                    const thumbnailCount = 50; // Number of thumbnails to generate
-
-                    // Add buffer progress tracking
-                    video.addEventListener('progress', () => {
-                        if (video.buffered.length > 0) {
-                            const buffered = video.buffered.end(video.buffered.length - 1);
-                            this.bufferProgress = (buffered / video.duration) * 100;
+                        if (this.volume === 0) {
+                            video.muted = true;
+                            this.isMuted = true;
+                        } else {
+                            video.muted = false;
+                            this.isMuted = false;
+                            this.lastVolume = this.volume;
                         }
-                    });
 
-                    // Generate thumbnails after video is fully loaded
-                    video.addEventListener('loadeddata', () => {
-                        this.preGenerateThumbnails(thumbnailCount);
-                    });
-                },
-                preGenerateThumbnails(count) {
-                    const video = this.$refs.mainVideo;
-                    if (!video || !video.duration) return;
+                        // Restore play state if it was playing
+                        if (wasPlaying && video.paused) {
+                            video.play().catch(() => {});
+                            this.isPlaying = true;
+                        }
 
-                    const interval = video.duration / count;
-                    let index = 0;
+                        event.preventDefault();
+                        event.stopPropagation();
+                    },
 
-                    const generateNext = () => {
-                        if (index >= count) return;
+                    handleTopVolumeDrag(event) {
+                        if (!this.isDraggingVolume) return;
 
-                        const time = index * interval;
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 160;
-                        canvas.height = 90;
+                        const slider = this.$refs.topVolumeSlider;
+                        const video = this.$refs.mainVideo;
+                        if (!slider || !video) return;
+
+                        const rect = slider.getBoundingClientRect();
+                        const clientX = event.clientX;
+                        const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+                        this.volume = pos;
+                        video.volume = this.volume;
+
+                        if (this.volume === 0) {
+                            video.muted = true;
+                            this.isMuted = true;
+                        } else {
+                            video.muted = false;
+                            this.isMuted = false;
+                            this.lastVolume = this.volume;
+                        }
+
+                        // Ensure video continues playing if it was playing before drag
+                        if (this.wasPlayingBeforeDrag && video.paused) {
+                            video.play().catch(() => {});
+                            this.isPlaying = true;
+                        }
+
+                        event.preventDefault();
+                        event.stopPropagation();
+                    },
+
+                    // Enhanced thumbnail generation
+                    generateThumbnails() {
+                        if (this.thumbnailsGenerated) return;
+
+                        const video = this.$refs.mainVideo;
+                        if (!video || !video.duration) return;
+
+                        this.thumbnailsGenerated = true;
+                        this.thumbnails = [];
+
+                        // Pre-generate thumbnails at key intervals for smooth preview
+                        const thumbnailCount = 50; // Number of thumbnails to generate
+
+                        // Add buffer progress tracking
+                        video.addEventListener('progress', () => {
+                            if (video.buffered.length > 0) {
+                                const buffered = video.buffered.end(video.buffered.length - 1);
+                                this.bufferProgress = (buffered / video.duration) * 100;
+                            }
+                        });
+
+                        // Generate thumbnails after video is fully loaded
+                        video.addEventListener('loadeddata', () => {
+                            this.preGenerateThumbnails(thumbnailCount);
+                        });
+                    },
+                    preGenerateThumbnails(count) {
+                        const video = this.$refs.mainVideo;
+                        if (!video || !video.duration) return;
+
+                        const interval = video.duration / count;
+                        let index = 0;
+
+                        const generateNext = () => {
+                            if (index >= count) return;
+
+                            const time = index * interval;
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 160;
+                            canvas.height = 90;
+                            const ctx = canvas.getContext('2d');
+
+                            // Create a temporary video element for thumbnail generation
+                            const tempVideo = document.createElement('video');
+                            tempVideo.src = video.src;
+                            tempVideo.currentTime = time;
+                            tempVideo.muted = true;
+                            tempVideo.style.display = 'none';
+                            document.body.appendChild(tempVideo);
+
+                            tempVideo.addEventListener('seeked', () => {
+                                try {
+                                    ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+                                    this.thumbnails[index] = {
+                                        time: time,
+                                        canvas: canvas,
+                                        dataUrl: canvas.toDataURL()
+                                    };
+                                } catch (error) {
+                                    // Fallback thumbnail
+                                    ctx.fillStyle = '#4a4a4a';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                    ctx.fillStyle = '#ff6b35';
+                                    ctx.font = '12px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.fillText(this.formatTime(time), canvas.width / 2, canvas.height / 2);
+
+                                    this.thumbnails[index] = {
+                                        time: time,
+                                        canvas: canvas,
+                                        dataUrl: canvas.toDataURL()
+                                    };
+                                }
+
+                                document.body.removeChild(tempVideo);
+                                index++;
+
+                                // Generate next thumbnail with small delay for smooth performance
+                                setTimeout(generateNext, 50);
+                            }, {
+                                once: true
+                            });
+
+                            tempVideo.load();
+                        };
+
+                        generateNext();
+                    },
+
+
+                    // Enhanced progress bar methods
+                    handleProgressHover(isHovering) {
+                        this.showProgressHandle = isHovering || this.isDraggingProgress;
+
+                        if (!isHovering && !this.isDraggingProgress) {
+                            // Smooth hide animation for thumbnail
+                            const preview = this.$refs.thumbnailPreview;
+                            if (preview) {
+                                preview.style.opacity = '0';
+                                preview.style.transform = 'translateX(0) translateY(-4px)';
+                                setTimeout(() => {
+                                    if (!this.showThumbnail) {
+                                        preview.style.display = 'none';
+                                    }
+                                    this.showThumbnail = false;
+                                }, 150);
+                            }
+                        }
+                    },
+
+                    handleProgressMouseMove(event) {
+                        if (!this.showProgressHandle && !this.isDraggingProgress) return;
+
+                        const container = this.$refs.progressContainer;
+                        const video = this.$refs.mainVideo;
+                        if (!container || !video) return;
+
+                        const rect = container.getBoundingClientRect();
+                        const pos = (event.clientX - rect.left) / rect.width;
+                        const time = Math.max(0, Math.min(video.duration, pos * video.duration));
+
+                        this.thumbnailTime = time;
+                        this.showThumbnailPreview(event.clientX - rect.left, time);
+                    },
+
+                    showThumbnailPreview(x, time) {
+                        const preview = this.$refs.thumbnailPreview;
+                        const canvas = this.$refs.thumbnailCanvas;
+                        const container = this.$refs.progressContainer;
+
+                        if (!preview || !canvas || !container) return;
+
+                        // Position the preview
+                        const containerRect = container.getBoundingClientRect();
+                        const previewWidth = 160;
+                        let leftPos = x - (previewWidth / 2);
+
+                        // Keep preview within bounds
+                        leftPos = Math.max(10, Math.min(containerRect.width - previewWidth - 10, leftPos));
+
+                        preview.style.left = leftPos + 'px';
+                        preview.style.display = 'block';
+                        preview.style.opacity = '1';
+                        preview.style.transform = 'translateX(0) translateY(-8px)';
+                        this.showThumbnail = true;
+
+                        // Update thumbnail without affecting video playback
+                        this.updateThumbnailCanvas(time);
+                    },
+
+                    updateThumbnailCanvas(time) {
+                        const canvas = this.$refs.thumbnailCanvas;
+                        if (!canvas) return;
+
                         const ctx = canvas.getContext('2d');
 
-                        // Create a temporary video element for thumbnail generation
-                        const tempVideo = document.createElement('video');
-                        tempVideo.src = video.src;
-                        tempVideo.currentTime = time;
-                        tempVideo.muted = true;
-                        tempVideo.style.display = 'none';
-                        document.body.appendChild(tempVideo);
+                        // Find the closest pre-generated thumbnail
+                        if (this.thumbnails && this.thumbnails.length > 0) {
+                            let closestThumbnail = this.thumbnails[0];
+                            let minDiff = Math.abs(time - closestThumbnail.time);
 
-                        tempVideo.addEventListener('seeked', () => {
-                            try {
-                                ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-                                this.thumbnails[index] = {
-                                    time: time,
-                                    canvas: canvas,
-                                    dataUrl: canvas.toDataURL()
-                                };
-                            } catch (error) {
-                                // Fallback thumbnail
-                                ctx.fillStyle = '#4a4a4a';
-                                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                ctx.fillStyle = '#ff6b35';
-                                ctx.font = '12px Arial';
-                                ctx.textAlign = 'center';
-                                ctx.fillText(this.formatTime(time), canvas.width / 2, canvas.height / 2);
-
-                                this.thumbnails[index] = {
-                                    time: time,
-                                    canvas: canvas,
-                                    dataUrl: canvas.toDataURL()
-                                };
-                            }
-
-                            document.body.removeChild(tempVideo);
-                            index++;
-
-                            // Generate next thumbnail with small delay for smooth performance
-                            setTimeout(generateNext, 50);
-                        }, {
-                            once: true
-                        });
-
-                        tempVideo.load();
-                    };
-
-                    generateNext();
-                },
-
-
-                // Enhanced progress bar methods
-                handleProgressHover(isHovering) {
-                    this.showProgressHandle = isHovering || this.isDraggingProgress;
-
-                    if (!isHovering && !this.isDraggingProgress) {
-                        // Smooth hide animation for thumbnail
-                        const preview = this.$refs.thumbnailPreview;
-                        if (preview) {
-                            preview.style.opacity = '0';
-                            preview.style.transform = 'translateX(0) translateY(-4px)';
-                            setTimeout(() => {
-                                if (!this.showThumbnail) {
-                                    preview.style.display = 'none';
+                            for (let thumbnail of this.thumbnails) {
+                                if (!thumbnail) continue;
+                                const diff = Math.abs(time - thumbnail.time);
+                                if (diff < minDiff) {
+                                    minDiff = diff;
+                                    closestThumbnail = thumbnail;
                                 }
-                                this.showThumbnail = false;
-                            }, 150);
-                        }
-                    }
-                },
+                            }
 
-                handleProgressMouseMove(event) {
-                    if (!this.showProgressHandle && !this.isDraggingProgress) return;
-
-                    const container = this.$refs.progressContainer;
-                    const video = this.$refs.mainVideo;
-                    if (!container || !video) return;
-
-                    const rect = container.getBoundingClientRect();
-                    const pos = (event.clientX - rect.left) / rect.width;
-                    const time = Math.max(0, Math.min(video.duration, pos * video.duration));
-
-                    this.thumbnailTime = time;
-                    this.showThumbnailPreview(event.clientX - rect.left, time);
-                },
-
-                showThumbnailPreview(x, time) {
-                    const preview = this.$refs.thumbnailPreview;
-                    const canvas = this.$refs.thumbnailCanvas;
-                    const container = this.$refs.progressContainer;
-
-                    if (!preview || !canvas || !container) return;
-
-                    // Position the preview
-                    const containerRect = container.getBoundingClientRect();
-                    const previewWidth = 160;
-                    let leftPos = x - (previewWidth / 2);
-
-                    // Keep preview within bounds
-                    leftPos = Math.max(10, Math.min(containerRect.width - previewWidth - 10, leftPos));
-
-                    preview.style.left = leftPos + 'px';
-                    preview.style.display = 'block';
-                    preview.style.opacity = '1';
-                    preview.style.transform = 'translateX(0) translateY(-8px)';
-                    this.showThumbnail = true;
-
-                    // Update thumbnail without affecting video playback
-                    this.updateThumbnailCanvas(time);
-                },
-
-                updateThumbnailCanvas(time) {
-                    const canvas = this.$refs.thumbnailCanvas;
-                    if (!canvas) return;
-
-                    const ctx = canvas.getContext('2d');
-
-                    // Find the closest pre-generated thumbnail
-                    if (this.thumbnails && this.thumbnails.length > 0) {
-                        let closestThumbnail = this.thumbnails[0];
-                        let minDiff = Math.abs(time - closestThumbnail.time);
-
-                        for (let thumbnail of this.thumbnails) {
-                            if (!thumbnail) continue;
-                            const diff = Math.abs(time - thumbnail.time);
-                            if (diff < minDiff) {
-                                minDiff = diff;
-                                closestThumbnail = thumbnail;
+                            if (closestThumbnail && closestThumbnail.canvas) {
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                ctx.drawImage(closestThumbnail.canvas, 0, 0);
+                                return;
                             }
                         }
 
-                        if (closestThumbnail && closestThumbnail.canvas) {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            ctx.drawImage(closestThumbnail.canvas, 0, 0);
-                            return;
+                        // Fallback: generate thumbnail on the fly (without affecting main video)
+                        this.generateInstantThumbnail(time, ctx);
+                    },
+
+                    generateInstantThumbnail(time, ctx) {
+                        const video = this.$refs.mainVideo;
+                        if (!video) return;
+
+                        // Create temporary canvas for thumbnail
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = 160;
+                        tempCanvas.height = 90;
+                        const tempCtx = tempCanvas.getContext('2d');
+
+                        // Use video's current frame as base and apply time-based effects
+                        try {
+                            tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+
+                            // Add time overlay
+                            tempCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                            // Copy to main canvas
+                            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            ctx.drawImage(tempCanvas, 0, 0);
+                        } catch (error) {
+                            // Fallback placeholder
+                            ctx.fillStyle = '#4a4a4a';
+                            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            ctx.fillStyle = '#ff6b35';
+                            ctx.font = '14px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('Preview', ctx.canvas.width / 2, ctx.canvas.height / 2 - 10);
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = '12px Arial';
+                            ctx.fillText(this.formatTime(time), ctx.canvas.width / 2, ctx.canvas.height / 2 + 10);
                         }
-                    }
+                    },
+                    startProgressDrag(event) {
+                        this.isDraggingProgress = true;
+                        this.showProgressHandle = true;
 
-                    // Fallback: generate thumbnail on the fly (without affecting main video)
-                    this.generateInstantThumbnail(time, ctx);
-                },
+                        // Store current play state
+                        const video = this.$refs.mainVideo;
+                        this.wasPlayingBeforeProgressDrag = video && !video.paused;
 
-                generateInstantThumbnail(time, ctx) {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
+                        // Keep thumbnail visible during drag
+                        this.showThumbnail = true;
 
-                    // Create temporary canvas for thumbnail
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = 160;
-                    tempCanvas.height = 90;
-                    const tempCtx = tempCanvas.getContext('2d');
+                        document.addEventListener('mousemove', this.handleProgressDrag.bind(this));
+                        document.addEventListener('mouseup', this.stopProgressDrag.bind(this));
 
-                    // Use video's current frame as base and apply time-based effects
-                    try {
-                        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-
-                        // Add time overlay
-                        tempCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                        // Copy to main canvas
-                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.drawImage(tempCanvas, 0, 0);
-                    } catch (error) {
-                        // Fallback placeholder
-                        ctx.fillStyle = '#4a4a4a';
-                        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.fillStyle = '#ff6b35';
-                        ctx.font = '14px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('Preview', ctx.canvas.width / 2, ctx.canvas.height / 2 - 10);
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = '12px Arial';
-                        ctx.fillText(this.formatTime(time), ctx.canvas.width / 2, ctx.canvas.height / 2 + 10);
-                    }
-                },
-                startProgressDrag(event) {
-                    this.isDraggingProgress = true;
-                    this.showProgressHandle = true;
-
-                    // Store current play state
-                    const video = this.$refs.mainVideo;
-                    this.wasPlayingBeforeProgressDrag = video && !video.paused;
-
-                    // Keep thumbnail visible during drag
-                    this.showThumbnail = true;
-
-                    document.addEventListener('mousemove', this.handleProgressDrag.bind(this));
-                    document.addEventListener('mouseup', this.stopProgressDrag.bind(this));
-
-                    // Prevent text selection while dragging and stop propagation
-                    event.preventDefault();
-                    event.stopPropagation();
-                    document.body.style.userSelect = 'none';
-                },
-
-                handleProgressDrag(event) {
-                    if (!this.isDraggingProgress) return;
-
-                    const container = this.$refs.progressContainer;
-                    const video = this.$refs.mainVideo;
-                    if (!container || !video) return;
-
-                    const rect = container.getBoundingClientRect();
-                    const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-                    const newTime = pos * video.duration;
-
-                    // Update progress visually without seeking
-                    this.currentTime = newTime;
-                    this.progress = pos * 100;
-                    this.thumbnailTime = newTime;
-
-                    // Update thumbnail preview during drag
-                    this.showThumbnailPreview(event.clientX - rect.left, newTime);
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                },
-
-
-                // Utility function to format time
-                formatTime(seconds) {
-                    if (!seconds || isNaN(seconds)) return '00:00';
-
-                    const mins = Math.floor(seconds / 60);
-                    const secs = Math.floor(seconds % 60);
-                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                },
-
-                // Enhanced existing methods
-                handleIntersection(entries) {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            this.autoplayOnScroll();
-                        } else {
-                            this.pauseVideo();
-                            this.showThumbnail = false; // Hide thumbnail when video not visible
-                        }
-                    });
-                },
-
-                updateVolumeDisplay() {
-                    const video = this.$refs.mainVideo;
-                    if (!video) return;
-                    this.volume = video.volume;
-                    this.isMuted = video.muted;
-                    if (this.isMuted) {
-                        this.volume = 0;
-                    }
-                },
-
-                handleTouchEnd(event) {
-                    const currentTime = new Date().getTime();
-                    const tapDiff = currentTime - this.lastTap;
-                    if (tapDiff < 300) {
-                        this.handleDoubleClick(event);
-                    } else {
-                        this.togglePlay();
-                    }
-                    this.lastTap = currentTime;
-                },
-
-
-                // Volume control methods
-                startTopVolumeDrag(event) {
-                    this.isDraggingVolume = true;
-
-                    // Store current play state to restore it later
-                    const video = this.$refs.mainVideo;
-                    this.wasPlayingBeforeDrag = video && !video.paused;
-
-                    document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
-                    document.addEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
-
-                    // Prevent default behavior and stop event propagation
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    // Prevent focus changes that could pause the video
-                    document.body.style.userSelect = 'none';
-                },
-
-
-
-                stopTopVolumeDrag(event) {
-                    this.isDraggingVolume = false;
-
-                    document.removeEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
-                    document.removeEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
-
-                    // Re-enable text selection
-                    document.body.style.userSelect = '';
-
-                    // Restore play state if needed
-                    const video = this.$refs.mainVideo;
-                    if (this.wasPlayingBeforeDrag && video && video.paused) {
-                        video.play().catch(() => {});
-                    }
-
-                    if (event) {
+                        // Prevent text selection while dragging and stop propagation
                         event.preventDefault();
                         event.stopPropagation();
-                    }
-                },
+                        document.body.style.userSelect = 'none';
+                    },
 
-            };
-        }
+                    handleProgressDrag(event) {
+                        if (!this.isDraggingProgress) return;
 
-        // Notification system (optional)
-        document.addEventListener('DOMContentLoaded', function() {
-            document.addEventListener('notify', function(event) {
-                const {
-                    type,
-                    message
-                } = event.detail;
+                        const container = this.$refs.progressContainer;
+                        const video = this.$refs.mainVideo;
+                        if (!container || !video) return;
 
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
-                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                }`;
-                notification.textContent = message;
+                        const rect = container.getBoundingClientRect();
+                        const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+                        const newTime = pos * video.duration;
 
-                // Add to DOM
-                document.body.appendChild(notification);
+                        // Update progress visually without seeking
+                        this.currentTime = newTime;
+                        this.progress = pos * 100;
+                        this.thumbnailTime = newTime;
 
-                // Animate in
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                    notification.style.opacity = '1';
-                }, 100);
+                        // Update thumbnail preview during drag
+                        this.showThumbnailPreview(event.clientX - rect.left, newTime);
 
-                // Remove after delay
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(100%)';
-                    notification.style.opacity = '0';
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                    }, 300);
-                }, 3000);
-            });
-        });
-
-        // Initialize Livewire listeners for video updates
-        document.addEventListener('livewire:load', function() {
-            Livewire.on('videosUpdated', function() {
-                // Refresh the videos array when updated
-                setTimeout(() => {
-                    window.location.reload();
-                }, 100);
-            });
-        });
+                        event.preventDefault();
+                        event.stopPropagation();
+                    },
 
 
-        (function(window, document) {
-            'use strict';
+                    // Utility function to format time
+                    formatTime(seconds) {
+                        if (!seconds || isNaN(seconds)) return '00:00';
 
-            // Global Dynamic Viewport Height Manager
-            const DynamicVH = {
-                // Configuration
-                config: {
-                    debounceDelay: 100,
-                    orientationDelay: 500,
-                    iosScrollDelay: 150,
-                    enableDebug: false // Set to true for console logs
-                },
+                        const mins = Math.floor(seconds / 60);
+                        const secs = Math.floor(seconds % 60);
+                        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    },
 
-                // State
-                state: {
-                    isInitialized: false,
-                    currentVH: null,
-                    deviceInfo: {},
-                    resizeTimer: null,
-                    scrollTimer: null
-                },
-
-                // Device detection
-                detectDevice() {
-                    const userAgent = navigator.userAgent.toLowerCase();
-                    const platform = navigator.platform.toLowerCase();
-
-                    const deviceInfo = {
-                        isIOS: /iphone|ipad|ipod/.test(userAgent) || /iphone|ipad|ipod/.test(platform),
-                        isAndroid: /android/.test(userAgent),
-                        isSafari: /safari/.test(userAgent) && !/chrome/.test(userAgent),
-                        isChrome: /chrome/.test(userAgent) && !/safari/.test(userAgent),
-                        isMobile: /mobile|tablet|android|iphone|ipad|ipod/.test(userAgent) || window
-                            .innerWidth <= 768,
-                        isTablet: /tablet|ipad/.test(userAgent) || (window.innerWidth >= 768 && window
-                            .innerWidth <= 1024),
-                        screenWidth: window.innerWidth,
-                        screenHeight: window.innerHeight,
-                        orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
-                    };
-
-                    // Add device classes to body
-                    this.updateBodyClasses(deviceInfo);
-
-                    this.state.deviceInfo = deviceInfo;
-
-                    if (this.config.enableDebug) {
-                        console.log('Device detected:', deviceInfo);
-                    }
-
-                    return deviceInfo;
-                },
-
-                // Update body classes based on device
-                updateBodyClasses(deviceInfo) {
-                    const body = document.body;
-
-                    // Remove old classes
-                    const oldClasses = ['ios-device', 'android-device', 'mobile-device', 'tablet-device',
-                        'desktop-device', 'safari-browser', 'chrome-browser', 'landscape', 'portrait'
-                    ];
-                    body.classList.remove(...oldClasses);
-
-                    // Add new classes
-                    if (deviceInfo.isIOS) body.classList.add('ios-device');
-                    if (deviceInfo.isAndroid) body.classList.add('android-device');
-                    if (deviceInfo.isMobile) body.classList.add('mobile-device');
-                    if (deviceInfo.isTablet) body.classList.add('tablet-device');
-                    if (!deviceInfo.isMobile && !deviceInfo.isTablet) body.classList.add('desktop-device');
-                    if (deviceInfo.isSafari) body.classList.add('safari-browser');
-                    if (deviceInfo.isChrome) body.classList.add('chrome-browser');
-                    body.classList.add(deviceInfo.orientation);
-                },
-
-                // Set CSS custom properties for viewport height
-                setVH() {
-                    const vh = window.innerHeight * 0.01;
-                    const vw = window.innerWidth * 0.01;
-
-                    // Only update if changed significantly (avoid unnecessary repaints)
-                    if (this.state.currentVH === null || Math.abs(this.state.currentVH - vh) > 0.1) {
-                        document.documentElement.style.setProperty('--vh', `${vh}px`);
-                        document.documentElement.style.setProperty('--vw', `${vw}px`);
-                        document.documentElement.style.setProperty('--device-height', `${window.innerHeight}px`);
-                        document.documentElement.style.setProperty('--device-width', `${window.innerWidth}px`);
-
-                        this.state.currentVH = vh;
-
-                        if (this.config.enableDebug) {
-                            console.log('VH updated:', {
-                                vh: `${vh}px`,
-                                height: window.innerHeight
-                            });
-                        }
-
-                        // Dispatch custom event for other scripts to listen to
-                        window.dispatchEvent(new CustomEvent('vh-updated', {
-                            detail: {
-                                vh: vh,
-                                height: window.innerHeight,
-                                width: window.innerWidth,
-                                deviceInfo: this.state.deviceInfo
+                    // Enhanced existing methods
+                    handleIntersection(entries) {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                this.autoplayOnScroll();
+                            } else {
+                                this.pauseVideo();
+                                this.showThumbnail = false; // Hide thumbnail when video not visible
                             }
-                        }));
-                    }
-                },
-
-                // Handle window resize
-                handleResize() {
-                    clearTimeout(this.state.resizeTimer);
-                    this.state.resizeTimer = setTimeout(() => {
-                        this.detectDevice();
-                        this.setVH();
-                    }, this.config.debounceDelay);
-                },
-
-                // Handle orientation change
-                handleOrientationChange() {
-                    setTimeout(() => {
-                        this.detectDevice();
-                        this.setVH();
-                    }, this.config.orientationDelay);
-                },
-
-                // Handle iOS Safari scroll (address bar show/hide)
-                handleIOSScroll() {
-                    if (!this.state.deviceInfo.isIOS) return;
-
-                    clearTimeout(this.state.scrollTimer);
-                    this.state.scrollTimer = setTimeout(() => {
-                        this.setVH();
-                    }, this.config.iosScrollDelay);
-                },
-
-                // Handle focus events that might change viewport (iOS keyboards)
-                handleFocusEvents() {
-                    if (!this.state.deviceInfo.isMobile) return;
-
-                    setTimeout(() => {
-                        this.setVH();
-                    }, 300);
-                },
-
-                // Add event listeners
-                addEventListeners() {
-                    // Resize events
-                    window.addEventListener('resize', this.handleResize.bind(this), {
-                        passive: true
-                    });
-
-                    // Orientation change
-                    window.addEventListener('orientationchange', this.handleOrientationChange.bind(this), {
-                        passive: true
-                    });
-
-                    // iOS Safari specific events
-                    if (this.state.deviceInfo.isIOS && this.state.deviceInfo.isSafari) {
-                        window.addEventListener('scroll', this.handleIOSScroll.bind(this), {
-                            passive: true
                         });
-                        document.addEventListener('focusin', this.handleFocusEvents.bind(this), {
-                            passive: true
-                        });
-                        document.addEventListener('focusout', this.handleFocusEvents.bind(this), {
-                            passive: true
-                        });
-                    }
+                    },
 
-                    // Page visibility change (when switching between apps)
-                    document.addEventListener('visibilitychange', () => {
-                        if (!document.hidden) {
-                            setTimeout(() => this.setVH(), 100);
+                    updateVolumeDisplay() {
+                        const video = this.$refs.mainVideo;
+                        if (!video) return;
+                        this.volume = video.volume;
+                        this.isMuted = video.muted;
+                        if (this.isMuted) {
+                            this.volume = 0;
                         }
-                    }, {
-                        passive: true
-                    });
-                },
+                    },
 
-                // Initialize the system
-                init() {
-                    if (this.state.isInitialized) return;
+                    handleTouchEnd(event) {
+                        const currentTime = new Date().getTime();
+                        const tapDiff = currentTime - this.lastTap;
+                        if (tapDiff < 300) {
+                            this.handleDoubleClick(event);
+                        } else {
+                            this.togglePlay();
+                        }
+                        this.lastTap = currentTime;
+                    },
 
-                    this.detectDevice();
-                    this.setVH();
-                    this.addEventListeners();
 
-                    this.state.isInitialized = true;
+                    // Volume control methods
+                    startTopVolumeDrag(event) {
+                        this.isDraggingVolume = true;
 
-                    if (this.config.enableDebug) {
-                        console.log('Dynamic VH initialized');
-                    }
+                        // Store current play state to restore it later
+                        const video = this.$refs.mainVideo;
+                        this.wasPlayingBeforeDrag = video && !video.paused;
 
-                    // Dispatch initialization event
-                    window.dispatchEvent(new CustomEvent('dynamic-vh-ready', {
-                        detail: this.state.deviceInfo
-                    }));
-                },
+                        document.addEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
+                        document.addEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
 
-                // Public API methods
-                refresh() {
-                    this.detectDevice();
-                    this.setVH();
-                },
+                        // Prevent default behavior and stop event propagation
+                        event.preventDefault();
+                        event.stopPropagation();
 
-                getDeviceInfo() {
-                    return this.state.deviceInfo;
-                },
+                        // Prevent focus changes that could pause the video
+                        document.body.style.userSelect = 'none';
+                    },
 
-                enableDebug() {
-                    this.config.enableDebug = true;
-                },
 
-                disableDebug() {
-                    this.config.enableDebug = false;
-                },
 
-                // Update configuration
-                configure(options) {
-                    Object.assign(this.config, options);
-                }
-            };
+                    stopTopVolumeDrag(event) {
+                        this.isDraggingVolume = false;
 
-            // Auto-initialize when DOM is ready
-            function autoInit() {
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => DynamicVH.init());
-                } else {
-                    DynamicVH.init();
-                }
+                        document.removeEventListener('mousemove', this.handleTopVolumeDrag.bind(this));
+                        document.removeEventListener('mouseup', this.stopTopVolumeDrag.bind(this));
+
+                        // Re-enable text selection
+                        document.body.style.userSelect = '';
+
+                        // Restore play state if needed
+                        const video = this.$refs.mainVideo;
+                        if (this.wasPlayingBeforeDrag && video && video.paused) {
+                            video.play().catch(() => {});
+                        }
+
+                        if (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                    },
+
+                };
             }
 
-            // Expose to global scope
-            window.DynamicVH = DynamicVH;
+            // Notification system (optional)
+            document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('notify', function(event) {
+                    const {
+                        type,
+                        message
+                    } = event.detail;
 
-            // Auto-initialize
-            autoInit();
+                    // Create notification element
+                    const notification = document.createElement('div');
+                    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
+                    notification.textContent = message;
 
-            // Helper function for easy integration with frameworks
-            window.initDynamicVH = function() {
-                return DynamicVH.init();
-            };
+                    // Add to DOM
+                    document.body.appendChild(notification);
 
-        })(window, document);
+                    // Animate in
+                    setTimeout(() => {
+                        notification.style.transform = 'translateX(0)';
+                        notification.style.opacity = '1';
+                    }, 100);
 
-        // Optional: Alpine.js integration helper
-        if (typeof Alpine !== 'undefined') {
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('dynamicVH', () => ({
-                    deviceInfo: {},
-                    vh: '1vh',
-
-                    init() {
-                        this.deviceInfo = window.DynamicVH.getDeviceInfo();
-
-                        // Listen for VH updates
-                        window.addEventListener('vh-updated', (event) => {
-                            this.vh = event.detail.vh + 'px';
-                            this.deviceInfo = event.detail.deviceInfo;
-                        });
-                    }
-                }));
+                    // Remove after delay
+                    setTimeout(() => {
+                        notification.style.transform = 'translateX(100%)';
+                        notification.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 300);
+                    }, 3000);
+                });
             });
-        }
 
-        // Optional: Vue.js integration helper
-        if (typeof Vue !== 'undefined') {
-            Vue.mixin({
-                data() {
-                    return {
-                        $dynamicVH: window.DynamicVH
-                    };
-                }
+            // Initialize Livewire listeners for video updates
+            document.addEventListener('livewire:load', function() {
+                Livewire.on('videosUpdated', function() {
+                    // Refresh the videos array when updated
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                });
             });
-        }
-    </script>
+        </script>
+        <script src="{{ asset('assets/js/responsive.js') }}"></script>
+    @endpush
 
 </section>
