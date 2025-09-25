@@ -266,7 +266,7 @@
             }
         </style>
     @endpush
-    <div class="rounded-lg">
+    <div>
         <div class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
             currentVideoId: @entangle('currentVideoId').live,
@@ -304,7 +304,7 @@
                 </div>
             </div>
 
-            <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide rounded-lg">
+            <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide ">
 
                 <template x-if="videos && videos.length > 0">
                     <div>
@@ -351,10 +351,10 @@
                             x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
                             x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
-                            <div class="flex flex-col justify-center items-center relative rounded-xl">
+                            <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-xl ">
+                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-none sm:rounded-xl ">
 
                                     <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">

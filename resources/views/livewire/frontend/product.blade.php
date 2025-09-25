@@ -297,7 +297,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-120px)]! max-w-lg max-h-[1100px]">
+                                class="w-full rounded-none sm:rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-120px)]! max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-50">
