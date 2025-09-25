@@ -7,19 +7,26 @@
 }">
     @push('styles')
         <style>
-            /* CSS Custom Properties for dynamic viewport heights */
+            /* CSS Custom Properties for enhanced dynamic viewport heights */
             :root {
                 --vh: 1vh;
                 --device-height: 100vh;
+                --screen-width: 100vw;
+                --screen-height: 100vh;
                 --safe-area-top: env(safe-area-inset-top, 0px);
                 --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+                --safe-area-left: env(safe-area-inset-left, 0px);
+                --safe-area-right: env(safe-area-inset-right, 0px);
                 --header-height: 85px;
-                /* Adjust based on your header */
                 --footer-height: 0px;
-                /* Adjust based on your footer */
+
+                /* Device-specific properties (set by JavaScript) */
+                --ios-vh: 1vh;
+                --android-vh: 1vh;
+                --ios-fill-available: 100vh;
             }
 
-            /* Global utility classes for dynamic viewport heights */
+            /* Base dynamic viewport height classes */
             .dvh-100 {
                 height: 100vh;
                 /* Fallback */
@@ -48,7 +55,6 @@
                 height: calc((var(--vh, 1vh) * 100) - var(--header-height) - var(--footer-height));
             }
 
-            /* Custom heights for different use cases */
             .dvh-75 {
                 height: 75vh;
                 /* Fallback */
@@ -61,43 +67,93 @@
                 height: calc(var(--vh, 1vh) * 50);
             }
 
-            /* Mobile-specific optimizations */
+            /* iOS-specific optimizations */
+            body.ios-device .dvh-screen,
+            body.ios-device .dvh-100 {
+                height: -webkit-fill-available !important;
+                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100) !important;
+                min-height: -webkit-fill-available !important;
+            }
+
+            body.ios-device.safari-browser .dvh-screen {
+                /* Safari-specific adjustments */
+                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+                min-height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+            }
+
+            body.ios-device.has-notch .dvh-screen {
+                /* Notch-aware sizing */
+                padding-top: var(--safe-area-top);
+                padding-bottom: var(--safe-area-bottom);
+                padding-left: var(--safe-area-left);
+                padding-right: var(--safe-area-right);
+                box-sizing: border-box;
+            }
+
+            body.ios-device.landscape .dvh-screen {
+                /* Landscape-specific adjustments */
+                height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+            }
+
+            /* Android-specific optimizations */
+            body.android-device .dvh-screen,
+            body.android-device .dvh-100 {
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+                min-height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            body.android-device.chrome-browser .dvh-screen {
+                /* Chrome address bar compensation */
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            body.android-device .video-item-dvh {
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            /* Desktop-specific optimizations */
+            body.desktop-device .dvh-screen {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+                min-height: 600px;
+                /* Ensure minimum height on desktop */
+            }
+
+            /* Mobile-specific classes with enhanced support */
             @media screen and (max-width: 768px) {
                 .mobile-dvh-100 {
                     height: 100vh;
                     height: calc(var(--vh, 1vh) * 100);
-                    height: -webkit-fill-available;
-                    /* iOS Safari support */
-                    min-height: -webkit-fill-available;
                 }
 
                 .mobile-dvh-screen {
                     height: 100vh;
                     height: calc(var(--vh, 1vh) * 100);
+                    min-height: 100vh;
+                    min-height: calc(var(--vh, 1vh) * 100);
+                }
+
+                /* iOS Safari mobile-specific */
+                body.ios-device.safari-browser .mobile-dvh-screen {
                     height: -webkit-fill-available;
                     min-height: -webkit-fill-available;
                 }
-            }
 
-            /* iOS Safari specific fixes */
-            @supports (-webkit-touch-callout: none) {
-
-                .ios-height-fix,
-                body.ios-device .dvh-screen,
-                body.ios-device .dvh-100 {
-                    height: -webkit-fill-available !important;
-                    min-height: -webkit-fill-available !important;
+                /* Android mobile-specific */
+                body.android-device .mobile-dvh-screen {
+                    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
                 }
             }
 
-            /* Android Chrome specific fixes */
-            body.android-device .dvh-screen {
-                height: 100vh;
-                height: calc(var(--vh, 1vh) * 100);
+            /* Tablet-specific optimizations */
+            @media screen and (min-width: 768px) and (max-width: 1024px) {
+                body.tablet-device .dvh-screen {
+                    height: calc(var(--vh, 1vh) * 100);
+                }
             }
 
-            /* Desktop optimizations */
-            @media screen and (min-width: 769px) {
+            /* Large desktop optimizations */
+            @media screen and (min-width: 1025px) {
                 .desktop-vh-100 {
                     height: 100vh;
                 }
@@ -107,7 +163,40 @@
                 }
             }
 
-            /* Responsive grid layouts with dynamic heights */
+            /* Keyboard visibility adjustments */
+            body.keyboard-visible .dvh-screen {
+                height: calc(var(--vh, 1vh) * 60);
+                /* Reduce height when keyboard is visible */
+                transition: height 0.2s ease;
+            }
+
+            body.keyboard-visible .mobile-dvh-screen {
+                height: calc(var(--vh, 1vh) * 60);
+                transition: height 0.2s ease;
+            }
+
+            body.keyboard-visible .video-scroll-container {
+                height: calc(var(--vh, 1vh) * 60);
+                transition: height 0.2s ease;
+            }
+
+            /* Orientation-specific classes */
+            body.landscape .dvh-screen {
+                height: calc(var(--vh, 1vh) * 100);
+            }
+
+            body.portrait .dvh-screen {
+                height: calc(var(--vh, 1vh) * 100);
+            }
+
+            /* PWA-specific adjustments */
+            body.ios-pwa .dvh-screen {
+                height: calc(var(--vh, 1vh) * 100);
+                padding-top: var(--safe-area-top);
+                padding-bottom: var(--safe-area-bottom);
+            }
+
+            /* Enhanced responsive grid layouts with dynamic heights */
             .dvh-container {
                 display: flex;
                 flex-direction: column;
@@ -118,6 +207,8 @@
             .dvh-header {
                 flex-shrink: 0;
                 height: var(--header-height);
+                padding-top: var(--safe-area-top);
+                /* Safe area for notched devices */
             }
 
             .dvh-content {
@@ -125,11 +216,299 @@
                 overflow-y: auto;
                 min-height: 0;
                 /* Important for flex overflow */
+                -webkit-overflow-scrolling: touch;
+                /* Smooth scrolling on iOS */
             }
 
             .dvh-footer {
                 flex-shrink: 0;
                 height: var(--footer-height);
+                padding-bottom: var(--safe-area-bottom);
+                /* Safe area for notched devices */
+            }
+
+            /* Video-specific enhanced classes */
+            .video-container-dvh {
+                height: calc(var(--vh, 1vh) * 100);
+                width: 100vw;
+                max-width: 100%;
+                position: relative;
+                overflow: hidden;
+            }
+
+            body.ios-device .video-container-dvh {
+                height: -webkit-fill-available;
+            }
+
+            body.android-device .video-container-dvh {
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            /* Specific adjustments for your video scroll container */
+            .video-scroll-container {
+                overflow-y: scroll;
+                scroll-snap-type: y mandatory;
+                scrollbar-width: none;
+                /* Firefox */
+                -ms-overflow-style: none;
+                /* IE/Edge */
+                height: calc(var(--vh, 1vh) * 100);
+            }
+
+            body.ios-device .video-scroll-container {
+                height: -webkit-fill-available;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            body.android-device .video-scroll-container {
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            .video-scroll-container::-webkit-scrollbar {
+                display: none;
+                /* Safari/Chrome */
+            }
+
+            /* Video item specific */
+            .video-item-dvh {
+                scroll-snap-align: start;
+                height: calc(var(--vh, 1vh) * 100);
+                width: 100%;
+                position: relative;
+            }
+
+            body.ios-device .video-item-dvh {
+                height: -webkit-fill-available;
+            }
+
+            /* Touch device optimizations */
+            body.touch-device .dvh-screen {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+
+            /* Smooth transitions for height changes */
+            .dvh-transition {
+                transition: height 0.2s ease-out, min-height 0.2s ease-out;
+            }
+
+            /* Specific browser engine optimizations */
+            body[data-engine="WebKit"] .dvh-screen {
+                -webkit-transform: translateZ(0);
+                /* Force hardware acceleration */
+            }
+
+            body[data-engine="Blink"] .dvh-screen {
+                will-change: height;
+                /* Optimize for height changes */
+            }
+
+            /* High pixel ratio device optimizations */
+            @media (-webkit-min-device-pixel-ratio: 2),
+            (min-resolution: 192dpi) {
+                .dvh-screen {
+                    -webkit-backface-visibility: hidden;
+                    backface-visibility: hidden;
+                }
+            }
+
+            /* Viewport units fallback for better browser support */
+            @supports (height: 100dvh) {
+                .dvh-screen {
+                    height: 100dvh;
+                }
+
+                .dvh-100 {
+                    height: 100dvh;
+                }
+
+                .video-container-dvh {
+                    height: 100dvh;
+                }
+
+                .video-scroll-container {
+                    height: 100dvh;
+                }
+
+                .video-item-dvh {
+                    height: 100dvh;
+                }
+            }
+
+            @supports (height: 100svh) {
+
+                body.mobile-device .dvh-screen,
+                body.mobile-device .video-container-dvh,
+                body.mobile-device .video-scroll-container {
+                    height: 100svh;
+                    /* Small viewport height */
+                }
+            }
+
+            @supports (height: 100lvh) {
+                body.desktop-device .dvh-screen {
+                    height: 100lvh;
+                    /* Large viewport height */
+                }
+            }
+
+            /* Legacy support for older browsers */
+            @supports not (height: calc(var(--vh) * 100)) {
+
+                .dvh-100,
+                .dvh-screen {
+                    height: 100vh !important;
+                }
+
+                .dvh-screen-header {
+                    height: calc(100vh - 85px) !important;
+                }
+
+                .video-container-dvh,
+                .video-scroll-container,
+                .video-item-dvh {
+                    height: 100vh !important;
+                }
+            }
+
+            /* Debug classes for development */
+            .dvh-debug {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px;
+                font-size: 12px;
+                border-radius: 4px;
+                z-index: 9999;
+                font-family: monospace;
+                max-width: 300px;
+            }
+
+            .dvh-debug::before {
+                content: 'VH Debug: ' attr(data-vh) ' | Height: ' attr(data-height) ' | Device: ' attr(data-device);
+            }
+
+            /* Print media adjustments */
+            @media print {
+
+                .dvh-screen,
+                .dvh-100,
+                .video-container-dvh,
+                .video-scroll-container {
+                    height: auto !important;
+                    min-height: auto !important;
+                }
+            }
+
+            /* Accessibility improvements */
+            @media (prefers-reduced-motion: reduce) {
+
+                .dvh-transition,
+                .video-scroll-container {
+                    transition: none !important;
+                    scroll-behavior: auto !important;
+                }
+            }
+
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .dvh-debug {
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                }
+            }
+
+            /* Additional utility classes */
+            .dvh-25 {
+                height: 25vh;
+                height: calc(var(--vh, 1vh) * 25);
+            }
+
+            .dvh-33 {
+                height: 33.333333vh;
+                height: calc(var(--vh, 1vh) * 33.333333);
+            }
+
+            .dvh-66 {
+                height: 66.666667vh;
+                height: calc(var(--vh, 1vh) * 66.666667);
+            }
+
+            .dvh-80 {
+                height: 80vh;
+                height: calc(var(--vh, 1vh) * 80);
+            }
+
+            .dvh-90 {
+                height: 90vh;
+                height: calc(var(--vh, 1vh) * 90);
+            }
+
+            /* Min and max height utilities */
+            .min-dvh-screen {
+                min-height: 100vh;
+                min-height: calc(var(--vh, 1vh) * 100);
+            }
+
+            .max-dvh-screen {
+                max-height: 100vh;
+                max-height: calc(var(--vh, 1vh) * 100);
+            }
+
+            /* Specific fixes for common issues */
+            body.ios-device.landscape .video-scroll-container {
+                height: -webkit-fill-available;
+                max-height: -webkit-fill-available;
+            }
+
+            body.android-device.landscape .video-scroll-container {
+                height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+            }
+
+            /* Status bar adjustments for mobile devices */
+            @media screen and (max-width: 768px) {
+                body.mobile-device .dvh-screen {
+                    padding-top: var(--safe-area-top);
+                }
+            }
+
+            /* Fullscreen API support */
+            .dvh-screen:fullscreen,
+            .video-container-dvh:fullscreen {
+                height: 100vh !important;
+                height: 100dvh !important;
+            }
+
+            /* Responsive breakpoint adjustments */
+            @media screen and (max-width: 480px) {
+
+                body.mobile-device .dvh-screen,
+                body.mobile-device .video-container-dvh {
+                    height: -webkit-fill-available;
+                    height: calc(var(--vh, 1vh) * 100);
+                }
+            }
+
+            @media screen and (min-width: 481px) and (max-width: 768px) {
+                body.mobile-device .dvh-screen {
+                    height: calc(var(--vh, 1vh) * 100);
+                }
+            }
+
+            /* Special handling for foldable devices */
+            @media (spanning: single-fold-vertical) {
+                .dvh-screen {
+                    height: calc(var(--vh, 1vh) * 100);
+                }
+            }
+
+            @media (spanning: single-fold-horizontal) {
+                .dvh-screen {
+                    height: calc(var(--vh, 1vh) * 50);
+                }
             }
 
             .progress-bar {
@@ -421,7 +800,8 @@
             <div x-show="isLoading" x-transition:opacity.duration.300ms
                 class="fixed inset-0 z-50 loading-overlay flex items-center justify-center">
                 <div class="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4">
+                    <div
+                        class="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4">
                     </div>
                     <p class="text-gray-600">Loading videos...</p>
                 </div>
@@ -467,19 +847,18 @@
                 </template>
 
                 <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory h-screen sm:h-[calc(100vh-85px)] pt-0.5 space-y-6 scroll-smooth">
+                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen video-scroll-container pt-0.5 space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
-                        <div class="video-item snap-start pb-0.5 rounded-lg" x-data="videoController(video.id, $root, video)"
+                        <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
                             x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
                             x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
                             <div class="flex flex-col justify-center items-center relative rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 h-screen sm:h-[calc(100vh-85px)] max-w-lg rounded-xl ">
+                                    class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-xl ">
 
-                                    <!-- Volume Control -->
                                     <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">
                                             <button @click.stop="toggleMute()"
@@ -513,19 +892,16 @@
                                         </div>
                                     </div>
 
-                                    <!-- Video Element -->
                                     <template x-if="video.file">
                                         <div :data-video-id="video.id" :data-reel-id="video.reel_id"
                                             class="w-full h-full flex items-center justify-center">
 
-                                            <!-- Background/Overlay Video (blurred) -->
                                             <video x-ref="backgroundVideo" @loadeddata="initBackgroundVideo()"
                                                 class="absolute w-full h-full object-cover filter blur-sm transform scale-150 z-1"
                                                 loop playsinline muted>
                                                 <source :src="video.file" type="video/mp4">
                                             </video>
 
-                                            <!-- Main/Original Video (clear) -->
                                             <video x-ref="mainVideo" @loadedmetadata="initVideo()"
                                                 @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
                                                 @click.stop="togglePlay()" @touchend.prevent="handleTouchEnd($event)"
@@ -555,7 +931,6 @@
                                         </div>
                                     </template>
 
-                                    <!-- Loading Indicator -->
                                     <div x-show="!videoLoaded && video.file"
                                         class="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
                                         <div class="text-center">
@@ -568,7 +943,6 @@
 
                                     <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
-                                    <!-- Play/Pause Button -->
                                     <button @click="togglePlay()" x-show="video.file"
                                         class="play-button absolute z-2 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                         :style="{ opacity: isPlaying ? '0' : '1' }">
@@ -582,7 +956,6 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Video Info Overlay -->
                                     <div
                                         class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent z-10">
                                         <div x-data="{ visible: false }" x-intersect:enter="visible = true"
@@ -590,7 +963,7 @@
                                             <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                                 x-intersect:leave="visible = false">
                                                 <h2 x-show="visible" x-transition.opacity.duration.500ms
-                                                    class="text-white mb-2  leading-tight font-bold line-clamp-1 animate-fade-in-up text-xl  md:text-2xl">
+                                                    class="text-white mb-2 leading-tight font-bold line-clamp-1 animate-fade-in-up text-xl md:text-2xl">
                                                     <span x-text="video.title"></span>
                                                 </h2>
                                                 <p x-show="visible" x-transition.opacity.duration.700ms
@@ -598,18 +971,17 @@
                                                     x-text="video.description"></p>
                                             </div>
                                             {{--
-                                            <div class="flex justify-between items-center mb-4">
-                                                <p x-show="visible" x-transition.opacity.duration.700ms
-                                                    class="text-gray-300 text-sm animate-fade-in-up-delayed line-clamp-2 flex-1 mr-4"
-                                                    x-text="video.description"></p>
-                                                <div class="flex flex-col items-end text-xs text-gray-400 space-y-1">
-                                                    <span x-text="video.room + ' ' + (video.room > 1 ? 'Rooms' : 'Room')"></span>
-                                                    <span x-text="video.city_name"></span>
-                                                </div>
-                                            </div> --}}
+                            <div class="flex justify-between items-center mb-4">
+                                <p x-show="visible" x-transition.opacity.duration.700ms
+                                    class="text-gray-300 text-sm animate-fade-in-up-delayed line-clamp-2 flex-1 mr-4"
+                                    x-text="video.description"></p>
+                                <div class="flex flex-col items-end text-xs text-gray-400 space-y-1">
+                                    <span x-text="video.room + ' ' + (video.room > 1 ? 'Rooms' : 'Room')"></span>
+                                    <span x-text="video.city_name"></span>
+                                </div>
+                            </div> --}}
                                         </div>
 
-                                        <!-- Enhanced Progress Bar with Thumbnail Preview -->
                                         <div class="relative mb-2" x-show="video.file">
                                             <div class="flex items-start space-x-3">
                                                 <button @click="togglePlay()"
@@ -626,7 +998,6 @@
                                                 </button>
 
                                                 <div class="flex-1 relative mt-1">
-                                                    <!-- Thumbnail Preview -->
                                                     <div class="thumbnail-preview" x-ref="thumbnailPreview"
                                                         x-show="showThumbnail">
                                                         <canvas x-ref="thumbnailCanvas" width="120"
@@ -635,7 +1006,6 @@
                                                             x-text="formatTime(thumbnailTime)"></div>
                                                     </div>
 
-                                                    <!-- Progress Container -->
                                                     <div class="progress-container" x-ref="progressContainer"
                                                         @mouseenter="handleProgressHover(true)"
                                                         @mouseleave="handleProgressHover(false)"
@@ -643,18 +1013,15 @@
                                                         @mousedown="startProgressDrag($event)"
                                                         @click="setProgress($event)">
 
-                                                        <!-- Buffer Bar -->
                                                         <div class="progress-buffer"
                                                             :style="{ width: bufferProgress + '%' }"></div>
 
-                                                        <!-- Progress Fill -->
                                                         <div class="progress-fill" :style="{ width: progress + '%' }">
                                                             <div class="progress-handle" x-show="showProgressHandle">
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Time Display -->
                                                     <div class="flex justify-between text-xs text-gray-300 mt-1">
                                                         <span x-text="formatTime(currentTime)">00:00</span>
                                                         <span x-text="formatTime(duration)">00:00</span>
@@ -668,7 +1035,6 @@
                         </div>
                     </template>
 
-                    <!-- No Results State -->
                     <template x-if="!videos || videos.length === 0">
                         <div class="flex items-center justify-center h-[calc(100vh-165px)]">
                             <div class="text-center">
@@ -688,9 +1054,9 @@
                                         Clear Filters
                                     </button>
                                     {{-- <button @click="$wire.refreshReels()"
-                                        class="block mx-auto text-orange-500 hover:text-orange-600 transition-colors underline">
-                                        Refresh Content
-                                    </button> --}}
+                        class="block mx-auto text-orange-500 hover:text-orange-600 transition-colors underline">
+                        Refresh Content
+                    </button> --}}
                                 </div>
                             </div>
                         </div>
@@ -1503,7 +1869,7 @@
             });
         });
 
-        
+
         (function(window, document) {
             'use strict';
 
