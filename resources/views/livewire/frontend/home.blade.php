@@ -315,7 +315,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="object-contain absolute bottom-50 sm:top-4 right-4 md:right-8 z-40 rounded-full">
+                            class="object-contain absolute bottom-49 sm:top-4 right-4 md:right-8 z-40 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
@@ -334,7 +334,7 @@
                         </div>
 
                         <!-- Arrow Button - Navigate to Product Page -->
-                        <div class="absolute bottom-[140px] sm:bottom-[110px] z-40 right-4 md:right-8 arrow-bounce">
+                        <div class="absolute bottom-[130px] sm:bottom-[110px] z-40 right-4 md:right-8 arrow-bounce">
                             <button @click="$wire.goToProduct()"
                                 class="bg-orange-500 text-white  p-[13px]! sm:p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                                 <flux:icon name="arrow-right" class="w-5 h-5" />
