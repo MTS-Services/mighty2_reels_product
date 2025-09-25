@@ -219,7 +219,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute bottom-[110px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
+                class="absolute bottom-[150px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -261,7 +261,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-[530px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
+                    class="absolute top-[470px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -287,7 +287,7 @@
         <div class="relative w-full mx-auto h-full  sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  h-screen sm:h-[calc(100vh-120px)]  space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  h-[95vh] sm:h-[calc(100vh-120px)]  space-y-6 scroll-smooth">
 
                 <template x-for="(video, index) in (allMediaItems || [])"
                     :key="`media-${video.id}-${video.type}-${video.reel_id || video.image_id || index}-${index}`">
@@ -297,7 +297,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-10px)]! max-w-lg max-h-[1100px]">
+                                class="w-full rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-120px)]! max-w-lg max-h-[1100px]">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-50">
