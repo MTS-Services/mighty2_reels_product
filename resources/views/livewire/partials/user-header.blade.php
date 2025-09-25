@@ -7,7 +7,8 @@
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-0 sm:py-3 px-4 md:px-6 lg:px-8">
                 <nav class=" items-center hidden sm:flex justify-between gap-4">
-                    <a href="{{ route('home') }}" wire:navigate class="inline-flex w-[180px] items-center justify-start gap-4">
+                    <a href="{{ route('home') }}" wire:navigate
+                        class="inline-flex w-[180px] items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
                         <span class="text-[24px] text-orange-normal capitalize"> {{ site_name() }}</span>
                     </a>
@@ -133,7 +134,7 @@
         </header>
 
         {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-       @if ($pageSlug == 'home' || $pageSlug == 'product')
+        @if ($pageSlug == 'home' || $pageSlug == 'product')
             <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
                 <!-- Logo centered -->
                 <a href="{{ route('home') }}" wire:navigate
@@ -473,13 +474,15 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Listen for filter updates from home component
-            window.addEventListener('updateHomeFilters', function(event) {
-                // This will sync any additional filter updates if needed
-                console.log('Filters updated:', event.detail);
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Listen for filter updates from home component
+                window.addEventListener('updateHomeFilters', function(event) {
+                    // This will sync any additional filter updates if needed
+                    console.log('Filters updated:', event.detail);
+                });
             });
-        });
-    </script>
+        </script>
+    @endpush
 </div>
