@@ -1,503 +1,506 @@
+@media (max-width: 500px) {
+
   /* CSS Custom Properties for enhanced dynamic viewport heights */
   :root {
-      --vh: 1vh;
-      --device-height: 100vh;
-      --screen-width: 100vw;
-      --screen-height: 100vh;
-      --safe-area-top: env(safe-area-inset-top, 0px);
-      --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-area-left: env(safe-area-inset-left, 0px);
-      --safe-area-right: env(safe-area-inset-right, 0px);
-      --header-height: 85px;
-      --footer-height: 0px;
+    --vh: 1vh;
+    --device-height: 100vh;
+    --screen-width: 100vw;
+    --screen-height: 100vh;
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    --header-height: 85px;
+    --footer-height: 0px;
 
-      /* Device-specific properties (set by JavaScript) */
-      --ios-vh: 1vh;
-      --android-vh: 1vh;
-      --ios-fill-available: 100vh;
+    /* Device-specific properties (set by JavaScript) */
+    --ios-vh: 1vh;
+    --android-vh: 1vh;
+    --ios-fill-available: 100vh;
   }
 
   /* Base dynamic viewport height classes */
   .dvh-100 {
-      height: 100vh;
-      /* Fallback */
-      height: calc(var(--vh, 1vh) * 100);
+    height: 100vh;
+    /* Fallback */
+    height: calc(var(--vh, 1vh) * 100);
   }
 
   .dvh-screen {
-      height: 100vh;
-      /* Fallback */
-      height: calc(var(--vh, 1vh) * 100);
-      min-height: 100vh;
-      min-height: calc(var(--vh, 1vh) * 100);
+    height: 100vh;
+    /* Fallback */
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 
   .dvh-screen-header {
-      height: calc(100vh - var(--header-height));
-      /* Fallback */
-      height: calc((var(--vh, 1vh) * 100) - var(--header-height));
-      min-height: calc(100vh - var(--header-height));
-      min-height: calc((var(--vh, 1vh) * 100) - var(--header-height));
+    height: calc(100vh - var(--header-height));
+    /* Fallback */
+    height: calc((var(--vh, 1vh) * 100) - var(--header-height));
+    min-height: calc(100vh - var(--header-height));
+    min-height: calc((var(--vh, 1vh) * 100) - var(--header-height));
   }
 
   .dvh-screen-nav {
-      height: calc(100vh - var(--header-height) - var(--footer-height));
-      /* Fallback */
-      height: calc((var(--vh, 1vh) * 100) - var(--header-height) - var(--footer-height));
+    height: calc(100vh - var(--header-height) - var(--footer-height));
+    /* Fallback */
+    height: calc((var(--vh, 1vh) * 100) - var(--header-height) - var(--footer-height));
   }
 
   .dvh-75 {
-      height: 75vh;
-      /* Fallback */
-      height: calc(var(--vh, 1vh) * 75);
+    height: 75vh;
+    /* Fallback */
+    height: calc(var(--vh, 1vh) * 75);
   }
 
   .dvh-50 {
-      height: 50vh;
-      /* Fallback */
-      height: calc(var(--vh, 1vh) * 50);
+    height: 50vh;
+    /* Fallback */
+    height: calc(var(--vh, 1vh) * 50);
   }
 
   /* iOS-specific optimizations */
   body.ios-device .dvh-screen,
   body.ios-device .dvh-100 {
-      height: -webkit-fill-available !important;
-      height: calc(var(--ios-vh, var(--vh, 1vh)) * 100) !important;
-      min-height: -webkit-fill-available !important;
+    height: -webkit-fill-available !important;
+    height: calc(var(--ios-vh, var(--vh, 1vh)) * 100) !important;
+    min-height: -webkit-fill-available !important;
   }
 
   body.ios-device.safari-browser .dvh-screen {
-      /* Safari-specific adjustments */
-      height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
-      min-height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+    /* Safari-specific adjustments */
+    height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+    min-height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
   }
 
   body.ios-device.has-notch .dvh-screen {
-      /* Notch-aware sizing */
-      padding-top: var(--safe-area-top);
-      padding-bottom: var(--safe-area-bottom);
-      padding-left: var(--safe-area-left);
-      padding-right: var(--safe-area-right);
-      box-sizing: border-box;
+    /* Notch-aware sizing */
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+    padding-left: var(--safe-area-left);
+    padding-right: var(--safe-area-right);
+    box-sizing: border-box;
   }
 
   body.ios-device.landscape .dvh-screen {
-      /* Landscape-specific adjustments */
-      height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
+    /* Landscape-specific adjustments */
+    height: calc(var(--ios-vh, var(--vh, 1vh)) * 100);
   }
 
   /* Android-specific optimizations */
   body.android-device .dvh-screen,
   body.android-device .dvh-100 {
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-      min-height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    min-height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   body.android-device.chrome-browser .dvh-screen {
-      /* Chrome address bar compensation */
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    /* Chrome address bar compensation */
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   body.android-device .video-item-dvh {
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   /* Desktop-specific optimizations */
   body.desktop-device .dvh-screen {
-      height: 100vh;
-      height: calc(var(--vh, 1vh) * 100);
-      min-height: 600px;
-      /* Ensure minimum height on desktop */
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: 600px;
+    /* Ensure minimum height on desktop */
   }
 
   /* Mobile-specific classes with enhanced support */
   @media screen and (max-width: 768px) {
-      .mobile-dvh-100 {
-          height: 100vh;
-          height: calc(var(--vh, 1vh) * 100);
-      }
+    .mobile-dvh-100 {
+      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
+    }
 
-      .mobile-dvh-screen {
-          height: 100vh;
-          height: calc(var(--vh, 1vh) * 100);
-          min-height: 100vh;
-          min-height: calc(var(--vh, 1vh) * 100);
-      }
+    .mobile-dvh-screen {
+      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
+      min-height: 100vh;
+      min-height: calc(var(--vh, 1vh) * 100);
+    }
 
-      /* iOS Safari mobile-specific */
-      body.ios-device.safari-browser .mobile-dvh-screen {
-          height: -webkit-fill-available;
-          min-height: -webkit-fill-available;
-      }
+    /* iOS Safari mobile-specific */
+    body.ios-device.safari-browser .mobile-dvh-screen {
+      height: -webkit-fill-available;
+      min-height: -webkit-fill-available;
+    }
 
-      /* Android mobile-specific */
-      body.android-device .mobile-dvh-screen {
-          height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
-      }
+    /* Android mobile-specific */
+    body.android-device .mobile-dvh-screen {
+      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    }
   }
 
   /* Tablet-specific optimizations */
   @media screen and (min-width: 768px) and (max-width: 1024px) {
-      body.tablet-device .dvh-screen {
-          height: calc(var(--vh, 1vh) * 100);
-      }
+    body.tablet-device .dvh-screen {
+      height: calc(var(--vh, 1vh) * 100);
+    }
   }
 
   /* Large desktop optimizations */
   @media screen and (min-width: 1025px) {
-      .desktop-vh-100 {
-          height: 100vh;
-      }
+    .desktop-vh-100 {
+      height: 100vh;
+    }
 
-      .desktop-vh-screen {
-          height: calc(100vh - var(--header-height));
-      }
+    .desktop-vh-screen {
+      height: calc(100vh - var(--header-height));
+    }
   }
 
   /* Keyboard visibility adjustments */
   body.keyboard-visible .dvh-screen {
-      height: calc(var(--vh, 1vh) * 60);
-      /* Reduce height when keyboard is visible */
-      transition: height 0.2s ease;
+    height: calc(var(--vh, 1vh) * 60);
+    /* Reduce height when keyboard is visible */
+    transition: height 0.2s ease;
   }
 
   body.keyboard-visible .mobile-dvh-screen {
-      height: calc(var(--vh, 1vh) * 60);
-      transition: height 0.2s ease;
+    height: calc(var(--vh, 1vh) * 60);
+    transition: height 0.2s ease;
   }
 
   body.keyboard-visible .video-scroll-container {
-      height: calc(var(--vh, 1vh) * 60);
-      transition: height 0.2s ease;
+    height: calc(var(--vh, 1vh) * 60);
+    transition: height 0.2s ease;
   }
 
   /* Orientation-specific classes */
   body.landscape .dvh-screen {
-      height: calc(var(--vh, 1vh) * 100);
+    height: calc(var(--vh, 1vh) * 100);
   }
 
   body.portrait .dvh-screen {
-      height: calc(var(--vh, 1vh) * 100);
+    height: calc(var(--vh, 1vh) * 100);
   }
 
   /* PWA-specific adjustments */
   body.ios-pwa .dvh-screen {
-      height: calc(var(--vh, 1vh) * 100);
-      padding-top: var(--safe-area-top);
-      padding-bottom: var(--safe-area-bottom);
+    height: calc(var(--vh, 1vh) * 100);
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
   }
 
   /* Enhanced responsive grid layouts with dynamic heights */
   .dvh-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: calc(var(--vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
   }
 
   .dvh-header {
-      flex-shrink: 0;
-      height: var(--header-height);
-      padding-top: var(--safe-area-top);
-      /* Safe area for notched devices */
+    flex-shrink: 0;
+    height: var(--header-height);
+    padding-top: var(--safe-area-top);
+    /* Safe area for notched devices */
   }
 
   .dvh-content {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      /* Important for flex overflow */
-      -webkit-overflow-scrolling: touch;
-      /* Smooth scrolling on iOS */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    /* Important for flex overflow */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
   }
 
   .dvh-footer {
-      flex-shrink: 0;
-      height: var(--footer-height);
-      padding-bottom: var(--safe-area-bottom);
-      /* Safe area for notched devices */
+    flex-shrink: 0;
+    height: var(--footer-height);
+    padding-bottom: var(--safe-area-bottom);
+    /* Safe area for notched devices */
   }
 
   /* Video-specific enhanced classes */
   .video-container-dvh {
-      height: calc(var(--vh, 1vh) * 100);
-      width: 100vw;
-      max-width: 100%;
-      position: relative;
-      overflow: hidden;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100vw;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
   }
 
   body.ios-device .video-container-dvh {
-      height: -webkit-fill-available;
+    height: -webkit-fill-available;
   }
 
   body.android-device .video-container-dvh {
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   /* Specific adjustments for your video scroll container */
   .video-scroll-container {
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-      /* Firefox */
-      -ms-overflow-style: none;
-      /* IE/Edge */
-      height: calc(var(--vh, 1vh) * 100);
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+    height: calc(var(--vh, 1vh) * 100);
   }
 
   body.ios-device .video-scroll-container {
-      height: -webkit-fill-available;
-      -webkit-overflow-scrolling: touch;
+    height: -webkit-fill-available;
+    -webkit-overflow-scrolling: touch;
   }
 
   body.android-device .video-scroll-container {
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   .video-scroll-container::-webkit-scrollbar {
-      display: none;
-      /* Safari/Chrome */
+    display: none;
+    /* Safari/Chrome */
   }
 
   /* Video item specific */
   .video-item-dvh {
-      scroll-snap-align: start;
-      height: calc(var(--vh, 1vh) * 100);
-      width: 100%;
-      position: relative;
+    scroll-snap-align: start;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+    position: relative;
   }
 
   body.ios-device .video-item-dvh {
-      height: -webkit-fill-available;
+    height: -webkit-fill-available;
   }
 
   /* Touch device optimizations */
   body.touch-device .dvh-screen {
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   /* Smooth transitions for height changes */
   .dvh-transition {
-      transition: height 0.2s ease-out, min-height 0.2s ease-out;
+    transition: height 0.2s ease-out, min-height 0.2s ease-out;
   }
 
   /* Specific browser engine optimizations */
   body[data-engine="WebKit"] .dvh-screen {
-      -webkit-transform: translateZ(0);
-      /* Force hardware acceleration */
+    -webkit-transform: translateZ(0);
+    /* Force hardware acceleration */
   }
 
   body[data-engine="Blink"] .dvh-screen {
-      will-change: height;
-      /* Optimize for height changes */
+    will-change: height;
+    /* Optimize for height changes */
   }
 
   /* High pixel ratio device optimizations */
   @media (-webkit-min-device-pixel-ratio: 2),
   (min-resolution: 192dpi) {
-      .dvh-screen {
-          -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
-      }
+    .dvh-screen {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
   }
 
   /* Viewport units fallback for better browser support */
   @supports (height: 100dvh) {
-      .dvh-screen {
-          height: 100dvh;
-      }
+    .dvh-screen {
+      height: 100dvh;
+    }
 
-      .dvh-100 {
-          height: 100dvh;
-      }
+    .dvh-100 {
+      height: 100dvh;
+    }
 
-      .video-container-dvh {
-          height: 100dvh;
-      }
+    .video-container-dvh {
+      height: 100dvh;
+    }
 
-      .video-scroll-container {
-          height: 100dvh;
-      }
+    .video-scroll-container {
+      height: 100dvh;
+    }
 
-      .video-item-dvh {
-          height: 100dvh;
-      }
+    .video-item-dvh {
+      height: 100dvh;
+    }
   }
 
   @supports (height: 100svh) {
 
-      body.mobile-device .dvh-screen,
-      body.mobile-device .video-container-dvh,
-      body.mobile-device .video-scroll-container {
-          height: 100svh;
-          /* Small viewport height */
-      }
+    body.mobile-device .dvh-screen,
+    body.mobile-device .video-container-dvh,
+    body.mobile-device .video-scroll-container {
+      height: 100svh;
+      /* Small viewport height */
+    }
   }
 
   @supports (height: 100lvh) {
-      body.desktop-device .dvh-screen {
-          height: 100lvh;
-          /* Large viewport height */
-      }
+    body.desktop-device .dvh-screen {
+      height: 100lvh;
+      /* Large viewport height */
+    }
   }
 
   /* Legacy support for older browsers */
   @supports not (height: calc(var(--vh) * 100)) {
 
-      .dvh-100,
-      .dvh-screen {
-          height: 100vh !important;
-      }
+    .dvh-100,
+    .dvh-screen {
+      height: 100vh !important;
+    }
 
-      .dvh-screen-header {
-          height: calc(100vh - 85px) !important;
-      }
+    .dvh-screen-header {
+      height: calc(100vh - 85px) !important;
+    }
 
-      .video-container-dvh,
-      .video-scroll-container,
-      .video-item-dvh {
-          height: 100vh !important;
-      }
+    .video-container-dvh,
+    .video-scroll-container,
+    .video-item-dvh {
+      height: 100vh !important;
+    }
   }
 
   /* Debug classes for development */
   .dvh-debug {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px;
-      font-size: 12px;
-      border-radius: 4px;
-      z-index: 9999;
-      font-family: monospace;
-      max-width: 300px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 9999;
+    font-family: monospace;
+    max-width: 300px;
   }
 
   .dvh-debug::before {
-      content: 'VH Debug: 'attr(data-vh) ' | Height: 'attr(data-height) ' | Device: 'attr(data-device);
+    content: 'VH Debug: 'attr(data-vh) ' | Height: 'attr(data-height) ' | Device: 'attr(data-device);
   }
 
   /* Print media adjustments */
   @media print {
 
-      .dvh-screen,
-      .dvh-100,
-      .video-container-dvh,
-      .video-scroll-container {
-          height: auto !important;
-          min-height: auto !important;
-      }
+    .dvh-screen,
+    .dvh-100,
+    .video-container-dvh,
+    .video-scroll-container {
+      height: auto !important;
+      min-height: auto !important;
+    }
   }
 
   /* Accessibility improvements */
   @media (prefers-reduced-motion: reduce) {
 
-      .dvh-transition,
-      .video-scroll-container {
-          transition: none !important;
-          scroll-behavior: auto !important;
-      }
+    .dvh-transition,
+    .video-scroll-container {
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-      .dvh-debug {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-      }
+    .dvh-debug {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
   }
 
   /* Additional utility classes */
   .dvh-25 {
-      height: 25vh;
-      height: calc(var(--vh, 1vh) * 25);
+    height: 25vh;
+    height: calc(var(--vh, 1vh) * 25);
   }
 
   .dvh-33 {
-      height: 33.333333vh;
-      height: calc(var(--vh, 1vh) * 33.333333);
+    height: 33.333333vh;
+    height: calc(var(--vh, 1vh) * 33.333333);
   }
 
   .dvh-66 {
-      height: 66.666667vh;
-      height: calc(var(--vh, 1vh) * 66.666667);
+    height: 66.666667vh;
+    height: calc(var(--vh, 1vh) * 66.666667);
   }
 
   .dvh-80 {
-      height: 80vh;
-      height: calc(var(--vh, 1vh) * 80);
+    height: 80vh;
+    height: calc(var(--vh, 1vh) * 80);
   }
 
   .dvh-90 {
-      height: 90vh;
-      height: calc(var(--vh, 1vh) * 90);
+    height: 90vh;
+    height: calc(var(--vh, 1vh) * 90);
   }
 
   /* Min and max height utilities */
   .min-dvh-screen {
-      min-height: 100vh;
-      min-height: calc(var(--vh, 1vh) * 100);
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 
   .max-dvh-screen {
-      max-height: 100vh;
-      max-height: calc(var(--vh, 1vh) * 100);
+    max-height: 100vh;
+    max-height: calc(var(--vh, 1vh) * 100);
   }
 
   /* Specific fixes for common issues */
   body.ios-device.landscape .video-scroll-container {
-      height: -webkit-fill-available;
-      max-height: -webkit-fill-available;
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
   }
 
   body.android-device.landscape .video-scroll-container {
-      height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
+    height: calc(var(--android-vh, var(--vh, 1vh)) * 100);
   }
 
   /* Status bar adjustments for mobile devices */
   @media screen and (max-width: 768px) {
-      body.mobile-device .dvh-screen {
-          padding-top: var(--safe-area-top);
-      }
+    body.mobile-device .dvh-screen {
+      padding-top: var(--safe-area-top);
+    }
   }
 
   /* Fullscreen API support */
   .dvh-screen:fullscreen,
   .video-container-dvh:fullscreen {
-      height: 100vh !important;
-      height: 100dvh !important;
+    height: 100vh !important;
+    height: 100dvh !important;
   }
 
   /* Responsive breakpoint adjustments */
   @media screen and (max-width: 480px) {
 
-      body.mobile-device .dvh-screen,
-      body.mobile-device .video-container-dvh {
-          height: -webkit-fill-available;
-          height: calc(var(--vh, 1vh) * 100);
-      }
+    body.mobile-device .dvh-screen,
+    body.mobile-device .video-container-dvh {
+      height: -webkit-fill-available;
+      height: calc(var(--vh, 1vh) * 100);
+    }
   }
 
   @media screen and (min-width: 481px) and (max-width: 768px) {
-      body.mobile-device .dvh-screen {
-          height: calc(var(--vh, 1vh) * 100);
-      }
+    body.mobile-device .dvh-screen {
+      height: calc(var(--vh, 1vh) * 100);
+    }
   }
 
   /* Special handling for foldable devices */
   @media (spanning: single-fold-vertical) {
-      .dvh-screen {
-          height: calc(var(--vh, 1vh) * 100);
-      }
+    .dvh-screen {
+      height: calc(var(--vh, 1vh) * 100);
+    }
   }
 
   @media (spanning: single-fold-horizontal) {
-      .dvh-screen {
-          height: calc(var(--vh, 1vh) * 50);
-      }
+    .dvh-screen {
+      height: calc(var(--vh, 1vh) * 50);
+    }
   }
+}
