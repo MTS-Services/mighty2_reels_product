@@ -219,7 +219,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute bottom-[160px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
+                class="absolute bottom-[180px]! sm:top-4 lg:right-8 right-4 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));

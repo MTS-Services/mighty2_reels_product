@@ -315,7 +315,7 @@
                                 liked = video ? video.favourite : false;
                             }
                         })"
-                            class="object-contain absolute bottom-52 sm:top-4 right-4 md:right-8 z-40 rounded-full">
+                            class="object-contain absolute bottom-50 sm:top-4 right-4 md:right-8 z-40 rounded-full">
                             <button
                                 @click="$wire.toggleFavourite();
                                        if (currentVideoId && videos) {
