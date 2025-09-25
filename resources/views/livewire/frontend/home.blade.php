@@ -5,266 +5,391 @@
     selectedVideoId: null,
     showInfoPanel: false
 }">
-
-    <style>
-        .progress-bar {
-            background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
-        }
-
-        .volume-bar {
-            background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--volume, 100%), #4a4a4a var(--volume, 100%), #4a4a4a 100%);
-        }
-
-        .video-overlay {
-            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-        }
-
-        .play-button {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-        }
-
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none !important;
-        }
-
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .thumbnail-preview {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-8px);
-            width: 160px;
-            height: 90px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #ff6b35;
-            border-radius: 8px;
-            overflow: hidden;
-            display: none;
-            pointer-events: none;
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            transition: opacity 0.15s ease, transform 0.15s ease;
-        }
-
-        .thumbnail-preview canvas {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .thumbnail-time {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-
-        .progress-container {
-            position: relative;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .progress-container:hover {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #ff6b35;
-            border-radius: 3px;
-            transition: width 0.1s linear;
-            position: relative;
-        }
-
-        .progress-handle {
-            position: absolute;
-            top: 50%;
-            right: -6px;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            background: white;
-            border: 2px solid #ff6b35;
-            border-radius: 50%;
-            cursor: grab;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .progress-container:hover .progress-handle {
-            opacity: 1;
-        }
-
-        .progress-handle:active {
-            cursor: grabbing;
-            transform: translateY(-50%) scale(1.2);
-        }
-
-        .progress-buffer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        @keyframes heart-pop {
-            0% {
-                transform: scale(1);
+    @push('styles')
+        <style>
+            /* CSS Custom Properties for dynamic viewport heights */
+            :root {
+                --vh: 1vh;
+                --device-height: 100vh;
+                --safe-area-top: env(safe-area-inset-top, 0px);
+                --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+                --header-height: 85px;
+                /* Adjust based on your header */
+                --footer-height: 0px;
+                /* Adjust based on your footer */
             }
 
-            50% {
-                transform: scale(1.4);
+            /* Global utility classes for dynamic viewport heights */
+            .dvh-100 {
+                height: 100vh;
+                /* Fallback */
+                height: calc(var(--vh, 1vh) * 100);
             }
 
-            100% {
-                transform: scale(1);
+            .dvh-screen {
+                height: 100vh;
+                /* Fallback */
+                height: calc(var(--vh, 1vh) * 100);
+                min-height: 100vh;
+                min-height: calc(var(--vh, 1vh) * 100);
             }
-        }
 
-        @keyframes fadeInUp {
-            from {
+            .dvh-screen-header {
+                height: calc(100vh - var(--header-height));
+                /* Fallback */
+                height: calc((var(--vh, 1vh) * 100) - var(--header-height));
+                min-height: calc(100vh - var(--header-height));
+                min-height: calc((var(--vh, 1vh) * 100) - var(--header-height));
+            }
+
+            .dvh-screen-nav {
+                height: calc(100vh - var(--header-height) - var(--footer-height));
+                /* Fallback */
+                height: calc((var(--vh, 1vh) * 100) - var(--header-height) - var(--footer-height));
+            }
+
+            /* Custom heights for different use cases */
+            .dvh-75 {
+                height: 75vh;
+                /* Fallback */
+                height: calc(var(--vh, 1vh) * 75);
+            }
+
+            .dvh-50 {
+                height: 50vh;
+                /* Fallback */
+                height: calc(var(--vh, 1vh) * 50);
+            }
+
+            /* Mobile-specific optimizations */
+            @media screen and (max-width: 768px) {
+                .mobile-dvh-100 {
+                    height: 100vh;
+                    height: calc(var(--vh, 1vh) * 100);
+                    height: -webkit-fill-available;
+                    /* iOS Safari support */
+                    min-height: -webkit-fill-available;
+                }
+
+                .mobile-dvh-screen {
+                    height: 100vh;
+                    height: calc(var(--vh, 1vh) * 100);
+                    height: -webkit-fill-available;
+                    min-height: -webkit-fill-available;
+                }
+            }
+
+            /* iOS Safari specific fixes */
+            @supports (-webkit-touch-callout: none) {
+
+                .ios-height-fix,
+                body.ios-device .dvh-screen,
+                body.ios-device .dvh-100 {
+                    height: -webkit-fill-available !important;
+                    min-height: -webkit-fill-available !important;
+                }
+            }
+
+            /* Android Chrome specific fixes */
+            body.android-device .dvh-screen {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+            }
+
+            /* Desktop optimizations */
+            @media screen and (min-width: 769px) {
+                .desktop-vh-100 {
+                    height: 100vh;
+                }
+
+                .desktop-vh-screen {
+                    height: calc(100vh - var(--header-height));
+                }
+            }
+
+            /* Responsive grid layouts with dynamic heights */
+            .dvh-container {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+            }
+
+            .dvh-header {
+                flex-shrink: 0;
+                height: var(--header-height);
+            }
+
+            .dvh-content {
+                flex: 1;
+                overflow-y: auto;
+                min-height: 0;
+                /* Important for flex overflow */
+            }
+
+            .dvh-footer {
+                flex-shrink: 0;
+                height: var(--footer-height);
+            }
+
+            .progress-bar {
+                background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
+            }
+
+            .volume-bar {
+                background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--volume, 100%), #4a4a4a var(--volume, 100%), #4a4a4a 100%);
+            }
+
+            .video-overlay {
+                background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            }
+
+            .play-button {
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(10px);
+            }
+
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .thumbnail-preview {
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-8px);
+                width: 160px;
+                height: 90px;
+                background: rgba(0, 0, 0, 0.95);
+                border: 2px solid #ff6b35;
+                border-radius: 8px;
+                overflow: hidden;
+                display: none;
+                pointer-events: none;
+                z-index: 1000;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+                transition: opacity 0.15s ease, transform 0.15s ease;
+            }
+
+            .thumbnail-preview canvas {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .thumbnail-time {
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+            }
+
+
+            .progress-container {
+                position: relative;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+
+            .progress-container:hover {
+                height: 6px;
+                background: rgba(255, 255, 255, 0.4);
+            }
+
+            .progress-fill {
+                height: 100%;
+                background: #ff6b35;
+                border-radius: 3px;
+                transition: width 0.1s linear;
+                position: relative;
+            }
+
+            .progress-handle {
+                position: absolute;
+                top: 50%;
+                right: -6px;
+                transform: translateY(-50%);
+                width: 12px;
+                height: 12px;
+                background: white;
+                border: 2px solid #ff6b35;
+                border-radius: 50%;
+                cursor: grab;
                 opacity: 0;
-                transform: translateY(20px);
+                transition: opacity 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             }
 
-            to {
+            .progress-container:hover .progress-handle {
                 opacity: 1;
-                transform: translateY(0);
             }
-        }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(100vh);
+            .progress-handle:active {
+                cursor: grabbing;
+                transform: translateY(-50%) scale(1.2);
+            }
+
+            .progress-buffer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 3px;
+                transition: width 0.3s ease;
+            }
+
+            @keyframes heart-pop {
+                0% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(1.4);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(100vh);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideDown {
+                from {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+
+                to {
+                    transform: translateY(100vh);
+                    opacity: 0;
+                }
+            }
+
+            .animate-fade-in-up {
+                animation: fadeInUp 0.8s ease-out forwards;
+            }
+
+            .animate-fade-in-up-delayed {
+                animation: fadeInUp 0.8s ease-out forwards;
+                animation-delay: 0.3s;
                 opacity: 0;
             }
 
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(0);
-                opacity: 1;
+            .video-transform {
+                transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
-            to {
-                transform: translateY(100vh);
-                opacity: 0;
-            }
-        }
-
-        .animate-fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        .animate-fade-in-up-delayed {
-            animation: fadeInUp 0.8s ease-out forwards;
-            animation-delay: 0.3s;
-            opacity: 0;
-        }
-
-        .video-transform {
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .arrow-bounce {
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateX(0);
+            .arrow-bounce {
+                animation: bounce 2s infinite;
             }
 
-            40% {
-                transform: translateX(-5px);
+            @keyframes bounce {
+
+                0%,
+                20%,
+                50%,
+                80%,
+                100% {
+                    transform: translateX(0);
+                }
+
+                40% {
+                    transform: translateX(-5px);
+                }
+
+                60% {
+                    transform: translateX(-3px);
+                }
             }
 
-            60% {
-                transform: translateX(-3px);
-            }
-        }
-
-        .refresh-button {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .refresh-button:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: scale(1.05);
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
+            .refresh-button {
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
             }
 
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .refresh-spinning {
-            animation: spin 1s linear infinite;
-        }
-
-        /* Loading overlay */
-        .loading-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        /* No results animation */
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
+            .refresh-button:hover {
+                background: rgba(0, 0, 0, 0.9);
+                transform: scale(1.05);
             }
 
-            50% {
-                opacity: 0.5;
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
             }
-        }
 
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-    </style>
+            .refresh-spinning {
+                animation: spin 1s linear infinite;
+            }
 
+            /* Loading overlay */
+            .loading-overlay {
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+            }
+
+            /* No results animation */
+            @keyframes pulse {
+
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            .pulse-animation {
+                animation: pulse 2s infinite;
+            }
+        </style>
+    @endpush
     <div class="rounded-lg">
         <div class="max-w-7xl mx-auto px-0.5  sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
@@ -323,7 +448,8 @@
                                                liked = video.favourite;
                                            }
                                        }"
-                                :class="liked ? 'bg-red-400 text-white' : 'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 sm:border-none border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
+                                :class="liked ? 'bg-red-400 text-white' :
+                                    'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 sm:border-none border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
                                 class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                                 :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
                                 <flux:icon name="heart" class="w-5 h-5 " />
@@ -1376,6 +1502,282 @@
                 }, 100);
             });
         });
+
+        
+        (function(window, document) {
+            'use strict';
+
+            // Global Dynamic Viewport Height Manager
+            const DynamicVH = {
+                // Configuration
+                config: {
+                    debounceDelay: 100,
+                    orientationDelay: 500,
+                    iosScrollDelay: 150,
+                    enableDebug: false // Set to true for console logs
+                },
+
+                // State
+                state: {
+                    isInitialized: false,
+                    currentVH: null,
+                    deviceInfo: {},
+                    resizeTimer: null,
+                    scrollTimer: null
+                },
+
+                // Device detection
+                detectDevice() {
+                    const userAgent = navigator.userAgent.toLowerCase();
+                    const platform = navigator.platform.toLowerCase();
+
+                    const deviceInfo = {
+                        isIOS: /iphone|ipad|ipod/.test(userAgent) || /iphone|ipad|ipod/.test(platform),
+                        isAndroid: /android/.test(userAgent),
+                        isSafari: /safari/.test(userAgent) && !/chrome/.test(userAgent),
+                        isChrome: /chrome/.test(userAgent) && !/safari/.test(userAgent),
+                        isMobile: /mobile|tablet|android|iphone|ipad|ipod/.test(userAgent) || window
+                            .innerWidth <= 768,
+                        isTablet: /tablet|ipad/.test(userAgent) || (window.innerWidth >= 768 && window
+                            .innerWidth <= 1024),
+                        screenWidth: window.innerWidth,
+                        screenHeight: window.innerHeight,
+                        orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
+                    };
+
+                    // Add device classes to body
+                    this.updateBodyClasses(deviceInfo);
+
+                    this.state.deviceInfo = deviceInfo;
+
+                    if (this.config.enableDebug) {
+                        console.log('Device detected:', deviceInfo);
+                    }
+
+                    return deviceInfo;
+                },
+
+                // Update body classes based on device
+                updateBodyClasses(deviceInfo) {
+                    const body = document.body;
+
+                    // Remove old classes
+                    const oldClasses = ['ios-device', 'android-device', 'mobile-device', 'tablet-device',
+                        'desktop-device', 'safari-browser', 'chrome-browser', 'landscape', 'portrait'
+                    ];
+                    body.classList.remove(...oldClasses);
+
+                    // Add new classes
+                    if (deviceInfo.isIOS) body.classList.add('ios-device');
+                    if (deviceInfo.isAndroid) body.classList.add('android-device');
+                    if (deviceInfo.isMobile) body.classList.add('mobile-device');
+                    if (deviceInfo.isTablet) body.classList.add('tablet-device');
+                    if (!deviceInfo.isMobile && !deviceInfo.isTablet) body.classList.add('desktop-device');
+                    if (deviceInfo.isSafari) body.classList.add('safari-browser');
+                    if (deviceInfo.isChrome) body.classList.add('chrome-browser');
+                    body.classList.add(deviceInfo.orientation);
+                },
+
+                // Set CSS custom properties for viewport height
+                setVH() {
+                    const vh = window.innerHeight * 0.01;
+                    const vw = window.innerWidth * 0.01;
+
+                    // Only update if changed significantly (avoid unnecessary repaints)
+                    if (this.state.currentVH === null || Math.abs(this.state.currentVH - vh) > 0.1) {
+                        document.documentElement.style.setProperty('--vh', `${vh}px`);
+                        document.documentElement.style.setProperty('--vw', `${vw}px`);
+                        document.documentElement.style.setProperty('--device-height', `${window.innerHeight}px`);
+                        document.documentElement.style.setProperty('--device-width', `${window.innerWidth}px`);
+
+                        this.state.currentVH = vh;
+
+                        if (this.config.enableDebug) {
+                            console.log('VH updated:', {
+                                vh: `${vh}px`,
+                                height: window.innerHeight
+                            });
+                        }
+
+                        // Dispatch custom event for other scripts to listen to
+                        window.dispatchEvent(new CustomEvent('vh-updated', {
+                            detail: {
+                                vh: vh,
+                                height: window.innerHeight,
+                                width: window.innerWidth,
+                                deviceInfo: this.state.deviceInfo
+                            }
+                        }));
+                    }
+                },
+
+                // Handle window resize
+                handleResize() {
+                    clearTimeout(this.state.resizeTimer);
+                    this.state.resizeTimer = setTimeout(() => {
+                        this.detectDevice();
+                        this.setVH();
+                    }, this.config.debounceDelay);
+                },
+
+                // Handle orientation change
+                handleOrientationChange() {
+                    setTimeout(() => {
+                        this.detectDevice();
+                        this.setVH();
+                    }, this.config.orientationDelay);
+                },
+
+                // Handle iOS Safari scroll (address bar show/hide)
+                handleIOSScroll() {
+                    if (!this.state.deviceInfo.isIOS) return;
+
+                    clearTimeout(this.state.scrollTimer);
+                    this.state.scrollTimer = setTimeout(() => {
+                        this.setVH();
+                    }, this.config.iosScrollDelay);
+                },
+
+                // Handle focus events that might change viewport (iOS keyboards)
+                handleFocusEvents() {
+                    if (!this.state.deviceInfo.isMobile) return;
+
+                    setTimeout(() => {
+                        this.setVH();
+                    }, 300);
+                },
+
+                // Add event listeners
+                addEventListeners() {
+                    // Resize events
+                    window.addEventListener('resize', this.handleResize.bind(this), {
+                        passive: true
+                    });
+
+                    // Orientation change
+                    window.addEventListener('orientationchange', this.handleOrientationChange.bind(this), {
+                        passive: true
+                    });
+
+                    // iOS Safari specific events
+                    if (this.state.deviceInfo.isIOS && this.state.deviceInfo.isSafari) {
+                        window.addEventListener('scroll', this.handleIOSScroll.bind(this), {
+                            passive: true
+                        });
+                        document.addEventListener('focusin', this.handleFocusEvents.bind(this), {
+                            passive: true
+                        });
+                        document.addEventListener('focusout', this.handleFocusEvents.bind(this), {
+                            passive: true
+                        });
+                    }
+
+                    // Page visibility change (when switching between apps)
+                    document.addEventListener('visibilitychange', () => {
+                        if (!document.hidden) {
+                            setTimeout(() => this.setVH(), 100);
+                        }
+                    }, {
+                        passive: true
+                    });
+                },
+
+                // Initialize the system
+                init() {
+                    if (this.state.isInitialized) return;
+
+                    this.detectDevice();
+                    this.setVH();
+                    this.addEventListeners();
+
+                    this.state.isInitialized = true;
+
+                    if (this.config.enableDebug) {
+                        console.log('Dynamic VH initialized');
+                    }
+
+                    // Dispatch initialization event
+                    window.dispatchEvent(new CustomEvent('dynamic-vh-ready', {
+                        detail: this.state.deviceInfo
+                    }));
+                },
+
+                // Public API methods
+                refresh() {
+                    this.detectDevice();
+                    this.setVH();
+                },
+
+                getDeviceInfo() {
+                    return this.state.deviceInfo;
+                },
+
+                enableDebug() {
+                    this.config.enableDebug = true;
+                },
+
+                disableDebug() {
+                    this.config.enableDebug = false;
+                },
+
+                // Update configuration
+                configure(options) {
+                    Object.assign(this.config, options);
+                }
+            };
+
+            // Auto-initialize when DOM is ready
+            function autoInit() {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => DynamicVH.init());
+                } else {
+                    DynamicVH.init();
+                }
+            }
+
+            // Expose to global scope
+            window.DynamicVH = DynamicVH;
+
+            // Auto-initialize
+            autoInit();
+
+            // Helper function for easy integration with frameworks
+            window.initDynamicVH = function() {
+                return DynamicVH.init();
+            };
+
+        })(window, document);
+
+        // Optional: Alpine.js integration helper
+        if (typeof Alpine !== 'undefined') {
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('dynamicVH', () => ({
+                    deviceInfo: {},
+                    vh: '1vh',
+
+                    init() {
+                        this.deviceInfo = window.DynamicVH.getDeviceInfo();
+
+                        // Listen for VH updates
+                        window.addEventListener('vh-updated', (event) => {
+                            this.vh = event.detail.vh + 'px';
+                            this.deviceInfo = event.detail.deviceInfo;
+                        });
+                    }
+                }));
+            });
+        }
+
+        // Optional: Vue.js integration helper
+        if (typeof Vue !== 'undefined') {
+            Vue.mixin({
+                data() {
+                    return {
+                        $dynamicVH: window.DynamicVH
+                    };
+                }
+            });
+        }
     </script>
 
 </section>
