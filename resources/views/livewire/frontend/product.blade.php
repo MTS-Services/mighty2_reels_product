@@ -219,7 +219,7 @@
                     liked = video ? video.favourite : liked;
                 }
             });"
-                class="absolute bottom-[110px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
+                class="absolute bottom-[130px] sm:top-4 lg:right-8 right-4 z-5 rounded-full">
 
                 <button
                     @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -261,7 +261,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-[470px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
+                    class="absolute top-[520px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -470,7 +470,7 @@
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[95vh] sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
+                class="h-[92vh] sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
                 <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
