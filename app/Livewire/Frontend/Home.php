@@ -7,6 +7,7 @@ use App\Models\FavouretReel;
 use App\Models\City;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -22,6 +23,14 @@ class Home extends Component
     public $volume = 1.0;
     public $isMuted = false;
     public $videos = [];
+
+    // Header/Navigation states
+    public bool $sidebarOpen = false;
+    public bool $openProfileDropdown = false;
+
+    // Modal states
+    public bool $showFilterModal = false;
+    public bool $showSearchModal = false;
 
     // Filter properties with URL binding - these handle the actual data filtering
     #[Url(as: 'search', except: '')]
@@ -39,26 +48,28 @@ class Home extends Component
     // Room selection array for multiple room selection
     public $selectedRoomsArray = [];
 
-    // Loading state
-    public $isLoading = false;
+    // City search property
+    public $citySearch = '';
 
-    protected $listeners = [
-        'updateHomeFilters' => 'applyFilters',
-        'resetFilters' => 'resetFilters',
-    ];
+    // Loading states
+    public $isLoading = false;
+    public $searchLoading = false;
+    public $roomsLoading = false;
+    public $cityLoading = false;
+    public $typeLoading = false;
+    public $resetLoading = false;
+    
+
+    // Search History
+    public $recentSearches = [];
 
     public function mount()
     {
         // Convert comma-separated rooms string to array
         $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
         
-        // Sync initial URL parameters with UserHeader component
-        $this->dispatch('syncFilters', [
-            'searchTerm' => $this->searchTerm,
-            'selectedRooms' => $this->selectedRooms,
-            'selectedCity' => $this->selectedCity,
-            'selectedType' => $this->selectedType,
-        ]);
+        // Load search history from session
+        $this->recentSearches = Session::get('recentSearches', []);
 
         // Load videos initially
         $this->loadVideos();
@@ -76,14 +87,139 @@ class Home extends Component
             }
             
             $this->loadVideos();
+        }
+    }
 
-            // Dispatch to header component to keep it in sync
-            $this->dispatch('syncFilters', [
-                'searchTerm' => $this->searchTerm,
-                'selectedRooms' => $this->selectedRooms,
-                'selectedCity' => $this->selectedCity,
-                'selectedType' => $this->selectedType,
-            ]);
+    // Filter Modal methods
+    public function openFilterModal()
+    {
+        $this->showFilterModal = true;
+    }
+
+    public function closeFilterModal()
+    {
+        $this->showFilterModal = false;
+        $this->citySearch = ''; // Reset city search when closing modal
+    }
+
+    public function applyFilters()
+    {
+        $this->showFilterModal = false;
+        $this->citySearch = ''; // Reset city search when applying filters
+        $this->navigateWithFilters();
+    }
+
+    // Search Modal methods
+    
+    public function openSearchModal()
+    {
+        $this->showSearchModal = true;
+    }
+
+    public function closeSearchModal()
+    {
+        $this->showSearchModal = false;
+    }
+
+    /**
+     * Trigger search manually (when user clicks search button)
+     */
+    public function performSearch()
+    {
+        $term = trim($this->searchTerm);
+        if (!empty($term)) {
+            $this->addToSearchHistory($term);
+        }
+
+        // Close search modal and navigate with filters
+        $this->showSearchModal = false;
+        $this->navigateWithFilters();
+    }
+
+    /**
+     * Add search term to history
+     */
+    private function addToSearchHistory($term)
+    {
+        $history = Session::get('recentSearches', []);
+
+        // Remove if exists (avoid duplicates)
+        $history = array_filter($history, fn($item) => $item !== $term);
+
+        // Add at the beginning
+        array_unshift($history, $term);
+
+        // Limit to 10 items
+        $history = array_slice($history, 0, 10);
+
+        Session::put('recentSearches', $history);
+        $this->recentSearches = $history;
+    }
+
+    public function removeSearch($term)
+    {
+        $history = Session::get('recentSearches', []);
+        $history = array_values(array_filter($history, fn($item) => $item !== $term));
+
+        Session::put('recentSearches', $history);
+        $this->recentSearches = $history;
+    }
+
+    public function clearSearches()
+    {
+        Session::forget('recentSearches');
+        $this->recentSearches = [];
+    }
+
+    /**
+     * Set property type and apply filters
+     */
+    public function setPropertyType($type)
+    {
+        $this->selectedType = $type;
+        
+        if (!$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Clear property type
+     */
+    public function clearPropertyType()
+    {
+        $this->selectedType = '';
+        
+        if (!$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Alternative method - Set to FOR SALE
+     */
+    public function setForSale()
+    {
+        $this->selectedType = 'sale';
+        
+        if (!$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Alternative method - Set to FOR RENT
+     */
+    public function setForRent()
+    {
+        $this->selectedType = 'rent';
+        
+        if (!$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
         }
     }
 
@@ -94,16 +230,23 @@ class Home extends Component
     {
         if (in_array($room, $this->selectedRoomsArray)) {
             // Remove room from selection
-            $this->selectedRoomsArray = array_values(array_filter($this->selectedRoomsArray, function($r) use ($room) {
-                return $r != $room;
-            }));
+            $this->selectedRoomsArray = array_values(array_filter(
+                $this->selectedRoomsArray,
+                fn($r) => $r != $room
+            ));
         } else {
             // Add room to selection
             $this->selectedRoomsArray[] = $room;
         }
-        
-        // Update the URL parameter
+
+        // Update the selectedRooms string
         $this->selectedRooms = implode(',', $this->selectedRoomsArray);
+
+        // Apply filters immediately if NOT in modal
+        if (!$this->showFilterModal) {
+            $this->roomsLoading = true;
+            $this->navigateWithFilters();
+        }
     }
 
     /**
@@ -113,6 +256,12 @@ class Home extends Component
     {
         $this->selectedRoomsArray = [];
         $this->selectedRooms = '';
+
+        // Apply filters immediately if NOT in modal
+        if (!$this->showFilterModal) {
+            $this->roomsLoading = true;
+            $this->navigateWithFilters();
+        }
     }
 
     /**
@@ -123,19 +272,104 @@ class Home extends Component
         return in_array($room, $this->selectedRoomsArray);
     }
 
-    /**
-     * Apply filters coming from UserHeader component (via event dispatch)
-     * This method won't be needed anymore since we're using URL navigation
-     */
-    public function applyFilters($filters)
+    // Auto-apply for search term
+    public function updatedSearchTerm()
     {
-        $this->searchTerm = $filters['searchTerm'] ?? '';
-        $this->selectedRooms = $filters['selectedRooms'] ?? '';
-        $this->selectedCity = $filters['selectedCity'] ?? '';
-        $this->selectedType = $filters['selectedType'] ?? '';
-        
-        // Update selectedRoomsArray
+        // Only auto-search if NOT in modal and search term is not empty
+        if (!$this->showSearchModal && !empty(trim($this->searchTerm))) {
+            $this->addToSearchHistory(trim($this->searchTerm));
+            $this->searchLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    public function updatedSelectedRooms()
+    {
+        // Update array when string changes (from URL or other sources)
         $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
+        
+        if (!$this->showFilterModal) {
+            $this->roomsLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    // Auto-apply for city selection
+    public function updatedSelectedCity()
+    {
+        if (!$this->showFilterModal) {
+            $this->cityLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    // Auto-apply for type selection
+    public function updatedSelectedType()
+    {
+        if (!$this->showFilterModal) {
+            $this->typeLoading = true;
+            $this->navigateWithFilters();
+        }
+    }
+
+    /**
+     * Navigate with current filter state
+     */
+    private function navigateWithFilters()
+    {
+        $queryParams = [];
+
+        if (!empty($this->searchTerm)) $queryParams['search'] = $this->searchTerm;
+        if (!empty($this->selectedRooms)) $queryParams['rooms'] = $this->selectedRooms;
+        if (!empty($this->selectedCity)) $queryParams['city'] = $this->selectedCity;
+        if (!empty($this->selectedType)) $queryParams['type'] = $this->selectedType;
+
+        $url = route('home');
+        if (!empty($queryParams)) {
+            $url .= '?' . http_build_query($queryParams);
+        }
+
+        $this->redirect($url, navigate: true);
+    }
+
+    /**
+     * Reset all filters and navigate to clean home page
+     */
+    public function resetAllFilters()
+    {
+        $this->resetLoading = true;
+        $this->selectedRoomsArray = [];
+        $this->citySearch = ''; // Reset city search
+        $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
+        
+        // Close any open modals
+        $this->showFilterModal = false;
+        $this->showSearchModal = false;
+        
+        return $this->redirect(route('home'), navigate: true);
+    }
+
+    /**
+     * Reset loading states
+     */
+    private function resetLoadingStates()
+    {
+        $this->searchLoading = false;
+        $this->roomsLoading = false;
+        $this->cityLoading = false;
+        $this->typeLoading = false;
+        $this->resetLoading = false;
+    }
+
+    /**
+     * User logout
+     */
+    public function logout()
+    {
+        Auth::guard('web')->logout();
+        Session::invalidate();
+        Session::regenerateToken();
+        return $this->redirectRoute('home', navigate: true);
     }
 
     public function loadVideos()
@@ -180,7 +414,7 @@ class Home extends Component
             $query->where('city_id', $this->selectedCity);
         }
 
-        // FIXED: Type filter - properly handle the type filtering
+        // Type filter - properly handle the type filtering
         if (!empty($this->selectedType)) {
             // Map frontend values to database values
             $typeMapping = [
@@ -209,7 +443,7 @@ class Home extends Component
 
             // First try to get primary reel, if none exists get random reel
             $selectedReel = $product->reels()->active()->where('is_primary', 1)->first();
-            // dd($selectedReel);
+            
             if (!$selectedReel) {
                 $selectedReel = $product->reels()->active()->inRandomOrder()->first();
             }
@@ -241,6 +475,7 @@ class Home extends Component
         }
 
         $this->isLoading = false;
+        $this->resetLoadingStates();
     }
 
     public function resetFilters()
@@ -250,14 +485,6 @@ class Home extends Component
 
         // Clear URL parameters by redirecting to clean URL
         $this->redirect(route('home'), navigate: true);
-
-        // Dispatch to header component to keep it in sync
-        $this->dispatch('syncFilters', [
-            'searchTerm' => '',
-            'selectedRooms' => '',
-            'selectedCity' => '',
-            'selectedType' => '',
-        ]);
     }
 
     public function updateCurrentVideo($videoId)
@@ -368,9 +595,20 @@ class Home extends Component
 
     public function render()
     {
+        // Get all cities
+        $allCities = City::active()->pluck('name', 'id');
+        
+        // Filter cities based on search term
+        $filteredCities = $allCities;
+        if (!empty($this->citySearch)) {
+            $filteredCities = $allCities->filter(function($name, $id) {
+                return stripos($name, $this->citySearch) !== false;
+            });
+        }
+
         return view('livewire.frontend.home', [
             'videos' => $this->videos,
-            'cities' => City::active()->pluck('name', 'id'),
+            'cities' => $filteredCities,
             'maxRooms' => max(Product::active()->max('room') ?? 0, 5),
         ]);
     }

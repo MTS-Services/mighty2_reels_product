@@ -23,7 +23,7 @@
                         {{-- Filter Button for Home Page --}}
                         @if ($pageSlug == 'home')
                             <div class="flex items-center gap-4 justify-end">
-                                <button wire:click="openSearchModal"
+                                 <button wire:click="$dispatch('openSearchModal')"
                                     class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="2" stroke="currentColor" class="w-6 h-6">

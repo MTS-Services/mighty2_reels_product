@@ -67,7 +67,8 @@
     @if (Auth::check() && Route::is('admin.*'))
         @livewire('partials.admin-header', ['pageSlug' => $page_slug])
     @else
-        @livewire('partials.user-header', ['pageSlug' => $page_slug])
+        {{-- @livewire('partials.user-header', ['pageSlug' => $page_slug]) --}}
+         @include('include.user-header', ['page_slug' => $page_slug])
     @endif
 
     <main>

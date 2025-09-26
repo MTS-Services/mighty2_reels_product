@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
+<section class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{
     currentPlayingId: null,
     productId: null,
     favourite: false,
@@ -71,7 +71,6 @@
                 font-weight: 500;
                 letter-spacing: 0.5px;
             }
-
 
             .progress-container {
                 position: relative;
@@ -266,8 +265,9 @@
             }
         </style>
     @endpush
+
     <div>
-        <div class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
             currentVideoId: @entangle('currentVideoId').live,
             productId: null,
@@ -304,7 +304,7 @@
                 </div>
             </div>
 
-            <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide ">
+            <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide">
 
                 <template x-if="videos && videos.length > 0">
                     <div>
@@ -409,7 +409,6 @@
                                                 <source :src="video.file" type="video/mp4">
                                             </video>
 
-
                                         </div>
                                     </template>
 
@@ -467,16 +466,6 @@
                                                     class="text-gray-300 mb-4 text-sm animate-fade-in-up-delayed line-clamp-1"
                                                     x-text="video.description"></p>
                                             </div>
-                                            {{--
-                            <div class="flex justify-between items-center mb-4">
-                                <p x-show="visible" x-transition.opacity.duration.700ms
-                                    class="text-gray-300 text-sm animate-fade-in-up-delayed line-clamp-2 flex-1 mr-4"
-                                    x-text="video.description"></p>
-                                <div class="flex flex-col items-end text-xs text-gray-400 space-y-1">
-                                    <span x-text="video.room + ' ' + (video.room > 1 ? 'Rooms' : 'Room')"></span>
-                                    <span x-text="video.city_name"></span>
-                                </div>
-                            </div> --}}
                                         </div>
 
                                         <div class="relative mb-2" x-show="video.file">
@@ -543,17 +532,12 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-gray-600 text-xl mb-2">No Reels Found</h3>
-                                <p class="text-gray-400 mb-4">Try adjusting your search filters or check back later!
-                                </p>
+                                <p class="text-gray-400 mb-4">Try adjusting your search filters or check back later!</p>
                                 <div class="space-y-3">
                                     <button @click="$wire.resetFilters()"
                                         class="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
                                         Clear Filters
                                     </button>
-                                    {{-- <button @click="$wire.refreshReels()"
-                        class="block mx-auto text-orange-500 hover:text-orange-600 transition-colors underline">
-                        Refresh Content
-                    </button> --}}
                                 </div>
                             </div>
                         </div>
@@ -565,7 +549,259 @@
         </div>
     </div>
 
-    @push('scripts')
+    {{-- Search Modal - Enhanced for Mobile --}}
+    @if ($showSearchModal)
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            wire:click.self="closeSearchModal">
+            <div class="bg-white rounded-2xl relative shadow-2xl w-full max-w-xl min-h-[40vh] p-4 flex flex-col space-y-4 lg:max-w-xl"
+                wire:click.stop>
+
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Search Properties</h3>
+                    <button wire:click="closeSearchModal" class="text-gray-400 hover:text-gray-600">
+                        <flux:icon name="x-mark" class="w-6 h-6" />
+                    </button>
+                </div>
+
+                {{-- Search Input --}}
+                <div class="relative">
+                    <input type="search" wire:model.live.debounce.500ms="searchTerm"
+                        placeholder="Search for products..."
+                        class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
+                        wire:loading.class="opacity-50" wire:target="searchTerm" />
+                </div>
+
+                {{-- Show Recent Searches ONLY if searchTerm is empty --}}
+                @if (empty($searchTerm) && !empty($recentSearches))
+                    <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-sm font-medium text-gray-700">Recent searches:</p>
+                            <button wire:click="clearSearches"
+                                class="text-xs text-gray-500 hover:text-red-500 font-medium">Clear All</button>
+                        </div>
+                        <div class="space-y-1">
+                            @foreach ($recentSearches as $search)
+                                <div
+                                    class="flex items-center justify-between  px-3 py-2 hover:bg-white rounded-md group">
+                                    <button type="button" class="flex-1 text-gray-800 text-left font-medium"
+                                        wire:click="$set('searchTerm', '{{ $search }}')">
+                                        <flux:icon name="clock" class="w-4 h-4 inline mr-2 text-gray-400" />
+                                        {{ $search }}
+                                    </button>
+                                    <button type="button" wire:click="removeSearch('{{ $search }}')"
+                                        class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-black! hover:text-red-500">
+                                        <flux:icon name="x-mark" class="w-4 h-4 text-black!" />
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Action Buttons --}}
+                <div class="flex justify-between items-center pt-2 mt-auto">
+                    <button type="button" wire:click="performSearch"
+                        class="bg-orange-500 text-white px-4 py-3 rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
+                        <flux:icon name="check" class="w-5 h-5" />
+                        Search
+                    </button>
+
+                    <button type="button" wire:click="closeSearchModal"
+                        class="px-4 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors font-medium flex items-center gap-2">
+                        <flux:icon name="x-mark" class="w-5 h-5" />
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    @endif
+
+    {{-- Filter Modal Section --}}
+    @if ($showFilterModal)
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1"
+            wire:click.self="closeFilterModal">
+            <div
+                class="bg-white rounded-2xl p-4 w-full max-w-md mx-auto shadow-2xl relative overflow-hidden sm:min-h-[54vh]  min-h-[75vh] flex flex-col">
+                {{-- Modal Header --}}
+                <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                    <h2 class="text-3xl font-bold text-orange-600">FILTER</h2>
+                    <button wire:click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Modal Body: Scrollable --}}
+                <div class="flex-1 overflow-y-auto scroll-smooth space-y-6">
+
+                    {{-- Rooms Filter --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+                                    </path>
+                                </svg>
+                                Rooms
+                            </span>
+                        </label>
+                        <div class="flex flex-wrap gap-2">
+                            <button wire:click="clearSelectedRooms"
+                                class="px-4 py-2 rounded-full border transition-colors {{ empty($selectedRooms) || $selectedRooms == '' ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                All
+                            </button>
+                            @for ($room = 1; $room <= 4; $room++)
+                                <button wire:click="toggleRoom('{{ $room }}')"
+                                    class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected($room) ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                    {{ $room }}
+                                </button>
+                            @endfor
+                            <button wire:click="toggleRoom('5+')"
+                                class="px-4 py-2 rounded-full border transition-colors {{ $this->isRoomSelected('5+') ? 'bg-orange-normal text-white border-orange-normal' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-normal' }}">
+                                5+
+                            </button>
+                        </div>
+                    </div>
+
+                    
+                    {{-- City Filter with Collapsible Search --}}
+                    <div class="flex flex-col space-x-1 sm:space-y-2" x-data="{ cityDropdownOpen: false }">
+                        <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <span class="text-2xl font-black text-orange-600">+</span>Cities
+                        </p>
+                        {{-- Dropdown Trigger Button --}}
+                        <div class="relative" x-on:click.away="cityDropdownOpen = false">
+                            <button type="button" x-on:click="cityDropdownOpen = !cityDropdownOpen"
+                                class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white text-gray-900 flex items-center justify-between">
+                                <span>
+                                    @if (empty($selectedCity))
+                                        All Cities
+                                    @else
+                                        {{ $cities[$selectedCity] ?? 'Unknown City' }}
+                                    @endif
+                                </span>
+                                <svg class="w-4 h-4 text-gray-400 transition-transform"
+                                    x-bind:class="{ 'rotate-180': cityDropdownOpen }" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            {{-- Dropdown Content --}}
+                            <div x-show="cityDropdownOpen" x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 transform scale-100"
+                                x-transition:leave-end="opacity-0 transform scale-95"
+                                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg  shadow-lg">
+
+                                {{-- Search Input (only shows when dropdown is open) --}}
+                                <div class="p-2 border-b border-gray-200">
+                                    <div class="relative">
+                                        <input type="text" wire:model.live.debounce.300ms="citySearch"
+                                            placeholder="Search cities..."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white text-gray-900 placeholder-gray-500 text-sm">
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- City Options --}}
+                                <div class="max-h-24 sm:max-h-48 overflow-y-auto">
+                                    {{-- All Cities Option --}}
+                                    <button type="button" wire:click="$set('selectedCity', '')"
+                                        x-on:click="cityDropdownOpen = false"
+                                        class="w-full px-3 py-1 text-left hover:bg-gray-50 transition-colors {{ empty($selectedCity) ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-900' }}">
+                                        All Cities
+                                    </button>
+
+                                    {{-- Individual Cities --}}
+                                    @forelse($cities as $id => $name)
+                                        <button type="button"
+                                            wire:click="$set('selectedCity', '{{ $id }}')"
+                                            x-on:click="cityDropdownOpen = false"
+                                            class="w-full px-3 py-1 text-left hover:bg-gray-50 transition-colors {{ $selectedCity == $id ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-900' }}">
+                                            {{ $name }}
+                                        </button>
+                                    @empty
+                                        @if (!empty($citySearch))
+                                            <div class="px-3 py-1 text-gray-500 text-sm">
+                                                No cities found matching "{{ $citySearch }}"
+                                            </div>
+                                        @endif
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Property Type Filter --}}
+                    <div>
+                        <div class="flex border border-gray-300 rounded-lg overflow-hidden w-[80%]  mx-auto">
+                            <!-- For Sale Button -->
+                            <button wire:click="setForSale"
+                                class="flex-1 px-4 py-4 text-sm font-bold transition-colors  {{ $selectedType == 'sale' || $selectedType == \App\Models\Product::TYPE_SALE ? 'bg-gray-400 text-white' : 'bg-white text-orange-500' }}">
+                                FOR SALE
+                            </button>
+
+                            <!-- For Rent Button -->
+                            <button wire:click="setForRent"
+                                class="flex-1 px-4 py-4 text-sm font-bold transition-colors {{ $selectedType == 'rent' || $selectedType == \App\Models\Product::TYPE_RENT ? 'bg-gray-400 text-white' : 'bg-white text-orange-500' }}">
+                                FOR RENT
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- Modal Actions --}}
+                <div class="flex justify-between items-center pt-2  border-gray-200  flex-shrink-0">
+                    <button wire:click="applyFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                        class="bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors hover:bg-orange-700">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </button>
+
+                    @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
+                        <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                            class="w-12 h-12 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4l16 16M4 16L16 4"></path>
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Loading Overlay for Page Navigation -->
+    <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"
+        class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-2 border-orange-normal border-t-transparent"></div>
+            <span class="text-gray-700">Loading...</span>
+        </div>
+    </div>
+
+     @push('scripts')
         <script>
             function videoController(videoId, root, videoData) {
                 return {
@@ -1369,5 +1605,6 @@
         </script>
         <script src="{{ asset('assets/js/responsive.js') }}"></script>
     @endpush
+
 
 </section>
