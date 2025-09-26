@@ -26,7 +26,7 @@ class Home extends Component
     public $videos = [];
 
     // Header/Navigation states
-    public bool $sidebarOpen = false;
+    // public bool $sidebarOpen = false;
     public bool $openProfileDropdown = false;
 
     // Modal states
@@ -59,18 +59,18 @@ class Home extends Component
     public $cityLoading = false;
     public $typeLoading = false;
     public $resetLoading = false;
-    
+
 
     // Search History
     public $recentSearches = [];
 
     // Event listeners for header actions
-    
+
     public function mount()
     {
         // Convert comma-separated rooms string to array
         $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
-        
+
         // Load search history from session
         $this->recentSearches = Session::get('recentSearches', []);
 
@@ -88,13 +88,13 @@ class Home extends Component
             if ($property === 'selectedRooms') {
                 $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
             }
-            
+
             $this->loadVideos();
         }
     }
 
     // Filter Modal methods
-        #[On('open-filter-modal')]
+    #[On('open-filter-modal')]
     public function openFilterModal()
     {
         $this->showFilterModal = true;
@@ -181,7 +181,7 @@ class Home extends Component
     public function setPropertyType($type)
     {
         $this->selectedType = $type;
-        
+
         if (!$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
@@ -194,7 +194,7 @@ class Home extends Component
     public function clearPropertyType()
     {
         $this->selectedType = '';
-        
+
         if (!$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
@@ -207,7 +207,7 @@ class Home extends Component
     public function setForSale()
     {
         $this->selectedType = 'sale';
-        
+
         if (!$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
@@ -220,7 +220,7 @@ class Home extends Component
     public function setForRent()
     {
         $this->selectedType = 'rent';
-        
+
         if (!$this->showFilterModal) {
             $this->typeLoading = true;
             $this->navigateWithFilters();
@@ -291,7 +291,7 @@ class Home extends Component
     {
         // Update array when string changes (from URL or other sources)
         $this->selectedRoomsArray = !empty($this->selectedRooms) ? explode(',', $this->selectedRooms) : [];
-        
+
         if (!$this->showFilterModal) {
             $this->roomsLoading = true;
             $this->navigateWithFilters();
@@ -339,18 +339,18 @@ class Home extends Component
     /**
      * Reset all filters and navigate to clean home page
      */
-      #[On('reset-all-filters')]
+    #[On('reset-all-filters')]
     public function resetAllFilters()
     {
         $this->resetLoading = true;
         $this->selectedRoomsArray = [];
         $this->citySearch = ''; // Reset city search
         $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType']);
-        
+
         // Close any open modals
         $this->showFilterModal = false;
         $this->showSearchModal = false;
-        
+
         return $this->redirect(route('home'), navigate: true);
     }
 
@@ -426,7 +426,7 @@ class Home extends Component
                 'sale' => Product::TYPE_SALE,
                 'rent' => Product::TYPE_RENT,
             ];
-            
+
             // Use the mapped value if it exists, otherwise use the raw value
             $dbType = $typeMapping[$this->selectedType] ?? $this->selectedType;
             $query->where('type', $dbType);
@@ -448,7 +448,7 @@ class Home extends Component
 
             // First try to get primary reel, if none exists get random reel
             $selectedReel = $product->reels()->active()->where('is_primary', 1)->first();
-            
+
             if (!$selectedReel) {
                 $selectedReel = $product->reels()->active()->inRandomOrder()->first();
             }
@@ -602,11 +602,11 @@ class Home extends Component
     {
         // Get all cities
         $allCities = City::active()->pluck('name', 'id');
-        
+
         // Filter cities based on search term
         $filteredCities = $allCities;
         if (!empty($this->citySearch)) {
-            $filteredCities = $allCities->filter(function($name, $id) {
+            $filteredCities = $allCities->filter(function ($name, $id) {
                 return stripos($name, $this->citySearch) !== false;
             });
         }

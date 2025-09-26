@@ -3,7 +3,8 @@
     productId: null,
     favourite: false,
     selectedVideoId: null,
-    showInfoPanel: false
+    showInfoPanel: false,
+    sidebarOpen: false
 }">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
@@ -266,6 +267,82 @@
         </style>
     @endpush
 
+    {{-- Sidebar --}}
+    <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
+        x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
+        x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
+        x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"
+        @click.outside="sidebarOpen = false">
+        <div class="relative w-full h-full">
+            <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
+                x-on:click="sidebarOpen = false"></button>
+            <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
+                        <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
+                        <span class="text-[26px] text-orange-normal capitalize">{{ site_name() }}</span>
+                    </a>
+                    <x-button x-on:click="sidebarOpen = false" size="sm" variant="secondary">
+                        <flux:icon name="x-mark" />
+                    </x-button>
+                </div>
+                <flux:separator variant="subtle" class="my-2" />
+                <div class="px-4 flex flex-col items-start gap-4 flex-1">
+                    @if (Auth::check())
+                        <x-button href="{{ route('profile') }}" wire:navigate
+                            class="text-black !py-1 w-full justify-start {{ Route::is('profile') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                            size="lg" linkText>
+                            <flux:icon name="user-circle" /> Profile
+                        </x-button>
+
+                        @if (is_admin())
+                            <x-button class="text-black !py-1 w-full !justify-start" size="lg"
+                                href="{{ route('admin.products') }}" wire:navigate linkText>
+                                <flux:icon name="box" /> Dashboard
+                            </x-button>
+                        @endif
+
+                        <x-button href="{{ route('favorites') }}"
+                            class="text-black !px-2 !py-1 w-full justify-start {{ Route::is('favorites') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                            size="lg" linkText>
+                            <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved
+                            Reels
+                        </x-button>
+
+                        <flux:spacer />
+                        <flux:separator variant="subtle" class="my-2" />
+                        <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
+                            <flux:icon name="power" /> Logout
+                        </x-button>
+                    @else
+                        @if (Route::is('login'))
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                wire:navigate>
+                                <flux:icon name="user-plus" /> Register
+                            </x-button>
+                        @elseif (Route::is('register'))
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                wire:navigate>
+                                <flux:icon name="log-in" /> Login
+                            </x-button>
+                        @else
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                wire:navigate>
+                                <flux:icon name="log-in" /> Login
+                            </x-button>
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                wire:navigate>
+                                <flux:icon name="user-plus" /> Register
+                            </x-button>
+                        @endif
+                    @endif
+                </div>
+
+            </div>
+        </div>
+    </aside>
+    {{-- Sidebar --}}
+
     <div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{
             currentPlayingId: null,
@@ -351,6 +428,68 @@
                             x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
                             x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
+                            {{-- Search && Filter Mobile  --}}
+                            <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                x-intersect:leave="visible = false">
+                                {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+                                <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                    <!-- Logo centered -->
+                                    <a href="{{ route('home') }}" wire:navigate x-show="visible"
+                                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                                        <span
+                                            class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                                    </a>
+
+                                    <!-- Hamburger button on the right -->
+                                    <div class="ml-auto animate-fade-in-up" x-show="visible">
+                                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                                            class="lg:hidden">
+                                            <flux:icon name="bars-4" />
+                                        </x-button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="sm:hidden! fixed right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+                                    <div class="flex flex-col gap-3">
+                                        {{-- Reset Filters Button (only show when filters are active) - Updated Logic --}}
+                                        @if (!empty(request('search')) || !empty(request('rooms')) || !empty(request('city')) || !empty(request('type')))
+                                            <button @click="$dispatch('reset-all-filters')"
+                                                wire:loading.class="opacity-50 cursor-not-allowed" x-show="visible"
+                                                class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80  shadow-lg animate-fade-in-up">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                                </svg>
+                                            </button>
+                                        @endif
+
+                                        {{-- Filter Button --}}
+                                        <button @click="$dispatch('open-filter-modal')" x-show="visible"
+                                            class="w-12 h-12 bg-[#FFE8D9]   text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg animate-fade-in-up">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                                            </svg>
+                                        </button>
+
+                                        {{-- Search Button --}}
+                                        <button @click="$dispatch('open-search-modal')" x-show="visible"
+                                            class="w-12 h-12 bg-[#FFE8D9]  text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg animate-fade-in-up-delayed">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            {{-- Search && Filter Mobile  --}}
                             <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
                                 <div
@@ -532,7 +671,8 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-gray-600 text-xl mb-2">No Reels Found</h3>
-                                <p class="text-gray-400 mb-4">Try adjusting your search filters or check back later!</p>
+                                <p class="text-gray-400 mb-4">Try adjusting your search filters or check back later!
+                                </p>
                                 <div class="space-y-3">
                                     <button @click="$wire.resetFilters()"
                                         class="bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
@@ -668,7 +808,7 @@
                         </div>
                     </div>
 
-                    
+
                     {{-- City Filter with Collapsible Search --}}
                     <div class="flex flex-col space-x-1 sm:space-y-2" x-data="{ cityDropdownOpen: false }">
                         <p class="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -779,7 +919,7 @@
                     </button>
 
                     @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
-                        <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                        <button wire:click="closeFilterModal" wire:loading.class="opacity-50 cursor-not-allowed"
                             class="w-12 h-12 rounded-full flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -796,12 +936,13 @@
     <div wire:loading.delay.longer wire:target="searchTerm,selectedRooms,selectedCity,selectedType,resetAllFilters"
         class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 flex items-center justify-center">
         <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-3">
-            <div class="animate-spin rounded-full h-6 w-6 border-2 border-orange-normal border-t-transparent"></div>
+            <div class="animate-spin rounded-full h-6 w-6 border-2 border-orange-normal border-t-transparent">
+            </div>
             <span class="text-gray-700">Loading...</span>
         </div>
     </div>
 
-     @push('scripts')
+    @push('scripts')
         <script>
             function videoController(videoId, root, videoData) {
                 return {

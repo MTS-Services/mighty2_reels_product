@@ -1,5 +1,5 @@
 <!-- Header Include for Non-Admin Pages -->
-<div class="sticky top-0 left-0 z-50" x-data="{ openProfileDropdown: false, sidebarOpen: false }">
+<div class="sticky top-0 left-0 z-50" x-data="{ openProfileDropdown: false }">
     <div class="w-full">
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
             <div class="container max-w-[1200px] mx-auto py-0 sm:py-3 px-4 md:px-6 lg:px-8">
@@ -20,7 +20,7 @@
                         {{-- Filter Button for Home Page --}}
                         @if ($page_slug == 'home')
                             <div class="flex items-center gap-4 justify-end">
-                                <button @click="$dispatch('open-search-modal')" 
+                                <button @click="$dispatch('open-search-modal')"
                                     class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="2" stroke="currentColor" class="w-6 h-6">
@@ -94,7 +94,8 @@
                             </div>
                         </div>
                     @else
-                        <div class="px-4 hidden lg:block {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2">
+                        <div
+                            class="px-4 hidden lg:block {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />
@@ -119,7 +120,8 @@
                     {{-- Mobile Menu Button - Only show on non-home pages --}}
                     @if ($page_slug !== 'home')
                         <div class="flex items-center gap-4">
-                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
+                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                                class="lg:hidden">
                                 <flux:icon name="bars-4" />
                             </x-button>
                         </div>
@@ -128,60 +130,8 @@
             </div>
         </header>
 
-        {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-        @if ($page_slug == 'home' || $page_slug == 'product')
-            <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
-                <!-- Logo centered -->
-                <a href="{{ route('home') }}" wire:navigate
-                    class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex items-center gap-4">
-                    <span class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
-                </a>
-
-                <!-- Hamburger button on the right -->
-                <div class="ml-auto">
-                    <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary" class="lg:hidden">
-                        <flux:icon name="bars-4" />
-                    </x-button>
-                </div>
-            </div>
-        @endif
-
-        @if ($page_slug == 'home')
-            <div class="sm:hidden fixed right-4 bottom-1/5 transform -translate-y-1/2 z-40 flex flex-col gap-3">
-                {{-- Reset Filters Button (only show when filters are active) - Updated Logic --}}
-                @if (!empty(request('search')) || !empty(request('rooms')) || !empty(request('city')) || !empty(request('type')))
-                    <button @click="$dispatch('reset-all-filters')" wire:loading.class="opacity-50 cursor-not-allowed"
-                        class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 transition-all duration-200 shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                    </button>
-                @endif
-                {{-- Filter Button --}}
-                <button @click="$dispatch('open-filter-modal')"
-                    class="w-12 h-12 bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-                    </svg>
-                </button>
-                {{-- Search Button --}}
-                <button @click="$dispatch('open-search-modal')" 
-                    class="w-12 h-12 bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
-                    </svg>
-                </button>
-            </div>
-        @endif
-
         {{-- Sidebar --}}
-        <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
+        {{-- <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
             x-transition:enter="transition ease-in-out duration-300"
             x-transition:enter-start="transform translate-x-full" x-transition:enter-end="transform translate-x-0"
             x-transition:leave="transition ease-in-out duration-300"
@@ -204,10 +154,11 @@
                     <div class="px-4 flex flex-col items-start gap-4 flex-1">
                         @if (Auth::check())
                             <x-button href="{{ route('profile') }}" wire:navigate
-                                class="text-black !py-1 w-full justify-start {{ $page_slug == 'profile' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                class="text-black !py-1 w-full justify-start {{ Route::is('profile') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                                 size="lg" linkText>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
+
                             @if (is_admin())
                                 <x-button class="text-black !py-1 w-full !justify-start" size="lg"
                                     href="{{ route('admin.products') }}" wire:navigate linkText>
@@ -216,7 +167,7 @@
                             @endif
 
                             <x-button href="{{ route('favorites') }}"
-                                class="text-black !px-2 !py-1 w-full justify-start {{ $page_slug == 'reels' ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                class="text-black !px-2 !py-1 w-full justify-start {{ Route::is('favorites') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                                 size="lg" linkText>
                                 <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved Reels
                             </x-button>
@@ -249,13 +200,15 @@
                             @endif
                         @endif
                     </div>
+
                 </div>
             </div>
-        </aside>
+        </aside> --}}
 
         {{-- Desktop search area for non-mobile --}}
         @if ($page_slug == 'home')
-            <div class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area hidden lg:block">
+            <div
+                class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area hidden lg:block">
                 <div class="flex items-center gap-4">
                     <div class="flex-1 flex items-center gap-1">
                         <x-button variant="secondary" class="!rounded-full lg:hidden flex-shrink-0"
