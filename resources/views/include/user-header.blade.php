@@ -149,7 +149,7 @@
             <div class="sm:hidden fixed right-4 bottom-1/5 transform -translate-y-1/2 z-40 flex flex-col gap-3">
                 {{-- Reset Filters Button (only show when filters are active) --}}
                 @if (!empty($searchTerm ?? '') || !empty($selectedRooms ?? '') || !empty($selectedCity ?? '') || !empty($selectedType ?? ''))
-                    <button wire:click="resetAllFilters" wire:loading.class="opacity-50 cursor-not-allowed"
+                    <button @click="$dispatch('reset-all-filters')" wire:loading.class="opacity-50 cursor-not-allowed"
                         class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 transition-all duration-200 shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
@@ -159,7 +159,7 @@
                     </button>
                 @endif
                 {{-- Filter Button --}}
-                <button wire:click="openFilterModal"
+                <button @click="$dispatch('open-filter-modal')"
                     class="w-12 h-12 bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -168,7 +168,7 @@
                     </svg>
                 </button>
                 {{-- Search Button --}}
-                <button wire:click="openSearchModal"
+                <button @click="$dispatch('open-search-modal')" 
                     class="w-12 h-12 bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                         stroke="currentColor" class="w-5 h-5">
