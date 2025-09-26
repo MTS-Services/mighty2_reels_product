@@ -20,7 +20,7 @@
                         {{-- Filter Button for Home Page --}}
                         @if ($page_slug == 'home')
                             <div class="flex items-center gap-4 justify-end">
-                                <button wire:click="openSearchModal"
+                                <button @click="$dispatch('open-search-modal')" 
                                     class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="2" stroke="currentColor" class="w-6 h-6">
@@ -28,7 +28,7 @@
                                             d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 5.64 5.64a7.5 7.5 0 0 0 10.61 10.61z" />
                                     </svg>
                                 </button>
-                                <button wire:click="openFilterModal"
+                                <button @click="$dispatch('open-filter-modal')"
                                     class="bg-orange-normal/10 text-orange-600 hover:bg-orange-normal/20 p-2 rounded-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -37,7 +37,7 @@
                                     </svg>
                                 </button>
                                 @if (!empty($searchTerm ?? '') || !empty($selectedRooms ?? '') || !empty($selectedCity ?? '') || !empty($selectedType ?? ''))
-                                    <button wire:click="resetAllFilters"
+                                    <button @click="$dispatch('reset-all-filters')"
                                         wire:loading.class="opacity-50 cursor-not-allowed"
                                         class="p-2 text-gray-700 hover:text-orange-normal transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"

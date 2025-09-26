@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Layout('app', ['title' => 'Home', 'page_slug' => 'home'])]
@@ -63,6 +64,8 @@ class Home extends Component
     // Search History
     public $recentSearches = [];
 
+    // Event listeners for header actions
+    
     public function mount()
     {
         // Convert comma-separated rooms string to array
@@ -91,6 +94,7 @@ class Home extends Component
     }
 
     // Filter Modal methods
+        #[On('open-filter-modal')]
     public function openFilterModal()
     {
         $this->showFilterModal = true;
@@ -110,7 +114,7 @@ class Home extends Component
     }
 
     // Search Modal methods
-    
+    #[On('open-search-modal')]
     public function openSearchModal()
     {
         $this->showSearchModal = true;
@@ -335,6 +339,7 @@ class Home extends Component
     /**
      * Reset all filters and navigate to clean home page
      */
+      #[On('reset-all-filters')]
     public function resetAllFilters()
     {
         $this->resetLoading = true;
