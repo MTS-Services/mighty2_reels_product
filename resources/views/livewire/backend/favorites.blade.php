@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto   sm:px-6 lg:px-8">
+<section class="max-w-7xl mx-auto   sm:px-6 lg:px-8" x-data="{sidebarOpen: false}">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
@@ -121,7 +121,81 @@
         </style>
     @endpush
 
+ {{-- Sidebar --}}
+    <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
+        x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
+        x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
+        x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"
+        @click.outside="sidebarOpen = false">
+        <div class="relative w-full h-full">
+            <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
+                x-on:click="sidebarOpen = false"></button>
+            <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
+                        <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
+                        <span class="text-[26px] text-orange-normal capitalize">{{ site_name() }}</span>
+                    </a>
+                    <x-button x-on:click="sidebarOpen = false" size="sm" variant="secondary">
+                        <flux:icon name="x-mark" />
+                    </x-button>
+                </div>
+                <flux:separator variant="subtle" class="my-2" />
+                <div class="px-4 flex flex-col items-start gap-4 flex-1">
+                    @if (Auth::check())
+                        <x-button href="{{ route('profile') }}" wire:navigate
+                            class="text-black !py-1 w-full justify-start {{ Route::is('profile') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                            size="lg" linkText>
+                            <flux:icon name="user-circle" /> Profile
+                        </x-button>
 
+                        @if (is_admin())
+                            <x-button class="text-black !py-1 w-full !justify-start" size="lg"
+                                href="{{ route('admin.products') }}" wire:navigate linkText>
+                                <flux:icon name="box" /> Dashboard
+                            </x-button>
+                        @endif
+
+                        <x-button href="{{ route('favorites') }}"
+                            class="text-black !px-2 !py-1 w-full justify-start {{ Route::is('favorites') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                            size="lg" linkText>
+                            <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved
+                            Reels
+                        </x-button>
+
+                        <flux:spacer />
+                        <flux:separator variant="subtle" class="my-2" />
+                        <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
+                            <flux:icon name="power" /> Logout
+                        </x-button>
+                    @else
+                        @if (Route::is('login'))
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                wire:navigate>
+                                <flux:icon name="user-plus" /> Register
+                            </x-button>
+                        @elseif (Route::is('register'))
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                wire:navigate>
+                                <flux:icon name="log-in" /> Login
+                            </x-button>
+                        @else
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                wire:navigate>
+                                <flux:icon name="log-in" /> Login
+                            </x-button>
+                            <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                wire:navigate>
+                                <flux:icon name="user-plus" /> Register
+                            </x-button>
+                        @endif
+                    @endif
+                </div>
+
+            </div>
+        </div>
+    </aside>
+    {{-- Sidebar --}}
     <div class="rounded-lg">
         <!-- Header -->
 
@@ -134,7 +208,7 @@
 
         @if (empty($videos))
             <!-- Empty State -->
-            <div class="empty-state rounded-xl max-w-lg!  mx-auto h-[calc(100vh-180px)]  p-12 text-center text-white">
+            <div class="empty-state rounded-xl max-w-lg!  mx-auto h-screen sm:h-[calc(100vh-75px)]! mt-2 flex-col items-center p-12 text-center text-white">
                 <svg class="w-24 h-24 mx-auto mb-6 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
@@ -165,7 +239,7 @@
                 <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide sm:rounded-lg">
 
                     <!-- Remove from Favorites Button -->
-                    <div class="absolute top-4 right-8 z-5 rounded-full">
+                    <div class="absolute top-16 sm:top-4 right-4 sm:right-8 z-5 rounded-full">
                         <button @click="$wire.removeFavorite()"
                             class="bg-red-500 text-white transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl hover:bg-red-600 transform hover:scale-105">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,6 +265,26 @@
                             <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
                                 x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id)"
                                 x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
+                                <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                                    x-intersect:leave="visible = false">
+                                    {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+                                    <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                        <!-- Logo centered -->
+                                        <a href="{{ route('home') }}" wire:navigate x-show="visible"
+                                            class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                                            <span
+                                                class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                                        </a>
+
+                                        <!-- Hamburger button on the right -->
+                                        <div class="ml-auto animate-fade-in-up" x-show="visible">
+                                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                                                class="lg:hidden">
+                                                <flux:icon name="bars-4" />
+                                            </x-button>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="flex flex-col justify-center items-center relative sm:rounded-xl">
 

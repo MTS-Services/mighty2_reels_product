@@ -199,8 +199,82 @@
             /* Merged view styles */
         </style>
     @endpush
-
-    <div class=" relative h-full  max-w-lg mx-auto">
+    <div class=" relative h-full  max-w-lg mx-auto" x-data="{ sidebarOpen: false }">
+        {{-- Sidebar --}}
+        <aside class="fixed inset-0 z-[999999]" x-show="sidebarOpen" x-cloak
+            x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
+            x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
+            x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"
+            @click.outside="sidebarOpen = false">
+            <div class="relative w-full h-full">
+                <button class="absolute inset-0 bg-orange-light/20 backdrop-blur-lg"
+                    x-on:click="sidebarOpen = false"></button>
+                <div class="relative w-full h-full bg-white shadow-lg max-w-96 ml-auto flex flex-col">
+                    <div class="flex items-center justify-between px-4 py-3">
+                        <a href="{{ route('home') }}" class="inline-flex items-center justify-start gap-4">
+                            <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
+                            <span class="text-[26px] text-orange-normal capitalize">{{ site_name() }}</span>
+                        </a>
+                        <x-button x-on:click="sidebarOpen = false" size="sm" variant="secondary">
+                            <flux:icon name="x-mark" />
+                        </x-button>
+                    </div>
+                    <flux:separator variant="subtle" class="my-2" />
+                    <div class="px-4 flex flex-col items-start gap-4 flex-1">
+                        @if (Auth::check())
+                            <x-button href="{{ route('profile') }}" wire:navigate
+                                class="text-black !py-1 w-full justify-start {{ Route::is('profile') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                size="lg" linkText>
+                                <flux:icon name="user-circle" /> Profile
+                            </x-button>
+    
+                            @if (is_admin())
+                                <x-button class="text-black !py-1 w-full !justify-start" size="lg"
+                                    href="{{ route('admin.products') }}" wire:navigate linkText>
+                                    <flux:icon name="box" /> Dashboard
+                                </x-button>
+                            @endif
+    
+                            <x-button href="{{ route('favorites') }}"
+                                class="text-black !px-2 !py-1 w-full justify-start {{ Route::is('favorites') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
+                                size="lg" linkText>
+                                <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved
+                                Reels
+                            </x-button>
+    
+                            <flux:spacer />
+                            <flux:separator variant="subtle" class="my-2" />
+                            <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
+                                <flux:icon name="power" /> Logout
+                            </x-button>
+                        @else
+                            @if (Route::is('login'))
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                    wire:navigate>
+                                    <flux:icon name="user-plus" /> Register
+                                </x-button>
+                            @elseif (Route::is('register'))
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                    wire:navigate>
+                                    <flux:icon name="log-in" /> Login
+                                </x-button>
+                            @else
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
+                                    wire:navigate>
+                                    <flux:icon name="log-in" /> Login
+                                </x-button>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
+                                    wire:navigate>
+                                    <flux:icon name="user-plus" /> Register
+                                </x-button>
+                            @endif
+                        @endif
+                    </div>
+    
+                </div>
+            </div>
+        </aside>
+        {{-- Sidebar --}}
         <div x-show="!$wire.showMergedView">
             <div class="absolute bottom-[110px] md:bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
@@ -250,7 +324,7 @@
                 </button>
             </div>
 
-            <div class="absolute top-0 right-0   rounded-full">
+            <div class="absolute bottom-44! sm:top-0 right-0   rounded-full">
                 <div x-data="{ liked: false }" x-init="// When the component is loaded, sync liked state based on product's favourite
                 liked = @js($favourite[$productData->id] ?? false);
                 
@@ -261,7 +335,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-[480px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
+                    class="absolute  sm:top-4! lg:right-6 right-4 z-50! rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -294,6 +368,25 @@
                     <div class="video-item snap-start pb-0.5 video-item-dvh" x-data="videoController(video.id, $root, video)"
                         x-intersect:enter="autoplayOnScroll()" x-intersect:leave="pauseVideo()"
                         :id="`media-item-${index}`">
+                        <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                            x-intersect:leave="visible = false">
+                            {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+                            <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                <!-- Logo centered -->
+                                <a href="{{ route('home') }}" wire:navigate x-show="visible"
+                                    class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                                    <span class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                                </a>
+
+                                <!-- Hamburger button on the right -->
+                                <div class="ml-auto animate-fade-in-up" x-show="visible">
+                                    <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                                        class="lg:hidden">
+                                        <flux:icon name="bars-4" />
+                                    </x-button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
@@ -478,7 +571,23 @@
                         <div @click="viewMediaItem(index)"
                             class="relative rounded-2xl overflow-hidden  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
                             :class="{ 'bg-white': selectedMediaIndex === index }">
+                                {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+                                <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                    <!-- Logo centered -->
+                                    <a href="{{ route('home') }}" wire:navigate 
+                                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                                        <span
+                                            class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                                    </a>
 
+                                    <!-- Hamburger button on the right -->
+                                    <div class="ml-auto animate-fade-in-up">
+                                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                                            class="lg:hidden">
+                                            <flux:icon name="bars-4" />
+                                        </x-button>
+                                    </div>
+                                </div>
                             <!-- Video Template -->
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-36! sm:h-48!">
@@ -586,6 +695,7 @@
                     displayVideos: @js($videos),
                     allMediaItems: @js($allMedia),
                     selectedMediaIndex: 0,
+
 
                     init() {
 
