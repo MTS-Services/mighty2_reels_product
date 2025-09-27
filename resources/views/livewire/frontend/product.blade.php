@@ -390,7 +390,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-none sm:rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-80px)]! max-w-lg sm:max-h-[1100px]!">
+                                class="w-full rounded-none sm:rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-80px)]! max-w-lg ">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-50">
@@ -563,16 +563,8 @@
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-80px)]! sm:max-h-[1100px] flex flex-col max-w-lg">
-
-                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 pt-2 sm:pt-6 ">
-                    <template x-for="(media, index) in allMediaItems"
-                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
-                        <div @click="viewMediaItem(index)"
-                            class="relative rounded-2xl overflow-hidden  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
-                            :class="{ 'bg-white': selectedMediaIndex === index }">
-                                {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                                <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-80px)]!  flex flex-col max-w-lg">
+                   <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
                                     <!-- Logo centered -->
                                     <a href="{{ route('home') }}" wire:navigate 
                                         class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
@@ -588,6 +580,15 @@
                                         </x-button>
                                     </div>
                                 </div>
+
+                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 pt-2 sm:pt-6 ">
+                    <template x-for="(media, index) in allMediaItems"
+                        :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
+                        <div @click="viewMediaItem(index)"
+                            class="relative rounded-2xl overflow-hidden  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+                            :class="{ 'bg-white': selectedMediaIndex === index }">
+                                {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+                             
                             <!-- Video Template -->
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-36! sm:h-48!">
