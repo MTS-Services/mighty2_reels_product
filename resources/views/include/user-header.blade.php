@@ -10,7 +10,7 @@
                     </a>
 
                     {{-- Desktop Navigation --}}
-                    <div class="items-center gap-9 w-[680px] hidden lg:flex justify-between">
+                    <div class="items-center gap-9 sm:w-[500px] lg:w-[680px] hidden sm:flex justify-between">
                         @if ($page_slug == 'home' || $page_slug == 'favorites' || $page_slug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
                                 <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
@@ -54,7 +54,7 @@
 
                     {{-- Desktop User Profile/Auth --}}
                     @if (Auth::check())
-                        <div class="hidden lg:flex items-center gap-4 relative py-2 {{ $page_slug == 'favorites' || $page_slug == 'profile' ? 'ml-auto' : '' }}"
+                        <div class="hidden sm:flex items-center gap-4 relative py-2 {{ $page_slug == 'favorites' || $page_slug == 'profile' ? 'ml-auto' : '' }}"
                             x-on:click.away="openProfileDropdown = false">
 
                             <div class="flex items-center gap-4 cursor-pointer"
@@ -96,7 +96,7 @@
                         </div>
                     @else
                         <div
-                            class="px-4 hidden lg:block {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2">
+                            class="px-4 hidden sm:block {{ Route::is('login') || Route::is('register') || Route::is('product') ? 'ml-auto' : '' }} gap-2">
                             @if (Route::is('login'))
                                 <x-button route="register">
                                     <flux:icon name="user-plus" />

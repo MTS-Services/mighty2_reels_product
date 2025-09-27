@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto sm:pt-2 sm:px-6 lg:px-8" x-data="{
+<section class="max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="{
     currentPlayingId: null,
     productId: null,
     favourite: false,
@@ -493,7 +493,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-none sm:rounded-xl  max-h-[1100px]">
+                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-none sm:rounded-xl ">
 
                                     <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">

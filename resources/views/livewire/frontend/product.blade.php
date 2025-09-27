@@ -1,4 +1,4 @@
-<section class=" max-w-7xl mx-auto sm:pt-2 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class=" max-w-7xl mx-auto  sm:px-6 lg:px-8" x-data="videoApp()">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
