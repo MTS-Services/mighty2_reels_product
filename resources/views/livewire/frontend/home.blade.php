@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{
+<section class="max-w-7xl mx-auto sm:pt-2 sm:px-6 lg:px-8" x-data="{
     currentPlayingId: null,
     productId: null,
     favourite: false,

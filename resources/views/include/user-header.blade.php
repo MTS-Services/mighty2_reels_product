@@ -87,9 +87,10 @@
                                         </x-button>
                                     @endif
                                     <x-button class="w-full !justify-start" variant="secondary" size="sm"
-                                        wire:click="logout">
+                                        @click="$dispatch('logout-requested')">
                                         <flux:icon name="power" /> Logout
                                     </x-button>
+
                                 </div>
                             </div>
                         </div>
@@ -206,8 +207,8 @@
         </aside> --}}
 
         {{-- Desktop search area for non-mobile --}}
-        @if ($page_slug == 'home')
-            <div
+        {{-- @if ($page_slug == 'home') --}}
+        {{-- <div
                 class="container mx-auto px-4 md:px-6 lg:px-8 max-w-[564px] mt-2 space-y-2 search-area hidden lg:block">
                 <div class="flex items-center gap-4">
                     <div class="flex-1 flex items-center gap-1">
@@ -217,7 +218,7 @@
                         </x-button>
                     </div>
                 </div>
-            </div>
-        @endif
+            </div> --}}
+        {{-- @endif --}}
     </div>
 </div>

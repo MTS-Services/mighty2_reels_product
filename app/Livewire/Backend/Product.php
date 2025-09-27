@@ -545,11 +545,11 @@ class Product extends Component
     {
         $this->validateOnly('videos.*');
 
-        $totalVideos = count($this->videos) + count($this->existingVideos);
-        if ($totalVideos > 5) {
-            session()->flash('error', 'Maximum 5 videos allowed per product.');
-            $this->videos = [];
-        }
+        // $totalVideos = count($this->videos) + count($this->existingVideos);
+        // if ($totalVideos > 5) {
+        //     session()->flash('error', 'Maximum 5 videos allowed per product.');
+        //     $this->videos = [];
+        // }
     }
 
     public function render()

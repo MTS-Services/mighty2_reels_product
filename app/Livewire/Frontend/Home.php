@@ -369,11 +369,15 @@ class Home extends Component
     /**
      * User logout
      */
+  protected $listeners = ['logout-requested' => 'logout'];
+
     public function logout()
     {
+
         Auth::guard('web')->logout();
         Session::invalidate();
         Session::regenerateToken();
+
         return $this->redirectRoute('home', navigate: true);
     }
 
