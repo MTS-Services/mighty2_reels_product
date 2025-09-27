@@ -493,7 +493,7 @@
                             <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
                                 <div
-                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-none sm:rounded-xl ">
+                                    class="video-container w-full relative overflow-hidden sm:h-[calc(100vh-82px)]! shadow-2xl transition-all duration-600 video-container-dvh max-w-lg rounded-none sm:rounded-xl  max-h-[1100px]">
 
                                     <div class="absolute top-6 left-4 z-40">
                                         <div class="group flex items-center gap-2">
@@ -1746,6 +1746,5 @@
         </script>
         <script src="{{ asset('assets/js/responsive.js') }}"></script>
     @endpush
-
 
 </section>

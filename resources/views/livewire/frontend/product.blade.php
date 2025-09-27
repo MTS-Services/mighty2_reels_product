@@ -1,6 +1,6 @@
 <section class=" max-w-7xl mx-auto   sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
     @push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
             .progress-bar {
                 background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 var(--progress, 0%), #4a4a4a var(--progress, 0%), #4a4a4a 100%);
@@ -287,7 +287,7 @@
         <div class="relative w-full mx-auto h-full  sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  h-[95vh] sm:h-[calc(100vh-120px)]  space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  dvh-screen sm:h-[calc(100vh-120px)]  space-y-6 scroll-smooth">
 
                 <template x-for="(video, index) in (allMediaItems || [])"
                     :key="`media-${video.id}-${video.type}-${video.reel_id || video.image_id || index}-${index}`">
@@ -470,12 +470,13 @@
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[92vh] sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
-                <div class="flex-1 overflow-y-auto scrollbar-hide space-y-3 gap-4">
+                class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
+
+                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
                         <div @click="viewMediaItem(index)"
-                            class="relative rounded-2xl overflow-hidden mb-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
+                            class="relative rounded-2xl overflow-hidden  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
                             :class="{ 'bg-white': selectedMediaIndex === index }">
 
                             <!-- Video Template -->
@@ -515,7 +516,7 @@
 
                 </div>
 
-                <div class=" p-4 shadow-sm rounded-2xl  overflow-y-auto" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
+                <div class=" p-2 shadow-sm rounded-2xl  overflow-y-auto" x-data="{ expanded: false, toggleDescription() { this.expanded = !this.expanded } }">
 
                     @if ($productData)
                         <div class="max-w-3xl mx-auto">
@@ -1340,6 +1341,6 @@
                 };
             }
         </script>
-         <script src="{{ asset('assets/js/responsive.js') }}"></script>
+        <script src="{{ asset('assets/js/responsive.js') }}"></script>
     @endpush
 </section>
