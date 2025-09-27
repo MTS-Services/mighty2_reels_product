@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto   sm:px-6 lg:px-8" x-data="{sidebarOpen: false}">
+<section class="max-w-7xl mx-auto   sm:px-6 lg:px-8" x-data="{ sidebarOpen: false }">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
@@ -121,8 +121,8 @@
         </style>
     @endpush
 
- {{-- Sidebar --}}
-    <aside class="fixed inset-0 z-[60]" x-show="sidebarOpen" x-cloak
+    {{-- Sidebar --}}
+    <aside class="fixed inset-0 z-[999]" x-show="sidebarOpen" x-cloak
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
         x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
         x-transition:leave-start="transform translate-x-0" x-transition:leave-end="transform translate-x-full"
@@ -208,7 +208,8 @@
 
         @if (empty($videos))
             <!-- Empty State -->
-            <div class="empty-state rounded-xl max-w-lg!  mx-auto h-screen sm:h-[calc(100vh-75px)]! mt-2 flex-col items-center p-12 text-center text-white">
+            <div
+                class="empty-state rounded-xl max-w-lg!  mx-auto h-screen sm:h-[calc(100vh-75px)]! mt-2 flex-col items-center p-12 text-center text-white">
                 <svg class="w-24 h-24 mx-auto mb-6 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
@@ -237,17 +238,19 @@
             }">
 
                 <div class="relative max-w-lg w-full mx-auto h-full scrollbar-hide sm:rounded-lg">
-
-                    <!-- Remove from Favorites Button -->
-                    <div class="absolute top-16 sm:top-4 right-4 sm:right-8 z-5 rounded-full">
-                        <button @click="$wire.removeFavorite()"
-                            class="bg-red-500 text-white transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl hover:bg-red-600 transform hover:scale-105">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
-                        </button>
+                    <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                        x-intersect:leave="visible = false">
+                        <!-- Remove from Favorites Button -->
+                        <div class="absolute top-16 sm:top-4 right-4 sm:right-8 z-5 rounded-full">
+                            <button @click="$wire.removeFavorite()" x-show="visible"
+                                class="bg-red-500 text-white transition-colors duration-300 animate-fade-in-up rounded-full p-3 shadow-lg hover:shadow-xl hover:bg-red-600 transform hover:scale-105">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Product Details Button -->
@@ -262,13 +265,14 @@
                         class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen sm:h-[calc(100vh-82px)]! video-scroll-container pt-0.5 space-y-6 scroll-smooth">
 
                         <template x-for="(video, index) in videos" :key="video.id">
-                            <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
+                            <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh"
+                                x-data="videoController(video.id, $root, video)"
                                 x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id)"
                                 x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
                                 <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                     x-intersect:leave="visible = false">
                                     {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                                    <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                    <div class="sm:hidden fixed top-4 left-0 right-0 z-40! flex items-center px-4">
                                         <!-- Logo centered -->
                                         <a href="{{ route('home') }}" wire:navigate x-show="visible"
                                             class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
@@ -278,8 +282,8 @@
 
                                         <!-- Hamburger button on the right -->
                                         <div class="ml-auto animate-fade-in-up" x-show="visible">
-                                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
-                                                class="lg:hidden">
+                                            <x-button x-on:click="sidebarOpen = true" size="sm"
+                                                variant="secondary" class="lg:hidden">
                                                 <flux:icon name="bars-4" />
                                             </x-button>
                                         </div>
@@ -296,18 +300,19 @@
                                             <div class="group flex items-center gap-2">
                                                 <button @click.stop="toggleMute()"
                                                     class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
-                                                    <svg x-show="volume > 0.5 && !isMuted" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="currentColor">
+                                                    <svg x-show="volume > 0.5 && !isMuted" width="24"
+                                                        height="24" viewBox="0 0 24 24" fill="currentColor">
                                                         <path
                                                             d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                                                     </svg>
-                                                    <svg x-show="volume > 0 && volume <= 0.5 && !isMuted" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                    <svg x-show="volume > 0 && volume <= 0.5 && !isMuted"
+                                                        width="24" height="24" viewBox="0 0 24 24"
+                                                        fill="currentColor">
                                                         <path
                                                             d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
                                                     </svg>
-                                                    <svg x-show="volume === 0 || isMuted" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="currentColor">
+                                                    <svg x-show="volume === 0 || isMuted" width="24"
+                                                        height="24" viewBox="0 0 24 24" fill="currentColor">
                                                         <path
                                                             d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
                                                     </svg>
