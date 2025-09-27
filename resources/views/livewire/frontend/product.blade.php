@@ -261,7 +261,7 @@
                         liked = video ? video.favourite : liked;
                     }
                 });"
-                    class="absolute top-[500px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
+                    class="absolute top-[480px] sm:top-4 lg:right-6 right-4 z-50! rounded-full">
 
                     <button
                         @click="$wire.toggleFavourite(activeVideoIdInView || (displayVideos[0] && displayVideos[0].id));
@@ -472,7 +472,7 @@
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
                 class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-80px)]! sm:max-h-[1100px] flex flex-col max-w-lg">
 
-                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 sm:pt-6 ">
+                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 pt-2 sm:pt-6 ">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
                         <div @click="viewMediaItem(index)"
@@ -481,7 +481,7 @@
 
                             <!-- Video Template -->
                             <template x-if="media.type === 'video'">
-                                <div class="relative w-full h-36 sm:h-48!">
+                                <div class="relative w-full h-36! sm:h-48!">
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full object-contain rounded-2xl" muted loop></video>
 
@@ -499,7 +499,7 @@
 
                             <!-- Image Template -->
                             <template x-if="media.type === 'image'">
-                                <div class="relative w-[70%] mx-auto hover:shadow-lg h-36 sm:h-48">
+                                <div class="relative w-[70%] mx-auto hover:shadow-lg h-36! sm:h-48">
                                     <img :src="media.url" :alt="media.title"
                                         class="w-full h-full object-contain rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">

@@ -450,12 +450,12 @@
                                 </div>
                                 <div
                                     class="sm:hidden! fixed right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
-                                    <div class="flex flex-col gap-3">
+                                    <div class="flex flex-col gap-5">
                                         {{-- Reset Filters Button (only show when filters are active) - Updated Logic --}}
-                                        @if (!empty(request('search')) || !empty(request('rooms')) || !empty(request('city')) || !empty(request('type')))
+                                        @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
                                             <button @click="$dispatch('reset-all-filters')"
                                                 wire:loading.class="opacity-50 cursor-not-allowed" x-show="visible"
-                                                class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80  shadow-lg animate-fade-in-up">
+                                                class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 shadow-lg animate-fade-in-up">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                     stroke-width="2">
