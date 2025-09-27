@@ -1,4 +1,4 @@
-<section class=" max-w-7xl mx-auto   sm:pt-6 sm:px-6 lg:px-8" x-data="videoApp()">
+<section class=" max-w-7xl mx-auto sm:pt-2 sm:px-6 lg:px-8" x-data="videoApp()">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
         <style>
@@ -287,7 +287,7 @@
         <div class="relative w-full mx-auto h-full  sm:mt-0 scrollbar-hide"
             :class="$wire.showMergedView ? 'max-w-none' : 'max-w-lg'">
             <div x-show="!$wire.showMergedView"
-                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  dvh-screen sm:h-[calc(100vh-120px)]  space-y-6 scroll-smooth">
+                class="overflow-y-scroll snap-y scrollbar-hide snap-mandatory  dvh-screen sm:h-[calc(100vh-80px)]  space-y-6 scroll-smooth">
 
                 <template x-for="(video, index) in (allMediaItems || [])"
                     :key="`media-${video.id}-${video.type}-${video.reel_id || video.image_id || index}-${index}`">
@@ -297,7 +297,7 @@
 
                         <div class="flex flex-col justify-center items-center relative">
                             <div
-                                class="w-full rounded-none sm:rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-120px)]! max-w-lg max-h-[1100px]">
+                                class="w-full rounded-none sm:rounded-xl overflow-hidden shadow-2xl transition-all duration-600 relative video-container-dvh sm:h-[calc(100vh-80px)]! max-w-lg sm:max-h-[1100px]!">
 
                                 <template x-if="video.type === 'video'">
                                     <div class="absolute top-4 left-4 z-50">
@@ -470,9 +470,9 @@
                 x-transition:leave="transition transform ease-in duration-500"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
-                class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-120px)] flex flex-col max-w-lg">
+                class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-80px)]! sm:max-h-[1100px] flex flex-col max-w-lg">
 
-                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4">
+                <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 sm:pt-6 ">
                     <template x-for="(media, index) in allMediaItems"
                         :key="media.id + '-' + media.type + '-' + (media.reel_id || media.image_id || index)">
                         <div @click="viewMediaItem(index)"
@@ -481,7 +481,7 @@
 
                             <!-- Video Template -->
                             <template x-if="media.type === 'video'">
-                                <div class="relative w-full h-44">
+                                <div class="relative w-full h-36 sm:h-48!">
                                     <video :src="media.url"
                                         class="w-[70%] mx-auto h-full object-contain rounded-2xl" muted loop></video>
 
@@ -499,7 +499,7 @@
 
                             <!-- Image Template -->
                             <template x-if="media.type === 'image'">
-                                <div class="relative w-[70%] mx-auto hover:shadow-lg h-44">
+                                <div class="relative w-[70%] mx-auto hover:shadow-lg h-36 sm:h-48">
                                     <img :src="media.url" :alt="media.title"
                                         class="w-full h-full object-contain rounded-2xl">
                                     <div class="absolute top-2 left-2 bg-black/50 rounded-full p-2 shadow">
