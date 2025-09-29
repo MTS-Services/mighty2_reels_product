@@ -421,10 +421,10 @@
                 </template>
 
                 <div
-                    class="video-transform overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen sm:h-[calc(100vh-82px)]! video-scroll-container  space-y-6 scroll-smooth">
+                    class="video-transform relative overflow-y-scroll snap-y scrollbar-hide snap-mandatory dvh-screen sm:h-[calc(100vh-82px)]! video-scroll-container  space-y-6 scroll-smooth">
 
                     <template x-for="(video, index) in videos" :key="`${video.id}-${video.reel_id || index}`">
-                        <div class="video-item snap-start pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
+                        <div class="video-item snap-start  pb-0.5 rounded-lg video-item-dvh" x-data="videoController(video.id, $root, video)"
                             x-intersect:enter="autoplayOnScroll(); $wire.updateCurrentVideo(video.id); $wire.setActiveVideo(video.id)"
                             x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
@@ -432,7 +432,7 @@
                             <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                                 x-intersect:leave="visible = false">
                                 {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                                <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                                <div class="sm:hidden  absolute top-4 left-0 right-0 z-40 flex items-center px-4">
                                     <!-- Logo centered -->
                                     <a href="{{ route('home') }}" wire:navigate x-show="visible"
                                         class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
@@ -449,7 +449,7 @@
                                     </div>
                                 </div>
                                 <div
-                                    class="sm:hidden! fixed right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+                                    class="sm:hidden!  absolute right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
                                     <div class="flex flex-col gap-5">
                                         {{-- Reset Filters Button (only show when filters are active) - Updated Logic --}}
                                         @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
@@ -489,7 +489,7 @@
                                 </div>
 
                             </div>
-                            {{-- Search && Filter Mobile  --}}
+                            {{-- Search && Filter Mobile end  --}}
                             <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
                                 <div

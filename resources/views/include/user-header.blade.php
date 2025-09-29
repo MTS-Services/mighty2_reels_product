@@ -2,18 +2,18 @@
 <div class="sticky top-0 left-0 z-50" x-data="{ openProfileDropdown: false }">
     <div class="w-full">
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
-            <div class="container max-w-[1200px]  mx-auto py-0 sm:py-3  px-4 md:px-6 lg:px-8">
+            <div class="container max-w-[1200px]  mx-auto py-0 sm:py-3   md:px-6 lg:px-8">
                 <nav class="items-center hidden sm:flex justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
-                        <span class="text-[24px] text-orange-normal capitalize">{{ site_name() }}</span>
+                        <span class="text-[18px] lg:text-[24px] text-orange-normal capitalize">{{ site_name() }}</span>
                     </a>
 
                     {{-- Desktop Navigation --}}
-                    <div class="items-center gap-9 sm:w-[330px] lg:w-[500px] xl:w-[680px] hidden sm:flex justify-between">
+                    <div class="items-center gap-9 sm:w-[250px] md:w-[390px] lg:w-[500px] xl:w-[680px] hidden sm:flex justify-between">
                         @if ($page_slug == 'home' || $page_slug == 'favorites' || $page_slug == 'product')
-                            <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
-                                <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels
+                            <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full !text-[12px] lg:text-[18px]! sm:px-1! lg:px-4! sm:gap-1! lg:gap-3!">
+                                <flux:icon name="heart" class="fill-orange-normal w-4! h-4! lg:w-6! lg:h-6!" /> Saved Reels
                             </x-button>
                         @endif
 
