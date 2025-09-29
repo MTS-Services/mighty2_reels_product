@@ -2,7 +2,7 @@
 <div class="sticky top-0 left-0 z-50" x-data="{ openProfileDropdown: false }">
     <div class="w-full">
         <header class="bg-orange-light/20 shadow backdrop-blur-lg">
-            <div class="container max-w-[1200px] mx-auto py-0 sm:py-3 px-4 md:px-6 lg:px-8">
+            <div class="container max-w-[1200px]  mx-auto py-0 sm:py-3  px-4 md:px-6 lg:px-8">
                 <nav class="items-center hidden sm:flex justify-between gap-4">
                     <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center justify-start gap-4">
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="w-9 h-9 object-cover">
@@ -10,7 +10,7 @@
                     </a>
 
                     {{-- Desktop Navigation --}}
-                    <div class="items-center gap-9 sm:w-[500px] lg:w-[680px] hidden sm:flex justify-between">
+                    <div class="items-center gap-9 sm:w-[330px] lg:w-[500px] xl:w-[680px] hidden sm:flex justify-between">
                         @if ($page_slug == 'home' || $page_slug == 'favorites' || $page_slug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full">
                                 <flux:icon name="heart" class="fill-orange-normal" /> Saved Reels

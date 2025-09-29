@@ -35,12 +35,12 @@
     $baseClasses =
         'relative inline-flex items-center justify-center font-medium font-inter transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
-    // Size variations - using array approach to avoid switch issues
+    // Responsive size variations - mobile first approach
     $sizeVariants = [
-        'sm' => 'px-3 py-1.5 text-sm',
-        'md' => 'px-4 py-2 text-base',
-        'lg' => 'px-6 py-3 text-lg',
-        'xl' => 'px-8 py-4 text-xl',
+        'sm' => 'px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm',
+        'md' => 'px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base',
+        'lg' => 'px-4 py-2 text-base sm:px-6 sm:py-3 sm:text-lg',
+        'xl' => 'px-5 py-2.5 text-lg sm:px-8 sm:py-4 sm:text-xl',
     ];
     $sizeClasses = $sizeVariants[$size] ?? $sizeVariants['md'];
 
@@ -85,110 +85,110 @@
         ];
 
         // Check if it's a predefined variant or custom classes
-    if (array_key_exists($variant, $solidVariants)) {
-        $variantClasses = $solidVariants[$variant];
-    } else {
-        // Treat as custom classes if not a predefined variant
-        $variantClasses = $variant;
+        if (array_key_exists($variant, $solidVariants)) {
+            $variantClasses = $solidVariants[$variant];
+        } else {
+            // Treat as custom classes if not a predefined variant
+            $variantClasses = $variant;
+        }
     }
-}
 
-// Additional modifiers
-$modifierClasses = '';
-if ($dashed && (str_contains($variantClasses, 'border') || $outline)) {
-    $modifierClasses .= ' border-dashed';
-} elseif ($dashed) {
-    $modifierClasses .= ' border border-dashed border-gray-300';
-}
-
-if ($underline) {
-    $modifierClasses .= ' underline hover:no-underline';
-}
-
-if ($block) {
-    $modifierClasses .= ' w-full';
-}
-
-// Loading and disabled states
-$stateClasses = '';
-$cursorClasses = ' cursor-pointer ';
-if ($disabled || $loading) {
-    $stateClasses .= ' opacity-50 pointer-events-none';
-    $cursorClasses = ' cursor-not-allowed ';
-}
-
-// Combine all classes
-$allClasses = trim(
-    $baseClasses .
-        ' ' .
-        $variantClasses .
-        ' ' .
-        $sizeClasses .
-        ' ' .
-        $modifierClasses .
-        ' ' .
-        $stateClasses .
-        ' ' .
-        $cursorClasses .
-        ' flex items-center justify-center gap-3 ',
-);
-
-// Icon size based on button size - using array approach
-$iconSizes = [
-    'sm' => 'size-4',
-    'md' => 'size-5',
-    'lg' => 'size-6',
-    'xl' => 'size-7',
-];
-$iconSize = $iconSizes[$size] ?? $iconSizes['md'];
-
-// Loading spinner size based on button size
-$spinnerSizes = [
-    'sm' => 'size-4',
-    'md' => 'size-5',
-    'lg' => 'size-6',
-    'xl' => 'size-7',
-];
-$spinnerSize = $spinnerSizes[$size] ?? $spinnerSizes['md'];
-
-// Icon margin classes
-$iconMarginLeft = $iconPosition === 'left' ? 'mr-2' : '';
-$iconMarginRight = $iconPosition === 'right' ? 'ml-2' : '';
-$iconMarginClass = $iconMarginLeft . $iconMarginRight;
-
-// Determine wire:navigate usage
-$shouldUseWireNavigate =
-    $wireNavigate &&
-    $isLink &&
-    (!empty($route) ||
-        (!empty($href) &&
-            !str_starts_with($href, 'http') &&
-            !str_starts_with($href, 'mailto:') &&
-            !str_starts_with($href, 'tel:')));
-
-// Prepare final attributes
-$elementAttributes = [];
-
-if ($isLink) {
-    $elementAttributes['href'] = $finalHref ?: '#';
-    $elementAttributes['target'] = $target;
-
-    if ($shouldUseWireNavigate) {
-        $elementAttributes['wire:navigate'] = true;
+    // Additional modifiers
+    $modifierClasses = '';
+    if ($dashed && (str_contains($variantClasses, 'border') || $outline)) {
+        $modifierClasses .= ' border-dashed';
+    } elseif ($dashed) {
+        $modifierClasses .= ' border border-dashed border-gray-300';
     }
-} else {
-    $elementAttributes['type'] = $type;
 
+    if ($underline) {
+        $modifierClasses .= ' underline hover:no-underline';
+    }
+
+    if ($block) {
+        $modifierClasses .= ' w-full';
+    }
+
+    // Loading and disabled states
+    $stateClasses = '';
+    $cursorClasses = ' cursor-pointer ';
     if ($disabled || $loading) {
-        $elementAttributes['disabled'] = true;
+        $stateClasses .= ' opacity-50 pointer-events-none';
+        $cursorClasses = ' cursor-not-allowed ';
     }
-}
 
-if ($action) {
-    $elementAttributes['wire:click'] = $action;
-}
+    // Combine all classes
+    $allClasses = trim(
+        $baseClasses .
+            ' ' .
+            $variantClasses .
+            ' ' .
+            $sizeClasses .
+            ' ' .
+            $modifierClasses .
+            ' ' .
+            $stateClasses .
+            ' ' .
+            $cursorClasses .
+            ' flex items-center justify-center gap-2 sm:gap-3 ',
+    );
 
-$elementAttributes['class'] = $allClasses;
+    // Responsive icon sizes - mobile first approach
+    $iconSizes = [
+        'sm' => 'size-3.5 sm:size-4',
+        'md' => 'size-4 sm:size-5',
+        'lg' => 'size-5 sm:size-6',
+        'xl' => 'size-6 sm:size-7',
+    ];
+    $iconSize = $iconSizes[$size] ?? $iconSizes['md'];
+
+    // Responsive loading spinner sizes
+    $spinnerSizes = [
+        'sm' => 'size-3.5 sm:size-4',
+        'md' => 'size-4 sm:size-5',
+        'lg' => 'size-5 sm:size-6',
+        'xl' => 'size-6 sm:size-7',
+    ];
+    $spinnerSize = $spinnerSizes[$size] ?? $spinnerSizes['md'];
+
+    // Responsive icon margins
+    $iconMarginLeft = $iconPosition === 'left' ? 'mr-1.5 sm:mr-2' : '';
+    $iconMarginRight = $iconPosition === 'right' ? 'ml-1.5 sm:ml-2' : '';
+    $iconMarginClass = $iconMarginLeft . $iconMarginRight;
+
+    // Determine wire:navigate usage
+    $shouldUseWireNavigate =
+        $wireNavigate &&
+        $isLink &&
+        (!empty($route) ||
+            (!empty($href) &&
+                !str_starts_with($href, 'http') &&
+                !str_starts_with($href, 'mailto:') &&
+                !str_starts_with($href, 'tel:')));
+
+    // Prepare final attributes
+    $elementAttributes = [];
+
+    if ($isLink) {
+        $elementAttributes['href'] = $finalHref ?: '#';
+        $elementAttributes['target'] = $target;
+
+        if ($shouldUseWireNavigate) {
+            $elementAttributes['wire:navigate'] = true;
+        }
+    } else {
+        $elementAttributes['type'] = $type;
+
+        if ($disabled || $loading) {
+            $elementAttributes['disabled'] = true;
+        }
+    }
+
+    if ($action) {
+        $elementAttributes['wire:click'] = $action;
+    }
+
+    $elementAttributes['class'] = $allClasses;
 @endphp
 
 @if ($isLink)
@@ -201,7 +201,7 @@ $elementAttributes['class'] = $allClasses;
         @endif
 
         <span
-            class="flex items-center justify-center gap-3 {{ $loading && $action ? 'wire:loading.class=opacity-0' : '' }}"
+            class="flex items-center justify-center gap-2 sm:gap-3 {{ $loading && $action ? 'wire:loading.class=opacity-0' : '' }}"
             @if ($action) wire:target="{{ $action }}" @endif>
 
             @if ($icon && $iconPosition === 'left')
@@ -225,7 +225,7 @@ $elementAttributes['class'] = $allClasses;
         @endif
 
         <span
-            class="flex items-center justify-center gap-3 {{ $loading || $action ? 'wire:loading.class=opacity-0' : '' }}"
+            class="flex items-center justify-center gap-2 sm:gap-3 {{ $loading || $action ? 'wire:loading.class=opacity-0' : '' }}"
             @if ($action) wire:target="{{ $action }}" @endif>
 
             @if ($icon && $iconPosition === 'left')
