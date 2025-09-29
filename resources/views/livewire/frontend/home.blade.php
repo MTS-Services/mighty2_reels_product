@@ -609,8 +609,8 @@
 
                                         <div class="relative mb-2" x-show="video.file">
                                             <div class="flex items-start space-x-3">
-                                                <button @click="togglePlay()"
-                                                    class="text-white hover:text-orange-500 transition-colors">
+                                               <button @click.stop="togglePlay()"
+                                                    class="text-white hover:text-orange-500 transition-colors flex-shrink-0">
                                                     <svg x-show="!isPlaying" width="20" height="20"
                                                         viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M8 5v14l11-7z" />
