@@ -386,27 +386,64 @@
                 <template x-if="videos && videos.length > 0">
                     <div>
                         <!-- Heart/Favorite Button -->
-                        <div x-data="{ liked: false }" x-init="$watch('currentVideoId', value => {
-                            if (value && videos) {
-                                const video = videos.find(v => v.id == value);
-                                liked = video ? video.favourite : false;
+                        <div x-data="{
+                            liked: false,
+                        
+                            init() {
+                                // 1. Set initial state immediately when the component loads
+                                this.updateLikedState();
+                        
+                                // 2. Watch for changes to the video ID and update the liked state
+                                this.$watch('currentVideoId', () => {
+                                    this.updateLikedState();
+                                });
+                            },
+                        
+                            /**
+                             * Finds the current video and updates the local 'liked' state.
+                             * Assumes 'currentVideoId' and 'videos' are available in the scope.
+                             */
+                            updateLikedState() {
+                                // Check if the necessary global/parent variables are available
+                                if (typeof currentVideoId !== 'undefined' && typeof videos !== 'undefined' && currentVideoId) {
+                                    const video = videos.find(v => v.id == currentVideoId);
+                                    // Set 'liked' to the video's 'favourite' status, or false if not found
+                                    this.liked = video ? video.favourite : false;
+                                } else {
+                                    // Default to false if data is missing
+                                    this.liked = false;
+                                }
+                            },
+                        
+                            /**
+                             * Toggles the favourite status locally and calls the Livewire action.
+                             * @param {Event} $event - The click event object (optional, for future use)
+                             */
+                            toggleLike($event) {
+                                // Call Livewire action to persist the change
+                                this.$wire.toggleFavourite();
+                        
+                                // Optimistic UI update: toggle the favourite state locally in the 'videos' array
+                                if (typeof currentVideoId !== 'undefined' && typeof videos !== 'undefined' && currentVideoId) {
+                                    const video = videos.find(v => v.id == currentVideoId);
+                        
+                                    if (video) {
+                                        // Toggle the state in the external 'videos' array
+                                        video.favourite = !video.favourite;
+                                        // Update the local component state immediately
+                                        this.liked = video.favourite;
+                                    }
+                                }
                             }
-                        })"
+                        }"
                             class="object-contain absolute bottom-49 sm:top-4 right-4 md:right-8 z-40 rounded-full">
-                            <button
-                                @click="$wire.toggleFavourite();
-                                       if (currentVideoId && videos) {
-                                           const video = videos.find(v => v.id == currentVideoId);
-                                           if (video) {
-                                               video.favourite = !video.favourite;
-                                               liked = video.favourite;
-                                           }
-                                       }"
+
+                            <button @click="toggleLike($event)"
                                 :class="liked ? 'bg-red-400 text-white' :
                                     'bg-[#FFE8D9] sm:bg-white sm:text-black text-orange-600 sm:border-none border border-orange-600 p-[13px]! sm:p-0 hover:bg-white/70'"
                                 class="transition-colors duration-300 rounded-full p-3 shadow-lg hover:shadow-xl transform"
                                 :style="liked ? 'animation: heart-pop 0.3s ease forwards;' : ''">
-                                <flux:icon name="heart" class="w-5 h-5 " />
+                                <flux:icon name="heart" class="w-5 h-5" />
                             </button>
                         </div>
 
@@ -609,7 +646,7 @@
 
                                         <div class="relative mb-2" x-show="video.file">
                                             <div class="flex items-start space-x-3">
-                                               <button @click.stop="togglePlay()"
+                                                <button @click.stop="togglePlay()"
                                                     class="text-white hover:text-orange-500 transition-colors flex-shrink-0">
                                                     <svg x-show="!isPlaying" width="20" height="20"
                                                         viewBox="0 0 24 24" fill="currentColor">
