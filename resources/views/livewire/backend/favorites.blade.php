@@ -481,7 +481,7 @@
                                         <div class="video-overlay absolute inset-0 pointer-events-none z-0"></div>
 
                                         <!-- Play/Pause Button -->
-                                        <button @click="togglePlay()" x-show="video.file"
+                                        <button @click.stop="togglePlay()" x-show="video.file"
                                             class="play-button absolute z-2 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110"
                                             :style="{ opacity: isPlaying ? '0' : '1' }">
                                             <svg x-show="!isPlaying" width="24" height="24"
