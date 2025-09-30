@@ -154,7 +154,7 @@
 
     <!-- Gallery Modal with Sortable Functionality -->
     @if ($showGalleryModal)
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4"
+        <div class="fixed inset-0 bg-black/50 flex flex-col items-center justify-center z-50 p-2 sm:p-4"
             wire:click.self="closeGalleryModal" x-data="sortableGallery()"
             x-effect="document.body.classList.toggle('overflow-hidden', open)"
             x-on:close-gallery-modal.window="document.body.classList.remove('overflow-hidden')">
