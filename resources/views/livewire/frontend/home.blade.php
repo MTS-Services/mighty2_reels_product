@@ -1031,9 +1031,11 @@
                             this.lastVolume = this.volume;
                         }
 
-                        // Sync background video with main video
+                        // Initialize background video
                         if (bgVideo) {
-                            this.syncBackgroundVideo();
+                            bgVideo.muted = true;
+                            bgVideo.volume = 0;
+                            bgVideo.currentTime = video.currentTime;
                         }
 
                         // Auto-play first video on page load if it's the current video
