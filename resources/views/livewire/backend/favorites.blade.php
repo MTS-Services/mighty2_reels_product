@@ -350,7 +350,7 @@
 
                     <!-- Product Details Button -->
                     <div class="absolute bottom-[20%] sm:bottom-[100px] z-40 right-4 sm:right-8">
-                        <a :href="`/product/${currentVideoId || (videos[0] && videos[0].id)}`"
+                        <a @click="$wire.goToProduct()"
                             class="bg-orange-500 text-white p-3 rounded-full shadow hover:bg-orange-600 inline-block arrow-bounce">
                             <flux:icon name="arrow-right" class="w-5 h-5" />
                         </a>

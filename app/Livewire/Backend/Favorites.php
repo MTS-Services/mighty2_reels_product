@@ -49,9 +49,11 @@ class Favorites extends Component
                 ->inRandomOrder()
                 ->first();
 
+            // inside your foreach in mount()
             if ($randomReel) {
                 $this->videos[] = [
                     'id' => $product->id,
+                    'reel_id' => $randomReel->id, // ✅ add reel id
                     'file' => Storage::url($randomReel->file),
                     'title' => $product->title,
                     'description' => $product->description,
@@ -67,6 +69,23 @@ class Favorites extends Component
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
         }
+    }
+    public function goToProduct()
+    {
+        if (!$this->currentVideoId) {
+            return redirect()->route('home'); // fallback
+        }
+
+        $video = collect($this->videos)->firstWhere('id', $this->currentVideoId);
+
+        if ($video && isset($video['reel_id'])) {
+            return redirect()->route('product', [
+                'id' => $video['id'],
+                'reel_id' => $video['reel_id'],
+            ]);
+        }
+
+        return redirect()->route('product', ['id' => $this->currentVideoId]);
     }
 
 
