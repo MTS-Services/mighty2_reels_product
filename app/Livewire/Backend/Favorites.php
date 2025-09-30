@@ -4,7 +4,9 @@ namespace App\Livewire\Backend;
 
 use App\Models\FavouretReel;
 use App\Models\Product;
+use App\Models\ProductFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -36,7 +38,13 @@ class Favorites extends Component
             return;
         }
 
-        $products = Product::with(['reels', 'images'])
+        $products = Product::with(['reels' => function ($query) {
+                // Only get video/reel type files, not images
+                $query->where('file_type', ProductFile::TYPE_REEL)
+                      ->where('status', ProductFile::STATUS_ACTIVE)
+                      // Sort by is_primary DESC (primary first), then by sort_order ASC
+                      ->orderByRaw('is_primary DESC, sort_order ASC');
+            }])
             ->whereIn('id', $favoriteProductIds)
             ->active()
             ->get();
@@ -44,17 +52,15 @@ class Favorites extends Component
         foreach ($products as $product) {
             $this->favourite[$product->id] = true;
 
-            $randomReel = $product->reels()
-                ->active()
-                ->inRandomOrder()
-                ->first();
+            // Get the first reel based on the sorting we applied
+            // (primary first, then by sort_order)
+            $selectedReel = $product->reels->first();
 
-            // inside your foreach in mount()
-            if ($randomReel) {
+            if ($selectedReel) {
                 $this->videos[] = [
                     'id' => $product->id,
-                    'reel_id' => $randomReel->id, // ✅ add reel id
-                    'file' => Storage::url($randomReel->file),
+                    'reel_id' => $selectedReel->id,
+                    'file' => Storage::url($selectedReel->file),
                     'title' => $product->title,
                     'description' => $product->description,
                     'favourite' => true,
@@ -62,14 +68,26 @@ class Favorites extends Component
             }
         }
 
-        // ✅ Randomize order of final videos (so products show randomly)
+        // Randomize order of final videos (so products show randomly, but each product shows its correct reel)
         $this->videos = collect($this->videos)->shuffle()->toArray();
 
-        // ✅ Set first video as current
+        // Set first video as current
         if (!empty($this->videos)) {
             $this->currentVideoId = $this->videos[0]['id'];
         }
     }
+
+    protected $listeners = ['logout-requested' => 'logout'];
+
+    public function logout()
+    {
+        Auth::guard('web')->logout();
+        Session::invalidate();
+        Session::regenerateToken();
+
+        return $this->redirectRoute('home', navigate: true);
+    }
+
     public function goToProduct()
     {
         if (!$this->currentVideoId) {
@@ -87,7 +105,6 @@ class Favorites extends Component
 
         return redirect()->route('product', ['id' => $this->currentVideoId]);
     }
-
 
     public function updateCurrentVideo($videoId)
     {

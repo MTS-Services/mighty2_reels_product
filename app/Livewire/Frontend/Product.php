@@ -6,6 +6,7 @@ use App\Models\FavouretReel;
 use App\Models\Product as ModelsProduct;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -313,6 +314,17 @@ class Product extends Component
         }
         
         return "No media available";
+    }
+     protected $listeners = ['logout-requested' => 'logout'];
+
+    public function logout()
+    {
+
+        Auth::guard('web')->logout();
+        Session::invalidate();
+        Session::regenerateToken();
+
+        return $this->redirectRoute('home', navigate: true);
     }
 
     /**
