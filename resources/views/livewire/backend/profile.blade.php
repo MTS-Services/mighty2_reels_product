@@ -1,4 +1,4 @@
-<section class="flex items-center justify-center py-8 px-4 h-full">
+<section class="flex items-center relative justify-center py-8 px-4 h-full">
     @push('styles')
         <style>
             .search-area {
@@ -7,6 +7,21 @@
         </style>
     @endpush
 
+     <div class="sm:hidden absolute top-4 left-0 right-0 z-40 flex items-center px-4">
+                    <!-- Logo centered -->
+                    <a href="{{ route('home') }}" wire:navigate
+                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                        <span class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                    </a>
+
+                    <!-- Hamburger button on the right -->
+                    <div class="ml-auto animate-fade-in-up">
+                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                            class="lg:hidden">
+                            <flux:icon name="bars-4" />
+                        </x-button>
+                    </div>
+                </div>
     <div class="w-full max-w-6xl bg-[#FFFFFF] 
 ">
 

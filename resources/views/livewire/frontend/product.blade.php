@@ -227,21 +227,21 @@
                                 size="lg" linkText>
                                 <flux:icon name="user-circle" /> Profile
                             </x-button>
-    
+
                             @if (is_admin())
                                 <x-button class="text-black !py-1 w-full !justify-start" size="lg"
                                     href="{{ route('admin.products') }}" wire:navigate linkText>
                                     <flux:icon name="box" /> Dashboard
                                 </x-button>
                             @endif
-    
+
                             <x-button href="{{ route('favorites') }}"
                                 class="text-black !px-2 !py-1 w-full justify-start {{ Route::is('favorites') ? 'ring-2 bg-orange-normal! text-white! ring-orange-normal!' : '' }}"
                                 size="lg" linkText>
                                 <flux:icon name="heart" class="fill-orange-normal text-orange-normal" /> Saved
                                 Reels
                             </x-button>
-    
+
                             <flux:spacer />
                             <flux:separator variant="subtle" class="my-2" />
                             <x-button class="w-full mb-3" variant="secondary" size="lg" wire:click="logout">
@@ -249,28 +249,28 @@
                             </x-button>
                         @else
                             @if (Route::is('login'))
-                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
-                                    wire:navigate>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="register" wire:navigate>
                                     <flux:icon name="user-plus" /> Register
                                 </x-button>
                             @elseif (Route::is('register'))
-                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
-                                    wire:navigate>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="login" wire:navigate>
                                     <flux:icon name="log-in" /> Login
                                 </x-button>
                             @else
-                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="login"
-                                    wire:navigate>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="login" wire:navigate>
                                     <flux:icon name="log-in" /> Login
                                 </x-button>
-                                <x-button class="w-full !justify-start" variant="secondary" size="lg" route="register"
-                                    wire:navigate>
+                                <x-button class="w-full !justify-start" variant="secondary" size="lg"
+                                    route="register" wire:navigate>
                                     <flux:icon name="user-plus" /> Register
                                 </x-button>
                             @endif
                         @endif
                     </div>
-    
+
                 </div>
             </div>
         </aside>
@@ -445,8 +445,10 @@
                                             @loadeddata="generateThumbnails()" @timeupdate="updateProgress()"
                                             @play="handlePlay()" @pause="handlePause()" @click.stop="togglePlay()"
                                             @touchend.prevent="handleTouchEnd($event)"
-                                            @dblclick="handleDoubleClick($event)" @volumechange="updateVolumeDisplay()"
-                                            class="w-full h-full object-contain relative z-2" loop playsinline autoplay>
+                                            @dblclick="handleDoubleClick($event)"
+                                            @volumechange="updateVolumeDisplay()"
+                                            class="w-full h-full object-contain relative z-2" loop playsinline
+                                            autoplay>
                                             <source :src="video.url" type="video/mp4">
                                         </video>
                                     </div>
@@ -564,22 +566,21 @@
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-6"
                 class="h-[100vh] h-[calc(var(--vh,1vh)*100)] sm:h-[calc(100vh-80px)]!  flex flex-col max-w-lg">
-                   <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
-                                    <!-- Logo centered -->
-                                    <a href="{{ route('home') }}" wire:navigate 
-                                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
-                                        <span
-                                            class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
-                                    </a>
+                <div class="sm:hidden absolute top-4 left-0 right-0 z-40 flex items-center px-4">
+                    <!-- Logo centered -->
+                    <a href="{{ route('home') }}" wire:navigate
+                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                        <span class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
+                    </a>
 
-                                    <!-- Hamburger button on the right -->
-                                    <div class="ml-auto animate-fade-in-up">
-                                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
-                                            class="lg:hidden">
-                                            <flux:icon name="bars-4" />
-                                        </x-button>
-                                    </div>
-                                </div>
+                    <!-- Hamburger button on the right -->
+                    <div class="ml-auto animate-fade-in-up">
+                        <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
+                            class="lg:hidden">
+                            <flux:icon name="bars-4" />
+                        </x-button>
+                    </div>
+                </div>
 
                 <div class="flex-1 overflow-y-scroll scrollbar-hide space-y-3 gap-4 pt-2 sm:pt-6 ">
                     <template x-for="(media, index) in allMediaItems"
@@ -587,8 +588,8 @@
                         <div @click="viewMediaItem(index)"
                             class="relative rounded-2xl overflow-hidden  transition-all duration-300 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
                             :class="{ 'bg-white': selectedMediaIndex === index }">
-                                {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                             
+                            {{-- Mobile Floating Action Buttons - Only on Home Page --}}
+
                             <!-- Video Template -->
                             <template x-if="media.type === 'video'">
                                 <div class="relative w-full h-36! sm:h-48!">
