@@ -10,7 +10,7 @@
                     </a>
 
                     {{-- Desktop Navigation --}}
-                    <div class="items-center gap-9 sm:w-[250px] md:w-[390px] lg:w-[500px] xl:w-[680px] hidden sm:flex justify-between">
+                    <div class="items-center gap-9 sm:w-[250px] md:w-[350px] lg:w-[500px] xl:w-[680px] hidden sm:flex justify-between">
                         @if ($page_slug == 'home' || $page_slug == 'favorites' || $page_slug == 'product')
                             <x-button href="{{ route('favorites') }}" variant="secondary" class="!rounded-full !text-[12px] lg:text-[18px]! sm:px-1! lg:px-4! sm:gap-1! lg:gap-3!">
                                 <flux:icon name="heart" class="fill-orange-normal w-4! h-4! lg:w-6! lg:h-6!" /> Saved Reels
