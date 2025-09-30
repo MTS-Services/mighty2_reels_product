@@ -118,15 +118,6 @@
                         </div>
                     @endif
 
-                    {{-- Mobile Menu Button - Only show on non-home pages --}}
-                    @if ($page_slug !== 'home')
-                        <div class="flex items-center gap-4">
-                            <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
-                                class="lg:hidden">
-                                <flux:icon name="bars-4" />
-                            </x-button>
-                        </div>
-                    @endif
                 </nav>
             </div>
         </header>

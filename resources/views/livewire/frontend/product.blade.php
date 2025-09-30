@@ -371,7 +371,7 @@
                         <div x-data="{ visible: false }" x-intersect:enter="visible = true"
                             x-intersect:leave="visible = false">
                             {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                            <div class="sm:hidden fixed top-4 left-0 right-0 z-40 flex items-center px-4">
+                            <div class="sm:hidden absolute top-4 left-0 right-0 z-40 flex items-center px-4">
                                 <!-- Logo centered -->
                                 <a href="{{ route('home') }}" wire:navigate x-show="visible"
                                     class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
