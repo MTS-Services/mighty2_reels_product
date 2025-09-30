@@ -506,7 +506,7 @@
 
                                     <div x-show="video.type === 'video'" class="relative mb-2">
                                         <div class="flex items-start space-x-3">
-                                            <button @click="togglePlay()"
+                                            <button @click,stop="togglePlay()"
                                                 class="text-white hover:text-orange-500 transition-colors">
                                                 <svg x-show="!isPlaying" width="20" height="20"
                                                     viewBox="0 0 24 24" fill="currentColor">
