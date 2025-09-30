@@ -391,7 +391,7 @@
                                         class="video-container w-full relative overflow-hidden shadow-2xl transition-all duration-600 sm:h-[calc(100vh-82px)]! video-container-dvh max-w-lg sm:rounded-2xl">
 
                                         <!-- Volume Control - ADD THIS SECTION -->
-                                        <div class="absolute top-6 left-4 z-40">
+                                        <div class="absolute top-[3%] sm:top-6 left-4 z-40">
                                             <div class="group flex items-center gap-2">
                                                 <button @click.stop="toggleMute()"
                                                     class="flex-shrink-0 text-orange-500 hover:text-orange-400 transition-colors">
