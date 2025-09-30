@@ -104,6 +104,7 @@ class Home extends Component
     {
         $this->showFilterModal = false;
         $this->citySearch = ''; // Reset city search when closing modal
+        $this->reset();
     }
 
     public function applyFilters()
@@ -122,8 +123,12 @@ class Home extends Component
 
     public function closeSearchModal()
     {
+        // Reset only filter-related properties, not the whole component
+        $this->reset(['searchTerm', 'selectedRooms', 'selectedCity', 'selectedType', 'citySearch']);
+
         $this->showSearchModal = false;
     }
+
 
     /**
      * Trigger search manually (when user clicks search button)
@@ -369,7 +374,7 @@ class Home extends Component
     /**
      * User logout
      */
-  protected $listeners = ['logout-requested' => 'logout'];
+    protected $listeners = ['logout-requested' => 'logout'];
 
     public function logout()
     {

@@ -743,7 +743,7 @@
 
                 {{-- Search Input --}}
                 <div class="relative">
-                    <input type="search" wire:model.live.debounce.500ms="searchTerm"
+                    <input type="search" wire:model.live="searchTerm"
                         placeholder="Search for products..."
                         class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
                         wire:loading.class="opacity-50" wire:target="searchTerm" />
