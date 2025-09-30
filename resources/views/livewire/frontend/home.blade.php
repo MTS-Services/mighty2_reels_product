@@ -466,19 +466,51 @@
                             x-intersect:leave="pauseVideo()" @click="selectVideo(video.id)">
 
                             {{-- Search && Filter Mobile  --}}
-                            <div x-data="{ visible: false }" x-intersect:enter="visible = true"
+                            <div x-data="{
+                                visible: false,
+                                isScrolling: false,
+                                scrollTimeout: null,
+                            
+                                init() {
+                                    const container = this.$el.closest('.video-scroll-container');
+                                    if (container) {
+                                        container.addEventListener('scroll', () => {
+                                            this.isScrolling = true;
+                                            this.visible = false;
+                            
+                                            clearTimeout(this.scrollTimeout);
+                                            this.scrollTimeout = setTimeout(() => {
+                                                this.isScrolling = false;
+                                                this.visible = true;
+                                            }, 150);
+                                        });
+                                    }
+                                }
+                            }" x-intersect:enter="visible = true"
                                 x-intersect:leave="visible = false">
                                 {{-- Mobile Floating Action Buttons - Only on Home Page --}}
-                                <div class="sm:hidden  absolute top-4 left-0 right-0 z-40 flex items-center px-4">
+                                <div class="sm:hidden absolute top-4 left-0 right-0 z-40 flex items-center px-4">
                                     <!-- Logo centered -->
-                                    <a href="{{ route('home') }}" wire:navigate x-show="visible"
-                                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex animate-fade-in-up items-center gap-4">
+                                    <a href="{{ route('home') }}" wire:navigate x-show="visible && !isScrolling"
+                                        x-transition:enter="transition ease-out duration-300 delay-100"
+                                        x-transition:enter-start="opacity-0 transform translate-y-2"
+                                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                                        x-transition:leave-end="opacity-0 transform translate-y-2"
+                                        class="absolute left-1/2 transform -translate-x-1/2 bg-[#FFE8D9] rounded-md px-2 inline-flex items-center gap-4">
                                         <span
                                             class="text-[20px] text-orange-normal capitalize">{{ site_name() }}</span>
                                     </a>
 
                                     <!-- Hamburger button on the right -->
-                                    <div class="ml-auto animate-fade-in-up" x-show="visible">
+                                    <div class="ml-auto" x-show="visible && !isScrolling"
+                                        x-transition:enter="transition ease-out duration-300 delay-150"
+                                        x-transition:enter-start="opacity-0 transform translate-y-2"
+                                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                                        x-transition:leave-end="opacity-0 transform translate-y-2">
                                         <x-button x-on:click="sidebarOpen = true" size="sm" variant="secondary"
                                             class="lg:hidden">
                                             <flux:icon name="bars-4" />
@@ -486,13 +518,20 @@
                                     </div>
                                 </div>
                                 <div
-                                    class="sm:hidden!  absolute right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+                                    class="sm:hidden! absolute right-4 bottom-1/3 transform -translate-y-1/2 z-40 flex flex-col gap-3">
                                     <div class="flex flex-col gap-5">
                                         {{-- Reset Filters Button (only show when filters are active) - Updated Logic --}}
                                         @if (!empty($searchTerm) || !empty($selectedRooms) || !empty($selectedCity) || !empty($selectedType))
                                             <button @click="$dispatch('reset-all-filters')"
-                                                wire:loading.class="opacity-50 cursor-not-allowed" x-show="visible"
-                                                class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 shadow-lg animate-fade-in-up">
+                                                wire:loading.class="opacity-50 cursor-not-allowed"
+                                                x-show="visible && !isScrolling"
+                                                x-transition:enter="transition ease-out duration-300 delay-100"
+                                                x-transition:enter-start="opacity-0 transform translate-y-3"
+                                                x-transition:enter-end="opacity-100 transform translate-y-0"
+                                                x-transition:leave="transition ease-in duration-200"
+                                                x-transition:leave-start="opacity-100 transform translate-y-0"
+                                                x-transition:leave-end="opacity-0 transform translate-y-3"
+                                                class="w-12 h-12 bg-red-500/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-red-600/80 shadow-lg">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                                     stroke-width="2">
@@ -503,8 +542,15 @@
                                         @endif
 
                                         {{-- Filter Button --}}
-                                        <button @click="$dispatch('open-filter-modal')" x-show="visible"
-                                            class="w-12 h-12 bg-[#FFE8D9]   text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg animate-fade-in-up">
+                                        <button @click="$dispatch('open-filter-modal')"
+                                            x-show="visible && !isScrolling"
+                                            x-transition:enter="transition ease-out duration-300 delay-150"
+                                            x-transition:enter-start="opacity-0 transform translate-y-3"
+                                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                                            x-transition:leave="transition ease-in duration-200"
+                                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                                            x-transition:leave-end="opacity-0 transform translate-y-3"
+                                            class="w-12 h-12 bg-[#FFE8D9] text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -513,8 +559,15 @@
                                         </button>
 
                                         {{-- Search Button --}}
-                                        <button @click="$dispatch('open-search-modal')" x-show="visible"
-                                            class="w-12 h-12 bg-[#FFE8D9]  text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg animate-fade-in-up-delayed">
+                                        <button @click="$dispatch('open-search-modal')"
+                                            x-show="visible && !isScrolling"
+                                            x-transition:enter="transition ease-out duration-300 delay-200"
+                                            x-transition:enter-start="opacity-0 transform translate-y-3"
+                                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                                            x-transition:leave="transition ease-in duration-200"
+                                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                                            x-transition:leave-end="opacity-0 transform translate-y-3"
+                                            class="w-12 h-12 bg-[#FFE8D9] text-orange-600 border border-orange-600 rounded-full flex items-center justify-center shadow-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                                 class="w-5 h-5">
@@ -525,7 +578,7 @@
                                     </div>
                                 </div>
 
-                            </div>
+                            </div> 
                             {{-- Search && Filter Mobile end  --}}
                             <div class="flex flex-col justify-center items-center relative rounded-none sm:rounded-xl">
 
@@ -743,8 +796,7 @@
 
                 {{-- Search Input --}}
                 <div class="relative">
-                    <input type="search" wire:model.live="searchTerm"
-                        placeholder="Search for products..."
+                    <input type="search" wire:model.live="searchTerm" placeholder="Search for products..."
                         class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
                         wire:loading.class="opacity-50" wire:target="searchTerm" />
                 </div>
