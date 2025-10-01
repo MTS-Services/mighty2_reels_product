@@ -477,7 +477,7 @@
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">Existing Videos</h4>
                                     <div class="grid grid-cols-2 gap-4">
                                         @foreach ($existingVideos as $video)
-                                            <div class="relative">
+                                            <div class="relative" wire:key="existing-video-{{ $video['id'] }}">
                                                 <video class="w-full h-24 object-cover rounded border" controls>
                                                     <source src="{{ asset('storage/' . $video['file']) }}"
                                                         type="video/mp4">

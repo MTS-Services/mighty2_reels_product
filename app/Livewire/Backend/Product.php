@@ -94,7 +94,7 @@ class Product extends Component
     public function closeGalleryModal()
     {
         $this->showGalleryModal = false;
-         $this->dispatch('close-gallery-modal');
+        $this->dispatch('close-gallery-modal');
         $this->reset();
         $this->resetValidation();
     }
@@ -501,7 +501,7 @@ class Product extends Component
         }
     }
 
-  public function removeNewVideo($index)
+    public function removeNewVideo($index)
     {
         if (isset($this->videos[$index])) {
 
@@ -531,17 +531,17 @@ class Product extends Component
             $this->videosToDelete[] = $videoId;
         }
 
-        $this->existingVideos = array_filter($this->existingVideos, function ($video) use ($videoId) {
-            return $video['id'] != $videoId;
-        });
-
-        $this->existingVideos = array_values($this->existingVideos);
+        $this->existingVideos = collect($this->existingVideos)
+            ->reject(function ($video) use ($videoId) {
+                return $video['id'] == $videoId;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function updatedImages()
     {
         $this->validateOnly('images');
-
     }
 
     public function updatedVideos()
