@@ -145,6 +145,7 @@ class Favorites extends Component
         }
 
         session()->flash('message', 'Removed from favorites');
+        return $this->redirect(route('favorites'), navigate: true); 
     }
 
     public function toggleMute()
