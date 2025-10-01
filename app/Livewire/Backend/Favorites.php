@@ -97,13 +97,15 @@ class Favorites extends Component
         $video = collect($this->videos)->firstWhere('id', $this->currentVideoId);
 
         if ($video && isset($video['reel_id'])) {
-            return redirect()->route('product', [
+            return $this->redirect(route('product', [
                 'id' => $video['id'],
                 'reel_id' => $video['reel_id'],
-            ]);
+            ]),
+            navigate: true)
+            ;
         }
 
-        return redirect()->route('product', ['id' => $this->currentVideoId]);
+        return $this->redirect(route('product', ['id' => $this->currentVideoId]), navigate: true);
     }
 
     public function updateCurrentVideo($videoId)
@@ -144,7 +146,7 @@ class Favorites extends Component
             $this->currentVideoId = !empty($this->videos) ? $this->videos[0]['id'] : null;
         }
 
-        session()->flash('message', 'Removed from favorites');
+        // session()->flash('message', 'Removed from favorites');
         return $this->redirect(route('favorites'), navigate: true); 
     }
 
