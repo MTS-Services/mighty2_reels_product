@@ -578,19 +578,20 @@ class Home extends Component
         $this->isMuted = ($this->volume === 0);
     }
 
+
     public function goToProduct()
     {
         $productId = $this->currentActiveVideoId ?? ($this->videos[0]['id'] ?? 1);
         $reelId = $this->currentReelId ?? ($this->videos[0]['reel_id'] ?? null);
 
         if ($reelId) {
-            return redirect()->route('product', [
-                'id' => $productId,
-                'reel_id' => $reelId
-            ]);
+            return $this->redirect(
+                route('product', ['id' => $productId, 'reel_id' => $reelId]),
+                navigate: true
+            );
         }
 
-        return redirect()->route('product', ['id' => $productId]);
+        return $this->redirect(route('product', ['id' => $productId]), navigate: true);
     }
 
     public function setActiveVideo($videoId)
