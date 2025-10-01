@@ -501,11 +501,17 @@ class Product extends Component
         }
     }
 
-    public function removeNewVideo($index)
+  public function removeNewVideo($index)
     {
         if (isset($this->videos[$index])) {
-            unset($this->videos[$index]);
-            $this->videos = array_values($this->videos);
+            // Store the video temporarily
+            $videosArray = $this->videos;
+            // Remove the specific index
+            unset($videosArray[$index]);
+            // Re-index the array
+            $this->videos = array_values($videosArray);
+            // Force Livewire to re-render by resetting the property
+            $this->dispatch('videos-updated');
         }
     }
 

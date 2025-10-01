@@ -234,7 +234,7 @@
             </div>
         </div>
     @endif
-        {{--form  Modal add and edit --}}
+    {{-- form  Modal add and edit --}}
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
             wire:click.self="closeModal">
@@ -431,7 +431,8 @@
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">New Videos to Upload</h4>
                                     <div class="grid grid-cols-2 gap-4">
                                         @foreach ($videos as $index => $video)
-                                            <div class="relative">
+                                            <div class="relative"
+                                                wire:key="video-{{ $index }}-{{ $video->getFilename() }}">
                                                 <video class="w-full h-24 object-cover rounded border" controls>
                                                     <source src="{{ $video->temporaryUrl() }}"
                                                         type="{{ $video->getMimeType() }}">
