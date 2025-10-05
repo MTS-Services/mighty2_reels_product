@@ -796,7 +796,7 @@
 
                 {{-- Search Input --}}
                 <div class="relative">
-                    <input type="search" wire:model.live="searchTerm" placeholder="Search for products..."
+                    <input type="search" wire:model="searchTerm" placeholder="Search for products..."
                         class="w-full px-4 py-2  rounded-full outline outline-orange-normal text-orange-600 focus:ring-2 focus:ring-orange-normal bg-orange-normal/10 backdrop-blur-md placeholder:text-orange-400"
                         wire:loading.class="opacity-50" wire:target="searchTerm" />
                 </div>
@@ -935,7 +935,7 @@
                                 {{-- Search Input (only shows when dropdown is open) --}}
                                 <div class="p-2 border-b border-gray-200">
                                     <div class="relative">
-                                        <input type="text" wire:model.live.debounce.300ms="citySearch"
+                                        <input type="text" wire:model="citySearch"
                                             placeholder="Search cities..."
                                             class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white text-gray-900 placeholder-gray-500 text-sm">
                                         <div
