@@ -1,0 +1,5 @@
+# .dockerignore
+
+# Exclude the entire storage directory from the final image.
+# Docker will then rely solely on the Volume Mount for this path.
+storage

@@ -44,10 +44,10 @@ COPY . .
 RUN chown -R www-data:www-data /var/www
 
 # Prepare Laravel cache paths & permissions
-RUN mkdir -p storage/framework/{views,sessions,cache} \
-    && mkdir -p bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# RUN mkdir -p storage/framework/{views,sessions,cache} \
+#     && mkdir -p bootstrap/cache \
+#     && chown -R www-data:www-data storage bootstrap/cache \
+#     && chmod -R 775 storage bootstrap/cache
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
