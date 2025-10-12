@@ -5,7 +5,6 @@ namespace App\Livewire\Backend;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
@@ -20,14 +19,7 @@ class Profile extends Component
     public $first_name, $last_name, $email, $phone, $gender, $date_of_birth;
     public $street, $suburb, $postcode, $state;
     public $password, $password_confirmation;
-    public $photo; // This holds the new file upload
-
-    // Properties for your dropdowns
-    public $genders = ['Male', 'Female', 'Other'];
-    public $streets = ['Street A', 'Street B'];
-    public $suburbs = ['Location 1', 'Location 2'];
-    public $postCodes = ['1000', '2000'];
-    public $states = ['State 1', 'State 2'];
+    public $photo;
 
     public function mount()
     {
@@ -42,7 +34,6 @@ class Profile extends Component
         $this->suburb = $user->suburb;
         $this->postcode = $user->postcode;
         $this->state = $user->state;
-        // The `$photo` property is for a *new* upload, so we don't need to set it in mount
     }
 
     public function updateProfile()
@@ -59,17 +50,19 @@ class Profile extends Component
             'postcode' => 'nullable|string',
             'state' => 'nullable|string',
             'password' => 'nullable|string|confirmed|min:6',
-            'photo' => 'nullable|image|max:1024',
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         $user = Auth::user();
 
-        // Handle the photo upload first
-        if ($this->photo instanceof \Illuminate\Http\UploadedFile) {
+        // Handle the photo upload
+        if ($this->photo) {
             // Delete the old photo if it exists
-            if ($user->photo) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
+            
+            // Store new photo
             $filename = time() . '_' . uniqid() . '.' . $this->photo->getClientOriginalExtension();
             $user->photo = $this->photo->storeAs('profiles', $filename, 'public');
         }
@@ -91,13 +84,16 @@ class Profile extends Component
             $user->password = Hash::make($this->password);
         }
 
-        if ($user instanceof User) {
+          if ($user instanceof User) {
             $user->save();
         }
+        
         session()->flash('success', 'Profile updated successfully!');
     }
+
     protected $listeners = ['logout-requested' => 'logout'];
-     public function logout()
+    
+    public function logout()
     {
         Auth::guard('web')->logout();
         Session::invalidate();

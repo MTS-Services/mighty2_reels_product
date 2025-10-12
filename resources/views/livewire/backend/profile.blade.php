@@ -132,12 +132,14 @@
                                 </template>
 
                                 <input type="file" class="hidden" x-ref="photo" wire:model="photo"
-                                    @change="
-                            const reader = new FileReader();
-                            reader.onload = (e) => { photoPreview = e.target.result };
-                            reader.readAsDataURL($refs.photo.files[0]);">
+                                    accept="image/*"
+                                    x-on:change="
+                photoName = $refs.photo.files[0].name;
+                const reader = new FileReader();
+                reader.onload = (e) => { photoPreview = e.target.result };
+                reader.readAsDataURL($refs.photo.files[0]);">
 
-                                <button type="button" @click.prevent="$refs.photo.click()"
+                                <button type="button" x-on:click.prevent="$refs.photo.click()"
                                     class="absolute w-full h-full mx-auto left-0 top-0  rounded-full shadow-md transition text-orange-500 text-center hover:text-orange-500 group-hover:bg-black/50">
                                     <flux:icon name="camera"
                                         class="w-8 h-8 mx-auto opacity-0 group-hover:opacity-100  " />

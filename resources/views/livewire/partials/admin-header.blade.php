@@ -26,7 +26,7 @@
 
                         <div class="flex items-center gap-4 cursor-pointer"
                             x-on:click="openProfileDropdown = !openProfileDropdown">
-                            <img src="{{ asset('assets/images/profile.jpg') }}" alt="Name"
+                            <img src="{{ storage_url(auth()->user()->photo) }}" alt="Name"
                                 class="w-11 h-11 rounded-full object-cover">
                             <div class="flex flex-col">
                                 <span class="text-lg font-medium text-black">{{ user()->full_name }}</span>
