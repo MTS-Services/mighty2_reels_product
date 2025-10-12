@@ -82,8 +82,7 @@
                         </x-button>
                         <div class="text-center mt-4 text-sm text-gray-500">
                             or <a href="{{ route('login') }}" wire:navigate
-                                class="text-orange-500 hover:text-orange-600">Log in</a> to manage your
-                            lessons and bookings.
+                                class="text-orange-500 hover:text-orange-600">Log in</a>
                         </div>
                     </div>
                 </div>
