@@ -71,7 +71,6 @@ class Profile extends Component
             }
             $filename = time() . '_' . uniqid() . '.' . $this->photo->getClientOriginalExtension();
             $user->photo = $this->photo->storeAs('profiles', $filename, 'public');
-
         }
 
         // Update all other fields
@@ -91,7 +90,9 @@ class Profile extends Component
             $user->password = Hash::make($this->password);
         }
 
-        $user->save();
+        if ($user instanceof User) {
+            $user->save();
+        }
         session()->flash('success', 'Profile updated successfully!');
     }
     public function render()

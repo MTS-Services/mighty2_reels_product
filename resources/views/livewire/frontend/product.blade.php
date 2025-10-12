@@ -200,7 +200,7 @@
         </style>
     @endpush
     <div class=" relative h-full  max-w-lg mx-auto" x-data="{ sidebarOpen: false }">
-        {{-- Sidebar --}}
+        {{-- Sidebar start --}}
         <aside class="fixed inset-0 z-[999999]" x-show="sidebarOpen" x-cloak
             x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="transform translate-x-full"
             x-transition:enter-end="transform translate-x-0" x-transition:leave="transition ease-in-out duration-300"
@@ -274,7 +274,7 @@
                 </div>
             </div>
         </aside>
-        {{-- Sidebar --}}
+        {{-- Sidebar  end --}}
         <div x-show="!$wire.showMergedView">
             <div class="absolute bottom-[110px] md:bottom-[70px] z-40 right-4 md:right-8 arrow-bounce">
                 <button @click="$wire.toggleMergedView()"
