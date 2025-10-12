@@ -12,6 +12,8 @@ class VerifyOtp extends Component
 {
     public string $otp = '';
     public string $email = '';
+    public int $resendCount = 0;
+    public int $maxResendAttempts = 3;
 
     public function mount()
     {
@@ -28,6 +30,10 @@ class VerifyOtp extends Component
             session()->flash('error', 'User not found.');
             return;
         }
+
+        // Initialize resend count from session with email-specific key
+        $resendKey = 'otp_resend_count_' . $this->email;
+        $this->resendCount = session($resendKey, 0);
 
         // Show success message only if coming from registration
         if (session()->has('otp_sent')) {
@@ -50,6 +56,9 @@ class VerifyOtp extends Component
         }
 
         if ($user->verifyOtp($this->otp)) {
+            // Clear resend count on successful verification
+            $resendKey = 'otp_resend_count_' . $this->email;
+            session()->forget($resendKey);
             session()->forget('verification_email');
 
             // Log the user in after successful verification
@@ -69,16 +78,31 @@ class VerifyOtp extends Component
 
     public function resendOtp(): void
     {
+        // Check if max attempts reached
+        if ($this->resendCount >= $this->maxResendAttempts) {
+            session()->flash('error', 'Maximum resend attempts reached. Please wait 1 hour or contact support.');
+            return;
+        }
+
         $user = User::where('email', $this->email)->first();
 
         if ($user) {
+            // Generate new OTP
             $user->generateOtp();
-            session()->flash('success', 'New OTP has been sent to your email!');
+            
+            // Increment resend count
+            $this->resendCount++;
+            $resendKey = 'otp_resend_count_' . $this->email;
+            session()->put($resendKey, $this->resendCount);
+            
+            // Set flash message
+            $remainingAttempts = $this->maxResendAttempts - $this->resendCount;
+            session()->flash('success', "New OTP has been sent to your email! You have {$remainingAttempts} resend(s) remaining.");
             
             // Reset OTP input
             $this->reset('otp');
             
-            // Dispatch event to reset countdown timer
+            // Dispatch event to reset countdown timer and clear inputs
             $this->dispatch('otp-resent');
         } else {
             session()->flash('error', 'User not found.');

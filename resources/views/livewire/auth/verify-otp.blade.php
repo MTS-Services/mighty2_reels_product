@@ -28,9 +28,19 @@
                             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
                                  x-data="{ show: true }"
                                  x-show="show"
-                                 x-init="setTimeout(() => show = false, 5000)"
+                                 x-init="setTimeout(() => show = false, 8000)"
                                  x-transition>
                                 {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('warning'))
+                            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4"
+                                 x-data="{ show: true }"
+                                 x-show="show"
+                                 x-init="setTimeout(() => show = false, 8000)"
+                                 x-transition>
+                                {{ session('warning') }}
                             </div>
                         @endif
 
@@ -38,7 +48,7 @@
                             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
                                  x-data="{ show: true }"
                                  x-show="show"
-                                 x-init="setTimeout(() => show = false, 5000)"
+                                 x-init="setTimeout(() => show = false, 8000)"
                                  x-transition>
                                 {{ session('error') }}
                             </div>
@@ -103,6 +113,13 @@
                                 <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                             @enderror
 
+                            @if($resendCount >= $maxResendAttempts)
+                                <div class="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded text-sm">
+                                    <p class="font-semibold">⚠️ Resend limit reached</p>
+                                    <p class="mt-1">You've reached the maximum OTP resend attempts. Please wait 1 hour or contact support for assistance.</p>
+                                </div>
+                            @endif
+
                             <p class="text-sm text-gray-400 text-right mr-4" 
                                x-data="countdown()" 
                                x-text="timeLeft"
@@ -112,8 +129,19 @@
                                 <span>Verify Code</span>
                             </x-button>
 
-                            <x-button type="button" wire:click="resendOtp" variant="secondary" class="w-full mt-3">
-                                <span>Resend Code</span>
+                            <x-button 
+                                type="button" 
+                                wire:click="resendOtp" 
+                                variant="secondary" 
+                                class="w-full mt-3"
+                                :disabled="$resendCount >= $maxResendAttempts">
+                                <span>
+                                    @if($resendCount >= $maxResendAttempts)
+                                        Resend Limit Reached
+                                    @else
+                                        Resend Code ({{ $maxResendAttempts - $resendCount }} left)
+                                    @endif
+                                </span>
                             </x-button>
                         </form>
                     </div>
