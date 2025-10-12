@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,23 +29,34 @@ class Login extends Component
      */
     public function login(): void
     {
-        $this->validate();
+        $this->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        $this->ensureIsNotRateLimited();
+        $user = User::where('email', $this->email)->first();
 
-        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-                'password' => __('auth.failed'),
-            ]);
+        if (!$user) {
+            $this->addError('email', 'These credentials do not match our records.');
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
-        Session::regenerate();
+        // Check if email is verified
+        if (!$user->hasVerifiedEmail()) {
+            session(['verification_email' => $user->email]);
+            $user->generateOtp();
+            session()->flash('error', 'Please verify your email first. We have sent you a new OTP.');
+            $this->redirect(route('verify.otp'), navigate: true);
+            return;
+        }
 
-        $this->redirectIntended(default: route('admin.products', absolute: false), navigate: true);
+        if (!Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+            $this->addError('email', 'These credentials do not match our records.');
+            return;
+        }
+
+        session()->regenerate();
+        $this->redirect(route('admin.products', absolute: false), navigate: true);
     }
 
     /**

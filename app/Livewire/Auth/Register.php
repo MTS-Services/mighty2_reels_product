@@ -10,40 +10,23 @@ use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-
 #[Layout('app', ['title' => 'Register', 'page_slug' => 'register'])]
-
 class Register extends Component
 {
-
     public bool $nextStep = false;
-
     public string $first_name = '';
-
     public string $last_name = '';
-
     public string $email = '';
-
     public string $phone = '';
-
     public string $date_of_birth = '';
-
     public string $gender = '';
-
     public string $street = '';
-
     public string $status = '';
-
     public string $suburb = ''; 
-
     public string $postcode = '';
-
     public string $state = '';
-
     public string $password = '';
-
     public string $password_confirmation = '';
-
 
     public function next(): void
     {
@@ -58,9 +41,6 @@ class Register extends Component
         $this->nextStep = true;
     }
     
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(): void
     {
         $validated = $this->validate([
@@ -79,10 +59,20 @@ class Register extends Component
          
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered(($user = User::create($validated))));
+        $user = User::create($validated);
+        
+        event(new Registered($user));
 
-        Auth::login($user);
+        // Generate and send OTP
+        $user->generateOtp();
+        
+        // Store email in session for OTP verification
+        session([
+            'verification_email' => $user->email,
+            'otp_sent' => true  // Flag to show success message
+        ]);
 
-        $this->redirect(route('admin.products', absolute: false), navigate: true);
+        // Redirect to OTP verification page
+        $this->redirect(route('verify.otp', absolute: false), navigate: true);
     }
 }

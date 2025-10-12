@@ -17,7 +17,7 @@ Route::get('auth/redirect/{provider}', [SocialAuthController::class, 'redirect']
 Route::get('auth/callback/{provider}', [SocialAuthController::class, 'callback'])
     ->where('provider', 'google|facebook')
     ->name('auth.social.callback');
-Route::middleware(['auth', 'admin'])->name('admin.')->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin', 'verifiedOtp'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('products', Product::class)->name('products');
     Route::get('reels', ProductReel::class)->name('product.reels');
     Route::get('product/details/{productId}', Details::class)->name('product.details');
