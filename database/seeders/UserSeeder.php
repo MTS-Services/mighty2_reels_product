@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
             'last_name' => 'Admin',
             'is_admin' => User::IS_ADMIN,
             'email' => 'admin@dev.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('admin@dev.com'),
             'phone' => '1234567890',
 
@@ -26,6 +27,7 @@ class UserSeeder extends Seeder
             'first_name' => 'Test',
             'last_name' => 'User',
             'email' => 'user@dev.com',
+            'email_verified_at' => now(),
             'password' => bcrypt('user@dev.com'),
             'phone' => '12345678909',
         ]);

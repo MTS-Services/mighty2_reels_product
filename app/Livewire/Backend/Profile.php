@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
@@ -95,6 +96,16 @@ class Profile extends Component
         }
         session()->flash('success', 'Profile updated successfully!');
     }
+    protected $listeners = ['logout-requested' => 'logout'];
+     public function logout()
+    {
+        Auth::guard('web')->logout();
+        Session::invalidate();
+        Session::regenerateToken();
+
+        return $this->redirectRoute('home', navigate: true);
+    }
+
     public function render()
     {
         return view('livewire.backend.profile');
