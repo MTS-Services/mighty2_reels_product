@@ -1,4 +1,43 @@
 <div class="max-w-7xl mx-auto p-6">
+    @push('styles')
+        <style>
+        /* Custom scrollbar styles for better appearance */
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Firefox scrollbar */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db #f1f1f1;
+        }
+
+        /* Smooth momentum scrolling for iOS */
+        .overflow-y-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Ensure smooth transitions during drag */
+        #sortable-media [data-media-id] {
+            will-change: transform;
+        }
+    </style>
+    @endpush
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
         <h1
             class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-900 sm:text-center lg:text-center md:text-left">
@@ -160,7 +199,7 @@
             x-on:close-gallery-modal.window="document.body.classList.remove('overflow-hidden')">
             <div
                 class="bg-white rounded-lg shadow-xl w-full sm:max-w-xl md:max-w-4xl lg:max-w-7xl min-h-[95vh] flex flex-col overflow-hidden">
-                <div class="p-4 sm:p-6 border-b flex justify-between items-center">
+                <div class="p-4 sm:p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
                     <div class="flex items-center gap-4">
                         <h2 class="text-sm sm:text-xl md:text-2xl font-semibold text-gray-900">Product Media Gallery
                         </h2>
@@ -179,12 +218,12 @@
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth">
+                <div
+                    class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 transform-gpu">
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
                         id="sortable-media" x-ref="sortableContainer">
                         @forelse ($allMedia as $index => $media)
-                            <div class="group relative cursor-move transition-transform hover:scale-105"
-                                data-media-id="{{ $media['id'] }}">
+                            <div class="group relative cursor-move" data-media-id="{{ $media['id'] }}">
 
                                 <span
                                     class="absolute top-2 right-2 bg-black/70 text-white font-semibold text-xs px-2 py-1 rounded-full shadow-md z-10">
@@ -200,7 +239,7 @@
 
                                 <button wire:click="deleteMediaFile({{ $media['id'] }})"
                                     wire:confirm="Are you sure you want to delete this media file?"
-                                    class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    class="absolute top-2 right-12 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -210,13 +249,12 @@
 
                                 @if ($media['type'] === 'image')
                                     <img src="{{ asset('storage/' . $media['file']) }}" alt="Image"
-                                        class="w-full h-32 sm:h-48 object-cover rounded-lg border hover:shadow-md transition-shadow">
+                                        class="w-full h-32 sm:h-48 object-cover rounded-lg border" loading="lazy">
                                     <span
                                         class="absolute bottom-2 left-2 bg-green-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded">IMG</span>
                                 @else
-                                    <video
-                                        class="w-full h-32 sm:h-48 object-cover rounded-lg border hover:shadow-md transition-shadow"
-                                        controls>
+                                    <video class="w-full h-32 sm:h-48 object-cover rounded-lg border"
+                                        preload="metadata">
                                         <source src="{{ asset('storage/' . $media['file']) }}" type="video/mp4">
                                     </video>
                                     <span
@@ -234,6 +272,8 @@
             </div>
         </div>
     @endif
+
+    
     {{-- form  Modal add and edit --}}
     @if ($showModal)
         <div class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
