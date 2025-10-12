@@ -13,7 +13,7 @@ class VerifyOtp extends Component
     public string $otp = '';
     public string $email = '';
     public int $resendCount = 0;
-    public int $maxResendAttempts = 3;
+    public int $maxResendAttempts = 4;
 
     public function mount()
     {

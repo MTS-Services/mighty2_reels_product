@@ -193,8 +193,8 @@
         // Countdown Timer
         function countdown() {
             return {
-                seconds: 600,
-                timeLeft: '10:00',
+                seconds: 120,
+                timeLeft: '2:00',
                 interval: null,
                 init() {
                     this.startCountdown();
@@ -214,8 +214,8 @@
                 },
                 resetCountdown() {
                     clearInterval(this.interval);
-                    this.seconds = 600;
-                    this.timeLeft = '10:00';
+                    this.seconds = 120;
+                    this.timeLeft = '2:00';
                     this.startCountdown();
                 },
                 destroy() {
