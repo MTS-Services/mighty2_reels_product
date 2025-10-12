@@ -51,7 +51,7 @@ class Register extends Component
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'phone' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'numeric', 'digits_between:5,15'],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
         
@@ -68,7 +68,7 @@ class Register extends Component
             'last_name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed'],
-            'phone' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'numeric', 'digits_between:5,15'],
             'date_of_birth' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:' . implode(',', array_keys(User::GENDERS))],
             'street' => ['nullable', 'string', 'max:255'],
