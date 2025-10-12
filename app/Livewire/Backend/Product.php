@@ -51,8 +51,8 @@ class Product extends Component
     protected $rules = [
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'price' => 'required|numeric|min:0',
-        'room' => 'required|integer|min:1',
+        'price' => 'required|numeric|min:0|max:999999999999',
+        'room' => 'required|integer|min:1|max:100000',
         'city_id' => 'required|exists:cities,id',
         'type' => 'required|in:0,1',
         'status' => 'required|in:0,1',
@@ -281,16 +281,16 @@ class Product extends Component
 
     public function saveProduct()
     {
-        // Base validation rules
-        $rules = [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'room' => 'required|integer|min:1',
-            'city_id' => 'required|exists:cities,id',
-            'type' => 'required|in:0,1',
-            'status' => 'required|in:0,1',
-        ];
+        // // Base validation rules
+        // $rules = [
+        //     'title' => 'required|string|max:255',
+        //     'description' => 'nullable|string',
+        //     'price' => 'required|numeric|min:0|max:999999999999',
+        //     'room' => 'required|integer|min:1|max:100000',
+        //     'city_id' => 'required|exists:cities,id',
+        //     'type' => 'required|in:0,1',
+        //     'status' => 'required|in:0,1',
+        // ];
 
         // Conditional validation for videos
         if (!$this->editMode) {

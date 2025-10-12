@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->string('title');
             $table->text('description')->nullable();
-            $table->decimal('price');
+            $table->decimal('price', 15, 2)->default(0);
             $table->integer('room');
             $table->foreign('city_id')->references('id')->on('cities')->cascadeOnDelete()->cascadeOnUpdate();
             $table->tinyInteger('type')->default(Product::TYPE_RENT)->comment('0 = Sale, 1 = Rent');

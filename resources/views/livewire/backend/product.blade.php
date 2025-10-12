@@ -281,9 +281,9 @@
 
                             <div class="md:col-span-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
-                                <input wire:model.lazy="price" type="number" step="0.01"
+                                <input wire:model.lazy="price" type="number" max="999999999999"
                                     class="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    placeholder="0.00">
+                                    placeholder="000000000000">
                                 @error('price')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
