@@ -659,7 +659,7 @@
 
                             <div class="text-2xl font-bold text-orange-600 mb-2 animate-fade-in-up-delayed">
                                 @if ($productData->price)
-                                    ${{ number_format($productData->price, 2) }}
+                                    ${{ number_format($productData->price) }}
                                 @endif
                             </div>
 
