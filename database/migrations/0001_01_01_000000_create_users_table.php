@@ -34,7 +34,7 @@ return new class extends Migration {
             $table->string('password')->nullable();
             $table->string('photo')->nullable();
             $table->string('provider')->nullable();
-            $table->integer('provider_id')->nullable();
+            $table->string('provider_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
 
